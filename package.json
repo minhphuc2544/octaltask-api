@@ -1,0 +1,29 @@
+{
+  "name": "octaltask-api",
+  "version": "1.0.0",
+  "description": "This is a **NestJS microservices architecture** project using **gRPC** for communication between services. It follows a modular, scalable design pattern where each service is self-contained and communicates through protocol buffers.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jiraops/octaltask-api.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/jiraops/octaltask-api/issues"
+  },
+  "homepage": "https://github.com/jiraops/octaltask-api#readme",
+  "workspaces": [
+    "api-gateway",
+    "auth-service",
+    "file-service",
+    "task-service",
+    "team-service",
+    "user-service"
+  ]
+}

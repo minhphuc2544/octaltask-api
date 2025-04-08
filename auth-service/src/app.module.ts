@@ -11,10 +11,10 @@ import { User } from './auth/strategies/user.entity';
   imports: [
     TypeOrmModule.forRoot({
       type: 'mysql',
-      host: 'localhost',
+      host: '192.168.130.129',
       port: 3306,
-      username: 'root',
-      password: 'YuilRin*123',
+      username: 'octaltask',
+      password: 'octaltask',
       database: 'octaltask',
       entities: [User],
       synchronize: true, 

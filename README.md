@@ -16,6 +16,9 @@ octaltask-api
 └── README.md
 ```
 
+## 🏨 Microservice Architecture
+<image src="./microservice_architecture.svg"></image>
+
 ## 🚀 Getting Started
 
 ### Prerequisites

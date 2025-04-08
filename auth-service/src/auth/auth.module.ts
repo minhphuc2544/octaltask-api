@@ -4,10 +4,10 @@ import { AuthService } from './auth.service';
 
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
-import { JwtStrategy } from '../jwt.strategy';
-import { LocalStrategy } from '../local.strategy';
+import { JwtStrategy } from './strategies/jwt.strategy';
+import { LocalStrategy } from './strategies/local.strategy';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from '../user.entity';
+import { User } from './strategies/user.entity';
 
 @Module({
   imports: [

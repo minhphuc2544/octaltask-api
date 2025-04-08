@@ -3,7 +3,7 @@ import { UnauthorizedException } from '@nestjs/common';
 import { Injectable, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User } from '../user.entity';
+import { User } from './strategies/user.entity';
 import * as bcrypt from 'bcrypt';
 
 

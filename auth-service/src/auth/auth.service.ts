@@ -5,6 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './strategies/user.entity';
 import * as bcrypt from 'bcrypt';
+import { Role } from './strategies/user.entity';
 
 
 @Injectable()
@@ -15,25 +16,35 @@ export class AuthService {
   constructor(
     private readonly jwtService: JwtService,
     @InjectRepository(User)
-    private userRepo: Repository<User>,
+    private readonly userRepo: Repository<User>,
   ) {}
 
   // Tạm hardcode, sau sẽ gọi user-service
   private users = [{ email: 'test@gmail.com', password: '123456', id: 1 }];
 
   async validateUser(email: string, password: string): Promise<any> {
-    const user = this.users.find((u) => u.email === email && u.password === password);
+    console.log('>>> [DEBUG] this.userRepo:', this.userRepo);
+    const user = await this.userRepo.findOne({ where: { email } });
+  
     if (!user) throw new UnauthorizedException('Invalid credentials');
-    return user;
+  
+    const passwordMatch = await bcrypt.compare(password, user.password); // 👈 so sánh đúng cách
+  
+    if (!passwordMatch) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+  
+    const { password: _, ...userWithoutPassword } = user;
+    return userWithoutPassword;
   }
-
   async login(user: any) {
-    const payload = { email: user.email, sub: user.id };
+    const payload = { email: user.email, sub: user.id, role:user.role };
     return {
       access_token: this.jwtService.sign(payload),
     };
   }
-
+  
+  
   async signup(email: string, password: string, name: string) {
     const existing = await this.userRepo.findOne({ where: { email } });
     if (existing) throw new ConflictException('Email already exists');

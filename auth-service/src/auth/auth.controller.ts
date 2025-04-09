@@ -1,17 +1,24 @@
-import { Body,Controller, Post, Request, UseGuards } from '@nestjs/common';
+import { Body,Controller, Post, Request, UseGuards, Get } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './guards/local-auth.guard';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @UseGuards(JwtAuthGuard)
+  @Get('profile')
+  getProfile(@Request() req) {
+    return req.user; 
+  }
+
   @Post('login')
   @UseGuards(LocalAuthGuard)
   async login(@Request() req) {
-    // req.user được LocalStrategy inject vào sau khi xác thực
-    return this.authService.login(req.user); // trả JWT token về
+    return this.authService.login(req.user); 
   }
+  
   @Post('signup')
   async signup(
     @Body() body: { email: string; password: string; name: string }

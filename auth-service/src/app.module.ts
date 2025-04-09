@@ -11,7 +11,7 @@ import { User } from './auth/strategies/user.entity';
   imports: [
     TypeOrmModule.forRoot({
       type: 'mysql',
-      host: '192.168.130.129',
+      host: 'localhost',
       port: 3306,
       username: 'octaltask',
       password: 'octaltask',

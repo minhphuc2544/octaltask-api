@@ -2,8 +2,8 @@
 import { Module } from '@nestjs/common';
 import { MailerModule as NestMailerModule } from '@nestjs-modules/mailer';
 import { MailerService } from './mailer.service';
-import { MailerController } from './mailer.controller';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -21,7 +21,7 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handleba
         from: '"OctalTask" <octaltask.service@gmail.com>',
       },
       template: {
-        dir: __dirname + '/templates',
+        dir: join(__dirname, 'templates'),
         adapter: new HandlebarsAdapter(),
         options: {
           strict: true,
@@ -29,7 +29,7 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handleba
       },
     }),
   ],
-  controllers: [MailerController],
+  controllers: [],
   providers: [MailerService],
   exports: [MailerService], // 👈 export để chỗ khác dùng được
 })

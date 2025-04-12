@@ -6,14 +6,13 @@ import { AuthModule } from './auth/auth.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './auth/entities/user.entity';
 import { MailerService } from './mailer/mailer.service';
-import { MailerController } from './mailer/mailer.controller';
 import { MailerModule } from './mailer/mailer.module';
 
 @Module({
   imports: [
     TypeOrmModule.forRoot({
       type: 'mysql',
-      host: 'localhost',
+      host: '192.168.130.129',
       port: 3306,
       username: 'octaltask',
       password: 'octaltask',
@@ -23,7 +22,7 @@ import { MailerModule } from './mailer/mailer.module';
     }),
     AuthModule,
     MailerModule],
-  controllers: [AppController, AuthController, MailerController],
+  controllers: [AppController, AuthController],
   providers: [AppService, MailerService],
   
 })

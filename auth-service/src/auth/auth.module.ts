@@ -7,10 +7,12 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
+import { MailerModule } from '../mailer/mailer.module'; 
 
 @Module({
   imports: [
     PassportModule,
+    MailerModule,
     JwtModule.register({
       secret: 'secretKey', 
       signOptions: { expiresIn: '1d' },

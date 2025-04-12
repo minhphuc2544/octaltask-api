@@ -8,6 +8,9 @@ import { LocalStrategy } from './strategies/local.strategy';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { MailerModule } from '../mailer/mailer.module'; 
+import { ResetPasswordDto } from './dto/reset-password.dto'
+
+
 
 @Module({
   imports: [

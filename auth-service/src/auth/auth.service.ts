@@ -24,7 +24,6 @@ export class AuthService {
     private readonly mailerService: MailerService,
   ) {}
 
-  // Tạm hardcode, sau sẽ gọi user-service
   private users = [{ email: 'test@gmail.com', password: '123456', id: 1 }];
 
   async validateUser(email: string, password: string): Promise<any> {
@@ -57,6 +56,7 @@ export class AuthService {
     const user = this.userRepo.create({ email, password: hashed, name });
     return this.userRepo.save(user);
   }
+
   async requestPasswordReset(email: string) {
     const user = await this.userRepo.findOne({ where: { email } });
     if (!user) throw new NotFoundException('User not found');
@@ -70,7 +70,7 @@ export class AuthService {
     
     console.log(`Reset link: http://localhost:3000/auth/reset-password?token=${token}`);
 
-    await this.mailerService.sendResetPasswordEmail(user.email, token);
+    await this.mailerService.sendResetPasswordEmail(email, token);
 
     return { message: 'Reset email sent' };
   }

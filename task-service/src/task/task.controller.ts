@@ -1,60 +1,61 @@
 import {
-    Controller,
-    Get,
-    Post,
-    Body,
-    Patch,
-    Param,
-    Delete,
-    UseGuards,
-    Request,
-    ParseIntPipe,
-  } from '@nestjs/common'
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  ParseIntPipe,
+  Req,
+} from '@nestjs/common'
 import { TaskService } from './task.service'
 import { CreateTaskDto } from 'src/dto/create-task.dto'
 import { UpdateTaskDto } from 'src/dto/update-task.dto'
-import { JwtAuthGuard } from '../guards/jwt-auth.guard'
-import { promises } from 'dns'
-import { User } from 'src/entities/user.entity'
+import { JwtGuard } from '../guards/jwt.guard'
+import { Request } from 'express'
+import { Task } from 'src/entities/task.entity'
 
 
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtGuard)
 
 @Controller('tasks')
 export class TaskController {
-  constructor(private readonly taskService: TaskService) {}
+  constructor(private readonly taskService: TaskService) { }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtGuard)
   @Post()
-  async create(@Body() dto: CreateTaskDto, @Request() req): Promise<any>
-   {
+  async create(@Body() dto: CreateTaskDto, @Req() req: Request): Promise<Task> {
+    // object deserialization to get the user's info that are returned from JwtStrategy
+    const user = req.user as { userId: number, email: string, role: string }
     console.log('User info:', req.user);
     console.log('CreateTaskDto:', dto);
     console.log('User:', req.user);
-    return await this.taskService.create(dto, req.user)
+    return await this.taskService.create(dto, user)
   }
 
-  @Get()
-  async findAll(@Request() req) {
-    return this.taskService.findAllByUser(req.user)
-  }
+  // @Get()
+  // async findAll(@Req() req: Request) {
+  //   return this.taskService.findAllByUser(user)
+  // }
 
-  @Get(':id')
-  async findOne(@Param('id', ParseIntPipe) id: number, @Request() req) {
-    return this.taskService.findOne(id, req.user)
-  }
+  // @Get(':id')
+  // async findOne(@Param('id', ParseIntPipe) id: number, @Req() req: Request) {
+  //   return this.taskService.findOne(id, user)
+  // }
 
-  @Patch(':id')
-  async update(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() dto: UpdateTaskDto,
-    @Request() req
-  ) {
-    return this.taskService.update(id, dto, req.user)
-  }
+  // @Patch(':id')
+  // async update(
+  //   @Param('id', ParseIntPipe) id: number,
+  //   @Body() dto: UpdateTaskDto,
+  //   @Req() req: Request
+  // ) {
+  //   return this.taskService.update(id, dto, user)
+  // }
 
-  @Delete(':id')
-  async remove(@Param('id', ParseIntPipe) id: number, @Request() req) {
-    return this.taskService.remove(id, req.user)
-  }
+  // @Delete(':id')
+  // async remove(@Param('id', ParseIntPipe) id: number, @Req() req: Request) {
+  //   return this.taskService.remove(id, user)
+  // }
 }

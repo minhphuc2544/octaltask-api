@@ -11,7 +11,7 @@ import { ConfigModule } from '@nestjs/config';
   imports: [
     TypeOrmModule.forRoot({
       type: 'mysql',
-      host: 'localhost',
+      host: '192.168.130.129',
       port: 3306,
       username: 'octaltask',
       password: 'octaltask',
@@ -19,10 +19,12 @@ import { ConfigModule } from '@nestjs/config';
       entities: [Task, User],
       synchronize: true,
     }),
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
     TaskModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }

@@ -11,22 +11,17 @@ import { Repository } from 'typeorm'
 @Injectable()
 export class TaskService {
   constructor(
-    @InjectRepository(Task)    private taskRepo: Repository<Task>
-  ) {}
+    @InjectRepository(Task) private taskRepo: Repository<Task>
+  ) { }
 
-  // create(dto: CreateTaskDto, user: User) {
-  //   const task = this.taskRepo.create({ ...dto, user })
-  //   return this.taskRepo.save(task)
-  // }
- async create(dto: CreateTaskDto, user: { userId: number }) :Promise<any>{
+  async create(dto: CreateTaskDto, user: { userId: number }): Promise<Task> {
     const task = this.taskRepo.create({
       ...dto,
-      user: { id: user.userId }, 
-      
+      user: { id: user.userId },
     });
     return await this.taskRepo.save(task);
   }
-  
+
 
   async findAllByUser(user: User) {
     return this.taskRepo.find({ where: { user } })

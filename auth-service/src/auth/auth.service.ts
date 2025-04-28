@@ -27,7 +27,6 @@ export class AuthService {
   private users = [{ email: 'test@gmail.com', password: '123456', id: 1 }];
 
   async validateUser(email: string, password: string): Promise<any> {
-    console.log('>>> [DEBUG] this.userRepo:', this.userRepo);
     const user = await this.userRepo.findOne({ where: { email } });
   
     if (!user) throw new UnauthorizedException('Invalid credentials');
@@ -43,7 +42,6 @@ export class AuthService {
   }
   async login(user: any) {
     const payload = { email: user.email, sub: user.id, role:user.role };
-    console.log('Payload when signing:', payload);
     return {
       access_token: this.jwtService.sign(payload),
      
@@ -71,8 +69,6 @@ export class AuthService {
     user.resetTokenExpires = expiration;
     await this.userRepo.save(user);
     
-    console.log(`Reset link: http://localhost:3000/auth/reset-password?token=${token}`);
-
     await this.mailerService.sendResetPasswordEmail(email, token);
 
     return { message: 'Reset email sent' };

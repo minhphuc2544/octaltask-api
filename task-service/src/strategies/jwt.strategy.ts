@@ -9,17 +9,11 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKeyProvider: async (request, rawJwtToken) => {
-        const secret = this.configService.get<string>('JWT_SECRET');
-        console.log('JWT_SECRET inside secretOrKeyProvider:', secret);
-        return secret;
-      },
+      secretOrKey: configService.get<string>('JWT_SECRET') || '', // no need secretOrKeyProvider and fallback to '' to satisfy the type
     });
   }
 
   async validate(payload: any) {
-    console.log('Decoded payload:', payload);
-
     return {
       userId: payload.sub,
       email: payload.email,

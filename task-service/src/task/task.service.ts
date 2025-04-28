@@ -21,24 +21,4 @@ export class TaskService {
     });
     return await this.taskRepo.save(task);
   }
-
-
-  async findAllByUser(user: User) {
-    return this.taskRepo.find({ where: { user } })
-  }
-
-  async findOne(id: number, user: User) {
-    return this.taskRepo.findOne({ where: { id, user } })
-  }
-
-  async update(id: number, dto: UpdateTaskDto, user: User) {
-    return this.taskRepo.update({ id, user }, dto)
-  }
-
-  async remove(id: number, user: User) {
-    const task = await this.findOne(id, user)
-    if (task) {
-      return this.taskRepo.remove(task)
-    }
-  }
 }

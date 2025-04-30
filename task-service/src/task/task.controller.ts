@@ -16,6 +16,7 @@ import { UpdateTaskDto } from 'src/dto/update-task.dto'
 import { JwtGuard } from '../guards/jwt.guard'
 import { Request } from 'express'
 import { Task } from 'src/entities/task.entity'
+import { AdminGuard } from 'src/guards/admin.guard'
 
 
 
@@ -62,4 +63,18 @@ export class TaskController {
     const user = req.user as { userId: number, email: string, role: string };
     return await this.taskService.remove(id, user);
   }
+
+  
+  @UseGuards(JwtGuard, AdminGuard)
+  @Get('/admin/all')
+  async getAllTasksForAdmin(): Promise<Task[]> {
+  return await this.taskService.getAllTasksForAdmin();
+  }
+
+  @UseGuards(JwtGuard, AdminGuard)
+  @Delete('/admin/:id')
+  async adminDeleteTask(@Param('id', ParseIntPipe) id: number): Promise<void> {
+  return await this.taskService.adminDeleteTask(id);
+  }
+
 }

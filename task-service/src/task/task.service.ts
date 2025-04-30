@@ -26,7 +26,20 @@ export class TaskService {
       where: {
         user: { id: user.userId },
       },
-      relations: ['user']
+      relations: ['user'],
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        isCompleted: true,
+        dueDate: true,
+        user: {
+          id: true,
+          email: true,
+          name: true,
+          role: true
+        }
+      }
     });
   }
 
@@ -36,7 +49,20 @@ export class TaskService {
         id,
         user: { id: user.userId },
       },
-      relations: ['user']
+      relations: ['user'],
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        isCompleted: true,
+        dueDate: true,
+        user: {
+          id: true,
+          email: true,
+          name: true,
+          role: true
+        }
+      }
     });
     
     if (!task) {
@@ -59,4 +85,15 @@ export class TaskService {
     const task = await this.findOne(id, user);
     await this.taskRepo.remove(task);
   }
+
+  async getAllTasksForAdmin(): Promise<Task[]> {
+    return await this.taskRepo.find();
+  }
+  
+  async adminDeleteTask(id: number): Promise<void> {
+    const task = await this.taskRepo.findOneBy({ id });
+    if (!task) throw new NotFoundException('Task not found');
+    await this.taskRepo.remove(task);
+  }
+  
 }

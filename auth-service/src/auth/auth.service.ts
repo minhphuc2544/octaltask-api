@@ -52,11 +52,16 @@ export class AuthService {
   async signup(email: string, password: string, name: string) {
     const existing = await this.userRepo.findOne({ where: { email } });
     if (existing) throw new ConflictException('Email already exists');
-
+  
     const hashed = await bcrypt.hash(password, 10);
     const user = this.userRepo.create({ email, password: hashed, name });
-    return this.userRepo.save(user);
+    const savedUser = await this.userRepo.save(user);
+  
+    
+    const { password: _, resetToken, resetTokenExpires, ...safeUser } = savedUser;
+    return safeUser;
   }
+  
 
   async requestPasswordReset(email: string) {
     const user = await this.userRepo.findOne({ where: { email } });

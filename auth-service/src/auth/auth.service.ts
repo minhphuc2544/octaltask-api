@@ -27,7 +27,6 @@ export class AuthService {
   private users = [{ email: 'test@gmail.com', password: '123456', id: 1 }];
 
   async validateUser(email: string, password: string): Promise<any> {
-    console.log('>>> [DEBUG] this.userRepo:', this.userRepo);
     const user = await this.userRepo.findOne({ where: { email } });
   
     if (!user) throw new UnauthorizedException('Invalid credentials');
@@ -45,17 +44,24 @@ export class AuthService {
     const payload = { email: user.email, sub: user.id, role:user.role };
     return {
       access_token: this.jwtService.sign(payload),
+     
     };
+    
   }
   
   async signup(email: string, password: string, name: string) {
     const existing = await this.userRepo.findOne({ where: { email } });
     if (existing) throw new ConflictException('Email already exists');
-
+  
     const hashed = await bcrypt.hash(password, 10);
     const user = this.userRepo.create({ email, password: hashed, name });
-    return this.userRepo.save(user);
+    const savedUser = await this.userRepo.save(user);
+  
+    
+    const { password: _, resetToken, resetTokenExpires, ...safeUser } = savedUser;
+    return safeUser;
   }
+  
 
   async requestPasswordReset(email: string) {
     const user = await this.userRepo.findOne({ where: { email } });
@@ -68,8 +74,6 @@ export class AuthService {
     user.resetTokenExpires = expiration;
     await this.userRepo.save(user);
     
-    console.log(`Reset link: http://localhost:3000/auth/reset-password?token=${token}`);
-
     await this.mailerService.sendResetPasswordEmail(email, token);
 
     return { message: 'Reset email sent' };

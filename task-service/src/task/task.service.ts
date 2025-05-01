@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateTaskDto } from 'src/dto/create-task.dto';
-import { UpdateTaskDto } from 'src/dto/update-task.dto';
-import { Task } from 'src/entities/task.entity';
+import { CreateTaskDto } from 'src/task/dto/create-task.dto';
+import { UpdateTaskDto } from 'src/task/dto/update-task.dto';
+import { Task } from 'src/task/entities/task.entity';
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 

@@ -11,12 +11,12 @@ import {
   Req,
 } from '@nestjs/common'
 import { TaskService } from './task.service'
-import { CreateTaskDto } from 'src/dto/create-task.dto'
-import { UpdateTaskDto } from 'src/dto/update-task.dto'
-import { JwtGuard } from '../guards/jwt.guard'
+import { CreateTaskDto } from 'src/task/dto/create-task.dto'
+import { UpdateTaskDto } from 'src/task/dto/update-task.dto'
+import { JwtGuard } from './guards/jwt.guard'
 import { Request } from 'express'
-import { Task } from 'src/entities/task.entity'
-import { AdminGuard } from 'src/guards/admin.guard'
+import { Task } from 'src/task/entities/task.entity'
+import { AdminGuard } from 'src/task/guards/admin.guard'
 
 
 

@@ -12,7 +12,6 @@ octaltask-api
 ├── task-service        # Handles task creation and management
 ├── team-service        # Manages teams and team-related operations
 ├── user-service        # Manages user profiles and data
-├── proto               # Shared .proto definitions for all services
 └── README.md
 ```
 
@@ -29,43 +28,60 @@ octaltask-api
 
 ### Installation
 
-Install dependencies for all services:
+Install dependencies for the project:
 
 ```bash
-npm install --workspaces
-```
-
-> Or manually:
-```bash
-cd api-gateway && npm install
-cd ../auth-service && npm install
-# ... repeat for all other services
+cd octaltask-api
+npm install
 ```
 
 ### Running Services
 
-Run each service separately in its own terminal window:
-
-```bash
-# Example
-cd auth-service
-npm run start:dev
-```
-
-> Do the same for all other services.
+Run each service separately in ***its own terminal window***:
+1. `auth-service`
+    ```bash
+    cd auth-service
+    npm run build
+    npm run start
+    ```
+2. `task-service`
+    ```bash
+    cd auth-service
+    npm run build
+    npm run start
+    ```
+3. `user-service`
+    ```bash
+    cd user-service
+    npm run build
+    npm run start
+    ```
+4. `team-service`
+    ```bash
+    cd team-service
+    npm run build
+    npm run start
+    ```
+5. `file-service`
+    ```bash
+    cd file-service
+    npm run build
+    npm run start
+    ```
 
 ### Running the API Gateway
 
 ```bash
 cd api-gateway
-npm run start:dev
+npm run build
+npm run start
 ```
 
 The API Gateway will expose HTTP endpoints and forward them to microservices via gRPC.
 
 ## 📦 Proto Files
 
-The `.proto` files for gRPC are stored in the `proto/` directory and should be kept in sync across services.
+The `.proto` files for gRPC are stored in the `octaltask-api/**/src/proto` directory and should be kept in sync across services.
 
 ## 🔧 Tech Stack
 
@@ -74,6 +90,13 @@ The `.proto` files for gRPC are stored in the `proto/` directory and should be k
 - **Protocol Buffers**: Language-neutral serialization
 - **TypeScript**: Static typing for better maintainability
 
-## 📂 Workspace Support
-
-This project supports a **monorepo** setup using tools like `tsconfig.build.json` for each service and common linting rules.
+## Credits
+Contributors:
+- Tran Dong Truc Lam  (Student ID: 22520746)  
+Github link: [limelight-hub](https://github.com/limelight-hub)
+- Le Ngoc Duy Linh (Student ID: 22520762)  
+Github link: [YuilRin](https://github.com/YuilRin)
+- Vo Tran Phi  (Student ID: 22521081)  
+Github link: [votranphi](https://github.com/votranphi)
+- Thai Kieu Phuong  (Student ID: 22521170)  
+Github link: [kPhuong08](https://github.com/kPhuong08)

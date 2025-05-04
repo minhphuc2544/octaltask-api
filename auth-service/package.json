@@ -7,9 +7,9 @@
   "license": "UNLICENSED",
   "scripts": {
     "build": "nest build && npm run copy:proto",
-    "copy:proto": "xcopy src\\proto dist\\src\\proto /E /I /Y",
+    "copy:proto": "xcopy src\\proto dist\\proto /E /I /Y",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "start": "node dist/src/main.js",
+    "start": "node dist/main.js",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",

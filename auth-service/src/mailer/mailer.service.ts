@@ -8,8 +8,6 @@ export class MailerService {
 
   async sendResetPasswordEmail(email: string, token) {
     let resetLink = `http://localhost:5173/reset-password?token=${token}`;
-  
-
 
     await this.mailerService.sendMail({
       to: email,

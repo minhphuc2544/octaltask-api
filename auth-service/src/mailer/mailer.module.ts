@@ -21,7 +21,7 @@ import { join } from 'path';
         from: '"OctalTask" <octaltask.service@gmail.com>',
       },
       template: {
-        dir: join(__dirname, 'templates'),
+        dir: join(__dirname, '../../mailer/templates'),
         adapter: new HandlebarsAdapter(),
         options: {
           strict: true,

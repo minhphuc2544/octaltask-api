@@ -3,15 +3,10 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
-import { JwtStrategy } from './strategies/jwt.strategy';
-import { LocalStrategy } from './strategies/local.strategy';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { MailerModule } from '../mailer/mailer.module'; 
-import { ResetPasswordDto } from './dto/reset-password.dto'
 import { ConfigModule, ConfigService } from '@nestjs/config';
-
-
 
 @Module({
   imports: [
@@ -33,7 +28,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     TypeOrmModule.forFeature([User]), 
   ],
   controllers: [AuthController],
-  providers: [AuthService,JwtStrategy, LocalStrategy],
+  providers: [AuthService],
   exports: [AuthService],
 })
 export class AuthModule {}

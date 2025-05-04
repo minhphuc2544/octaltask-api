@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
-import { ClientsModule, Transport } from '@nestjs/microservices';
-import { join } from 'path';
+import { ClientsModule } from '@nestjs/microservices';
 import { grpcClientOptions } from 'src/auth.grpc-client';
+
 @Module({
   imports: [
     ClientsModule.register([grpcClientOptions]),

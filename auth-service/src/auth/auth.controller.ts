@@ -1,8 +1,5 @@
-import { Body,Controller, Post, Request, UseGuards, Get } from '@nestjs/common';
+import { Controller } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { LocalGuard } from './guards/local.guard';
-import { JwtGuard } from './guards/jwt.guard';
-import { ResetPasswordDto } from './dto/reset-password.dto';
 import { GrpcMethod, RpcException } from '@nestjs/microservices';
 
 @Controller('auth')
@@ -11,27 +8,49 @@ export class AuthController {
 
   @GrpcMethod('AuthService', 'Login')
   async login(data: { email: string; password: string }) {
-   
-    const user = await this.authService.validateUser(data.email, data.password);
-    if (!user) {
-      throw new RpcException('Invalid credentials');
+    try {
+      const user = await this.authService.validateUser(data.email, data.password);
+      return await this.authService.login(user);
+    } catch (error) {
+      throw new RpcException(error.message || 'Login failed');
     }
-    console.log('GRPC login called with', this.authService.login(user));
-    return await this.authService.login(user);
   }
-  
+
   @GrpcMethod('AuthService', 'Signup')
   async signup(data: { email: string; password: string; name: string }) {
-    return this.authService.signup(data.email, data.password, data.name);
+    try {
+      // Password validation
+      if (data.password.length < 8) {
+        throw new RpcException('Password must be at least 8 characters long');
+      }
+      
+      const result = await this.authService.signup(data.email, data.password, data.name);
+      return { message: 'User created successfully', user: result };
+    } catch (error) {
+      throw new RpcException(error.message || 'Signup failed');
+    }
   }
-  
+
   @GrpcMethod('AuthService', 'RequestPasswordReset')
   async requestPasswordReset(data: { email: string }) {
-    return this.authService.requestPasswordReset(data.email);
+    try {
+      return await this.authService.requestPasswordReset(data.email);
+    } catch (error) {
+      throw new RpcException(error.message || 'Password reset request failed');
+    }
   }
 
   @GrpcMethod('AuthService', 'ResetPassword')
   async resetPassword(data: { token: string; newPassword: string }) {
-    return this.authService.resetPassword(data.token, data.newPassword);
+    try {
+      // Password validation
+      if (data.newPassword.length < 8) {
+        throw new RpcException('Password must be at least 8 characters long');
+      }
+      
+      return await this.authService.resetPassword(data.token, data.newPassword);
+    } catch (error) {
+      throw new RpcException(error.message || 'Password reset failed');
+    }
   }
 }

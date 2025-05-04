@@ -13,10 +13,12 @@ import { MailerService } from 'src/mailer/mailer.service';
 
 @Injectable()
 export class AuthService {
+
   [x: string]: any;
   getHello(): string {
     return 'Hello World!';
   }
+
   constructor(
     private readonly jwtService: JwtService,
     @InjectRepository(User)

@@ -30,7 +30,7 @@ message ResetPasswordInput {
 }
 
 message TokenResponse {
-  string access_token = 1;
+  string accessToken = 1;
 }
 
 message MessageResponse {

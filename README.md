@@ -26,6 +26,33 @@ octaltask-api
 - npm or yarn
 - Docker (optional, for running services in containers)
 
+### Preparation
+
+Prepare a `.env` file looks like this and place it in the root folder (`octaltask-api`):
+```env
+# Mail Configuration
+MAIL_HOST=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USER=<mail-address>
+MAIL_PASSWORD=<mail-app-password>
+MAIL_FROM=<mail-from>
+
+# Database Configuration
+DB_TYPE=<database-type>
+DB_HOST=<database-host>
+DB_PORT=<database-port>
+DB_USERNAME=<database-username>
+DB_PASSWORD=<database-password>
+DB_DATABASE=<database-name>
+
+# JWT Token Configuration
+JWT_SECRET=<jwt-secret>
+TOKEN_EXPIRE_TIME=<token-expire-time>
+
+# Config the server's port
+SERVER_PORT=3000
+```
+
 ### Installation
 
 Install dependencies for the project:
@@ -76,8 +103,8 @@ cd api-gateway
 npm run build
 npm run start
 ```
-
-The API Gateway will expose HTTP endpoints and forward them to microservices via gRPC.
+- The API will be available at http://localhost:3000
+- The API Gateway will expose HTTP endpoints and forward them to microservices via gRPC.
 
 ## 📦 Proto Files
 

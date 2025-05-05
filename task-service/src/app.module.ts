@@ -5,22 +5,28 @@ import { TaskModule } from './task/task.module';
 import { Task } from './task/entities/task.entity';
 import { User } from './task/entities/user.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { join } from 'path';
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      type: 'mysql',
-      host: '127.0.0.1',
-      port: 3306,
-      username: 'octaltask',
-      password: 'octaltask',
-      database: 'octaltask',
-      entities: [Task, User],
-      synchronize: true,
-    }),
     ConfigModule.forRoot({
       isGlobal: true,
+      envFilePath: join(__dirname, '..', '..', '.env'),
+    }),
+    TypeOrmModule.forRootAsync({
+      useFactory: async (config: ConfigService) => ({
+        type: config.get<'mysql' | 'postgres' | 'sqlite'>('DB_TYPE') as any,
+        host: config.get<string>('DB_HOST'),
+        port: config.get<number>('DB_PORT'),
+        username: config.get<string>('DB_USERNAME'),
+        password: config.get<string>('DB_PASSWORD'),
+        database: config.get<string>('DB_DATABASE'),
+        entities: [Task, User],
+        synchronize: true,
+        logging: true,
+      }),
+      inject: [ConfigService],
     }),
     TaskModule,
   ],

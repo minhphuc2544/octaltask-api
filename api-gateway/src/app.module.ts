@@ -5,6 +5,7 @@ import { AuthController } from './auth/auth.controller';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { join } from 'path';
+import { TaskModule } from './task/task.module';
 
 @Module({
   imports: [
@@ -12,7 +13,8 @@ import { join } from 'path';
       isGlobal: true,
       envFilePath: join(__dirname, '..', '..', '.env'),
     }),
-    AuthModule
+    AuthModule,
+    TaskModule
   ],
   controllers: [AppController, AuthController],
   providers: [AppService],

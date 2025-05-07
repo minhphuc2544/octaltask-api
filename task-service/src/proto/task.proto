@@ -1,0 +1,84 @@
+syntax = "proto3";
+
+package task;
+
+service TaskService {
+  // User operations
+  rpc CreateTask (CreateTaskRequest) returns (TaskResponse);
+  rpc GetAllTasks (Empty) returns (TaskListResponse);
+  rpc GetTaskById (IdRequest) returns (TaskResponse);
+  rpc UpdateTask (UpdateTaskRequest) returns (TaskResponse);
+  rpc DeleteTask (IdRequest) returns (Empty);
+
+  // Admin operations
+  rpc GetAllTasksForAdmin (Empty) returns (TaskListResponse);
+  rpc AdminDeleteTask (IdRequest) returns (Empty);
+  rpc AdminUpdateTask (UpdateTaskRequest) returns (TaskResponse);
+  rpc GetTaskByIdForAdmin (IdRequest) returns (TaskResponse);
+  rpc GetAllTasksByUserId (UserIdRequest) returns (TaskListResponse);
+}
+
+message Empty {}
+
+message IdRequest {
+  int32 id = 1;
+}
+
+message UserIdRequest {
+  int32 userId = 1;
+}
+
+message CreateTaskRequest {
+  string title = 1;
+  string description = 2;
+  string dueDate = 3; // ISO 8601 string
+  bool isCompleted = 4;
+}
+
+message UpdateTaskDto {
+  string title = 1;
+  string description = 2;
+  string dueDate = 3;
+  bool isCompleted = 4;
+}
+
+message UpdateTaskRequest {
+  int32 id = 1;
+  string title = 2;
+  string description = 3;
+  string dueDate = 4;
+  bool isCompleted = 5;
+}
+
+message UserInfo {
+  int32 id = 1;
+  string email = 2;
+  string name = 3;
+  string role = 4;
+}
+
+message TaskResponse {
+  int32 id = 1;
+  string title = 2;
+  string description = 3;
+  bool isCompleted = 4;
+  string dueDate = 5;
+  UserInfo user = 6;
+}
+
+message TaskListResponse {
+  repeated TaskResponse tasks = 1;
+}
+
+// Error handling
+message ErrorDetail {
+  string field = 1;
+  string message = 2;
+}
+
+message ErrorResponse {
+  int32 code = 1;
+  string message = 2;
+  repeated ErrorDetail details = 3;
+  string operation = 4;
+}

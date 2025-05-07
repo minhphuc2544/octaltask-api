@@ -7,7 +7,7 @@ import {
     Delete,
     Patch,
     UseGuards,
-    Request,
+    Req,
     HttpException,
     HttpStatus,
     Logger
@@ -18,9 +18,9 @@ import { Inject } from '@nestjs/common';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { firstValueFrom, timeout, catchError } from 'rxjs';
-import { of } from 'rxjs';
 import { JwtGuard } from './guards/jwt.guard';
 import { AdminGuard } from './guards/admin.guard';
+import { Request } from 'express';
 
 interface TaskServiceClient {
     createTask(data: any): any;
@@ -112,12 +112,8 @@ export class TaskController {
 
     @Post()
     @UseGuards(JwtGuard)
-    async create(@Body() createTaskDto: CreateTaskDto, @Request() req) {
-        const user = {
-            userId: req.user.id,
-            email: req.user.email,
-            role: req.user.role
-        };
+    async create(@Body() createTaskDto: CreateTaskDto, @Req() req: Request) {
+        const user = req.user as { userId: number, email: string, role: string };
 
         return this.handleGrpcCall(
             'createTask',
@@ -128,12 +124,8 @@ export class TaskController {
 
     @Get()
     @UseGuards(JwtGuard)
-    async findAll(@Request() req) {
-        const user = {
-            userId: req.user.id,
-            email: req.user.email,
-            role: req.user.role
-        };
+    async findAll(@Req() req: Request) {
+        const user = req.user as { userId: number, email: string, role: string };
 
         return this.handleGrpcCall(
             'getAllTasks',
@@ -144,12 +136,8 @@ export class TaskController {
 
     @Get(':id')
     @UseGuards(JwtGuard)
-    async findOne(@Param('id') id: string, @Request() req) {
-        const user = {
-            userId: req.user.id,
-            email: req.user.email,
-            role: req.user.role
-        };
+    async findOne(@Param('id') id: string, @Req() req: Request) {
+        const user = req.user as { userId: number, email: string, role: string };
 
         return this.handleGrpcCall(
             'getTaskById',
@@ -160,12 +148,8 @@ export class TaskController {
 
     @Patch(':id')
     @UseGuards(JwtGuard)
-    async update(@Param('id') id: string, @Body() updateTaskDto: UpdateTaskDto, @Request() req) {
-        const user = {
-            userId: req.user.id,
-            email: req.user.email,
-            role: req.user.role
-        };
+    async update(@Param('id') id: string, @Body() updateTaskDto: UpdateTaskDto, @Req() req: Request) {
+        const user = req.user as { userId: number, email: string, role: string };
 
         return this.handleGrpcCall(
             'updateTask',
@@ -180,12 +164,8 @@ export class TaskController {
 
     @Delete(':id')
     @UseGuards(JwtGuard)
-    async remove(@Param('id') id: string, @Request() req) {
-        const user = {
-            userId: req.user.id,
-            email: req.user.email,
-            role: req.user.role
-        };
+    async remove(@Param('id') id: string, @Req() req: Request) {
+        const user = req.user as { userId: number, email: string, role: string };
 
         return this.handleGrpcCall(
             'deleteTask',
@@ -197,12 +177,8 @@ export class TaskController {
     // Admin routes with role guards
     @Get('admin/all')
     @UseGuards(JwtGuard, AdminGuard)
-    async getAllTasksForAdmin(@Request() req) {
-        const user = {
-            userId: req.user.id,
-            email: req.user.email,
-            role: req.user.role
-        };
+    async getAllTasksForAdmin(@Req() req: Request) {
+        const user = req.user as { userId: number, email: string, role: string };
 
         return this.handleGrpcCall(
             'getAllTasksForAdmin',
@@ -214,12 +190,8 @@ export class TaskController {
     @Delete('admin/:id')
     @UseGuards(JwtGuard, AdminGuard)
 
-    async adminDeleteTask(@Param('id') id: string, @Request() req) {
-        const user = {
-            userId: req.user.id,
-            email: req.user.email,
-            role: req.user.role
-        };
+    async adminDeleteTask(@Param('id') id: string, @Req() req: Request) {
+        const user = req.user as { userId: number, email: string, role: string };
 
         return this.handleGrpcCall(
             'adminDeleteTask',
@@ -231,12 +203,8 @@ export class TaskController {
     @Patch('admin/:id')
     @UseGuards(JwtGuard, AdminGuard)
 
-    async adminUpdateTask(@Param('id') id: string, @Body() updateTaskDto: UpdateTaskDto, @Request() req) {
-        const user = {
-            userId: req.user.id,
-            email: req.user.email,
-            role: req.user.role
-        };
+    async adminUpdateTask(@Param('id') id: string, @Body() updateTaskDto: UpdateTaskDto, @Req() req: Request) {
+        const user = req.user as { userId: number, email: string, role: string };
 
         return this.handleGrpcCall(
             'adminUpdateTask',
@@ -252,12 +220,8 @@ export class TaskController {
     @Get('admin/:id')
     @UseGuards(JwtGuard, AdminGuard)
 
-    async adminGetTaskById(@Param('id') id: string, @Request() req) {
-        const user = {
-            userId: req.user.id,
-            email: req.user.email,
-            role: req.user.role
-        };
+    async adminGetTaskById(@Param('id') id: string, @Req() req: Request) {
+        const user = req.user as { userId: number, email: string, role: string };
 
         return this.handleGrpcCall(
             'getTaskByIdForAdmin',
@@ -268,12 +232,8 @@ export class TaskController {
 
     @Get('admin/user/:userId')
     @UseGuards(JwtGuard, AdminGuard)
-    async getAllTasksByUserId(@Param('userId') userId: string, @Request() req) {
-        const user = {
-            userId: req.user.id,
-            email: req.user.email,
-            role: req.user.role
-        };
+    async getAllTasksByUserId(@Param('userId') userId: string, @Req() req: Request) {
+        const user = req.user as { userId: number, email: string, role: string };
 
         return this.handleGrpcCall(
             'getAllTasksByUserId',

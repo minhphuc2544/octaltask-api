@@ -2,7 +2,7 @@ import { ConfigService } from '@nestjs/config';
 import { ClientProviderOptions, Transport } from '@nestjs/microservices';
 import { join } from 'path';
 
-export const getTaskGrpcClientOptions = (configService: ConfigService): ClientProviderOptions => ({
+export const grpcClientOptions = (configService: ConfigService): ClientProviderOptions => ({
   name: 'TASK_PACKAGE',
   transport: Transport.GRPC,
   options: {

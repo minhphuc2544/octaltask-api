@@ -17,136 +17,131 @@ export class TaskController {
   constructor(private readonly taskService: TaskService) {}
 
   @GrpcMethod('TaskService', 'CreateTask')
-  async createTask(data: CreateTaskDto, metadata: any): Promise<Task> {
+  async createTask(data: CreateTaskDto): Promise<Task> {
+    console.log('Raw data:', data);                // 👈 In toàn bộ payload
     try {
       this.logger.debug(`Creating task: ${JSON.stringify(data)}`);
       
-      if (!metadata.user || !metadata.user.userId) {
+      console.log('Raw data:', data);                // 👈 In toàn bộ payload
+      console.log('User from data:', data.user); 
+         
+      if (!data.user || !data.user.userId) {
         throw new InvalidTaskDataException({ message: 'User information missing from request' });
       }
       
-      const user = metadata.user as { userId: number, email: string, role: string };
-      return await this.taskService.create(data, user);
+      const user = data.user as { userId: number, email: string, role: string };
+      return await this.taskService.create(data, { userId: user.userId });
     } catch (error) {
-      this.handleError('createTask', error);
+      console.log('Raw data:', error);  
+      this.handleError('CreateTask', error);
       throw error;
     }
   }
 
   @GrpcMethod('TaskService', 'GetAllTasks')
-  async getAllTasks(_, metadata: any): Promise<{ tasks: Task[] }> {
+  async GetAllTasks(data: { user: any }, metadata: any): Promise<{ tasks: Task[] }> {
     try {
-      if (!metadata.user || !metadata.user.userId) {
+      if (!data.user || !data.user.userId) {
         throw new InvalidTaskDataException({ message: 'User information missing from request' });
       }
       
-      const user = metadata.user as { userId: number, email: string, role: string };
-      const tasks = await this.taskService.findAll(user);
+      const user = data.user as { userId: number, email: string, role: string };
+      const tasks = await this.taskService.findAll({ userId: user.userId });
       return { tasks };
     } catch (error) {
-      this.handleError('getAllTasks', error);
+      this.handleError('GetAllTasks', error);
       throw error;
     }
   }
   
   @GrpcMethod('TaskService', 'GetTaskById')
-  async getTaskById(data: { id: number }, metadata: any): Promise<Task> {
+  async GetTaskById(data: { id: number, user: any }, metadata: any): Promise<Task> {
     try {
       if (!data || typeof data.id !== 'number') {
         throw new InvalidTaskDataException({ reason: 'Invalid task ID format' });
       }
       
-      if (!metadata.user || !metadata.user.userId) {
+      if (!data.user || !data.user.userId) {
         throw new InvalidTaskDataException({ message: 'User information missing from request' });
       }
       
-      const user = metadata.user as { userId: number, email: string, role: string };
-      return await this.taskService.findOne(data.id, user);
+      const user = data.user as { userId: number, email: string, role: string };
+      return await this.taskService.findOne(data.id, { userId: user.userId });
     } catch (error) {
-      this.handleError('getTaskById', error);
+      this.handleError('GetTaskById', error);
       throw error;
     }
   }
 
   @GrpcMethod('TaskService', 'UpdateTask')
-  async updateTask(data: { id: number, title?: string, description?: string, isCompleted?: boolean, dueDate?: string }, metadata: any): Promise<Task> {
+  async UpdateTask(data: { id: number, title?: string, description?: string, isCompleted?: boolean, dueDate?: string, user: any }, metadata: any): Promise<Task> {
     try {
       if (!data || typeof data.id !== 'number') {
         throw new InvalidTaskDataException({ reason: 'Invalid task data format' });
       }
       
-      if (!metadata.user || !metadata.user.userId) {
+      if (!data.user || !data.user.userId) {
         throw new InvalidTaskDataException({ message: 'User information missing from request' });
       }
       
-      const { id, ...updateTaskDto } = data;
-      const user = metadata.user as { userId: number, email: string, role: string };
-      return await this.taskService.update(id, updateTaskDto, user);
+      const { id, user, ...updateTaskDto } = data;
+      return await this.taskService.update(id, updateTaskDto, { userId: user.userId });
     } catch (error) {
-      this.handleError('updateTask', error);
+      this.handleError('UpdateTask', error);
       throw error;
     }
   }
 
   @GrpcMethod('TaskService', 'DeleteTask')
-  async deleteTask(data: { id: number }, metadata: any): Promise<void> {
+  async DeleteTask(data: { id: number, user: any }, metadata: any): Promise<{ success: boolean, message: string }> {
     try {
       if (!data || typeof data.id !== 'number') {
         throw new InvalidTaskDataException({ reason: 'Invalid task ID format' });
       }
       
-      if (!metadata.user || !metadata.user.userId) {
+      if (!data.user || !data.user.userId) {
         throw new InvalidTaskDataException({ message: 'User information missing from request' });
       }
       
-      const user = metadata.user as { userId: number, email: string, role: string };
-      return await this.taskService.remove(data.id, user);
+      const user = data.user as { userId: number, email: string, role: string };
+      await this.taskService.remove(data.id, { userId: user.userId });
+      return { success: true, message: 'Task deleted successfully' };
     } catch (error) {
-      this.handleError('deleteTask', error);
+      this.handleError('DeleteTask', error);
       throw error;
     }
   }
 
   // Admin methods with role verification
   @GrpcMethod('TaskService', 'GetAllTasksForAdmin')
-  async getAllTasksForAdmin(_, metadata: any): Promise<{ tasks: Task[] }> {
+  async GetAllTasksForAdmin(_, metadata: any): Promise<{ tasks: Task[] }> {
     try {
-      if (!metadata.user || !metadata.user.userId || metadata.user.role !== 'admin') {
-        throw new InvalidTaskDataException({ message: 'Admin privileges required' });
-      }
-      
       const tasks = await this.taskService.getAllTasksForAdmin();
       return { tasks };
     } catch (error) {
-      this.handleError('getAllTasksForAdmin', error);
+      this.handleError('GetAllTasksForAdmin', error);
       throw error;
     }
   }
 
   @GrpcMethod('TaskService', 'AdminDeleteTask')
-  async adminDeleteTask(data: { id: number }, metadata: any): Promise<void> {
+  async AdminDeleteTask(data: { id: number }, metadata: any): Promise<{ success: boolean, message: string }> {
     try {
-      if (!metadata.user || !metadata.user.userId || metadata.user.role !== 'admin') {
-        throw new InvalidTaskDataException({ message: 'Admin privileges required' });
-      }
-      
       if (!data || typeof data.id !== 'number') {
         throw new InvalidTaskDataException({ reason: 'Invalid task ID format' });
       }
       
-      return await this.taskService.adminDeleteTask(data.id);
+      await this.taskService.adminDeleteTask(data.id);
+      return { success: true, message: 'Task deleted successfully' };
     } catch (error) {
-      this.handleError('adminDeleteTask', error);
+      this.handleError('AdminDeleteTask', error);
       throw error;
     }
   }
   
   @GrpcMethod('TaskService', 'AdminUpdateTask')
-  async adminUpdateTask(data: { id: number, title?: string, description?: string, isCompleted?: boolean, dueDate?: string }, metadata: any): Promise<Task> {
+  async AdminUpdateTask(data: { id: number, title?: string, description?: string, isCompleted?: boolean, dueDate?: string }, metadata: any): Promise<Task> {
     try {
-      if (!metadata.user || !metadata.user.userId || metadata.user.role !== 'admin') {
-        throw new InvalidTaskDataException({ message: 'Admin privileges required' });
-      }
       
       if (!data || typeof data.id !== 'number') {
         throw new InvalidTaskDataException({ reason: 'Invalid task data format' });
@@ -155,17 +150,14 @@ export class TaskController {
       const { id, ...updateTaskDto } = data;
       return await this.taskService.adminUpdateTask(id, updateTaskDto);
     } catch (error) {
-      this.handleError('adminUpdateTask', error);
+      this.handleError('AdminUpdateTask', error);
       throw error;
     }
   }
   
   @GrpcMethod('TaskService', 'GetTaskByIdForAdmin')
-  async getTaskByIdForAdmin(data: { id: number }, metadata: any): Promise<Task> {
+  async GetTaskByIdForAdmin(data: { id: number }, metadata: any): Promise<Task> {
     try {
-      if (!metadata.user || !metadata.user.userId || metadata.user.role !== 'admin') {
-        throw new InvalidTaskDataException({ message: 'Admin privileges required' });
-      }
       
       if (!data || typeof data.id !== 'number') {
         throw new InvalidTaskDataException({ reason: 'Invalid task ID format' });
@@ -173,18 +165,14 @@ export class TaskController {
       
       return await this.taskService.getTaskByIdForAdmin(data.id);
     } catch (error) {
-      this.handleError('getTaskByIdForAdmin', error);
+      this.handleError('GetTaskByIdForAdmin', error);
       throw error;
     }
   }
 
   @GrpcMethod('TaskService', 'GetAllTasksByUserId')
-  async getAllTasksByUserId(data: { userId: number }, metadata: any): Promise<{ tasks: Task[] }> {
+  async GetAllTasksByUserId(data: { userId: number }, metadata: any): Promise<{ tasks: Task[] }> {
     try {
-      if (!metadata.user || !metadata.user.userId || metadata.user.role !== 'admin') {
-        throw new InvalidTaskDataException({ message: 'Admin privileges required' });
-      }
-      
       if (!data || typeof data.userId !== 'number') {
         throw new InvalidTaskDataException({ reason: 'Invalid user ID format' });
       }
@@ -192,7 +180,7 @@ export class TaskController {
       const tasks = await this.taskService.getAllTasksByUserId(data.userId);
       return { tasks };
     } catch (error) {
-      this.handleError('getAllTasksByUserId', error);
+      this.handleError('GetAllTasksByUserId', error);
       throw error;
     }
   }

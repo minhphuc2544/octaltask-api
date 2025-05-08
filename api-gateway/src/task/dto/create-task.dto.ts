@@ -1,22 +1,21 @@
-import { IsString, IsOptional, IsBoolean, IsDateString } from 'class-validator'
+import { Type } from 'class-transformer';
+import { IsNotEmpty, IsString, IsOptional, IsBoolean, IsDate } from 'class-validator';
 
 export class CreateTaskDto {
-    @IsString()
-    title: string
+  @IsNotEmpty()
+  @IsString()
+  title: string;
 
-    @IsOptional()
-    @IsString()
-    description?: string
+  @IsString()
+  @IsOptional()
+  description?: string;
 
-    @IsOptional()
-    @IsBoolean()
-    isCompleted?: boolean
+  @IsBoolean()
+  @IsOptional()
+  completed?: boolean;
 
-    @IsOptional()
-    @IsDateString()
-    dueDate?: string
-
-    constructor() {
-        console.log('CreateTaskDto instantiated!');
-    }
+  @IsDate()
+  @Type(() => Date)
+  @IsOptional()
+  dueDate?: Date;
 }

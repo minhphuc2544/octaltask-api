@@ -4,81 +4,87 @@ package task;
 
 service TaskService {
   // User operations
-  rpc CreateTask (CreateTaskRequest) returns (TaskResponse);
-  rpc GetAllTasks (Empty) returns (TaskListResponse);
-  rpc GetTaskById (IdRequest) returns (TaskResponse);
-  rpc UpdateTask (UpdateTaskRequest) returns (TaskResponse);
-  rpc DeleteTask (IdRequest) returns (Empty);
-
+  rpc CreateTask (CreateTaskRequest) returns (Task);
+  rpc GetAllTasks (GetAllTasksRequest) returns (TaskList);
+  rpc GetTaskById (GetTaskRequest) returns (Task);
+  rpc UpdateTask (UpdateTaskRequest) returns (Task);
+  rpc DeleteTask (DeleteTaskRequest) returns (DeleteResponse);
+  
   // Admin operations
-  rpc GetAllTasksForAdmin (Empty) returns (TaskListResponse);
-  rpc AdminDeleteTask (IdRequest) returns (Empty);
-  rpc AdminUpdateTask (UpdateTaskRequest) returns (TaskResponse);
-  rpc GetTaskByIdForAdmin (IdRequest) returns (TaskResponse);
-  rpc GetAllTasksByUserId (UserIdRequest) returns (TaskListResponse);
+  rpc GetAllTasksForAdmin (Empty) returns (TaskList);
+  rpc GetTaskByIdForAdmin (GetTaskRequest) returns (Task);
+  rpc AdminUpdateTask (AdminUpdateTaskRequest) returns (Task);
+  rpc AdminDeleteTask (DeleteTaskRequest) returns (DeleteResponse);
+  rpc GetAllTasksByUserId (GetTasksByUserIdRequest) returns (TaskList);
 }
 
 message Empty {}
 
-message IdRequest {
-  int32 id = 1;
-}
-
-message UserIdRequest {
+message User {
   int32 userId = 1;
+  string email = 2;
+  string role = 3;
 }
 
 message CreateTaskRequest {
   string title = 1;
   string description = 2;
-  string dueDate = 3; // ISO 8601 string
-  bool isCompleted = 4;
+  bool isCompleted = 3;  // Changed from completed to isCompleted for consistency
+  string dueDate = 4;  // ISO date string
+  User user = 5;
 }
 
-message UpdateTaskDto {
-  string title = 1;
-  string description = 2;
-  string dueDate = 3;
-  bool isCompleted = 4;
+message GetAllTasksRequest {
+  User user = 1;
+}
+
+message GetTaskRequest {
+  int32 id = 1;
+  User user = 2;
 }
 
 message UpdateTaskRequest {
   int32 id = 1;
   string title = 2;
   string description = 3;
-  string dueDate = 4;
-  bool isCompleted = 5;
+  bool isCompleted = 4;  // Changed from completed to isCompleted for consistency
+  string dueDate = 5;  // ISO date string
+  User user = 6;
 }
 
-message UserInfo {
-  int32 id = 1;
-  string email = 2;
-  string name = 3;
-  string role = 4;
-}
-
-message TaskResponse {
+message AdminUpdateTaskRequest {
   int32 id = 1;
   string title = 2;
   string description = 3;
-  bool isCompleted = 4;
-  string dueDate = 5;
-  UserInfo user = 6;
+  bool isCompleted = 4;  // Changed from completed to isCompleted for consistency
+  string dueDate = 5;  // ISO date string
 }
 
-message TaskListResponse {
-  repeated TaskResponse tasks = 1;
+message DeleteTaskRequest {
+  int32 id = 1;
+  User user = 2;
 }
 
-// Error handling
-message ErrorDetail {
-  string field = 1;
+message DeleteResponse {
+  bool success = 1;
   string message = 2;
 }
 
-message ErrorResponse {
-  int32 code = 1;
-  string message = 2;
-  repeated ErrorDetail details = 3;
-  string operation = 4;
+message GetTasksByUserIdRequest {
+  int32 userId = 1;
+}
+
+message Task {
+  int32 id = 1;
+  string title = 2;
+  string description = 3;
+  bool isCompleted = 4;  // Changed from completed to isCompleted for consistency
+  string dueDate = 5;  // ISO date string
+  int32 userId = 6;
+  string createdAt = 7;  // ISO datetime string
+  string updatedAt = 8;  // ISO datetime string
+}
+
+message TaskList {
+  repeated Task tasks = 1;
 }

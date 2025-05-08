@@ -20,4 +20,5 @@ export class CreateTaskDto {
   constructor() {
     console.log('CreateTaskDto instantiated!');
   }
+  user?: { userId: number; email: string; role: string }; // Added user property
 }

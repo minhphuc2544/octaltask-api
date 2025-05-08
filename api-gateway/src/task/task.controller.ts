@@ -8,277 +8,96 @@ import {
     Patch,
     UseGuards,
     Request,
-    HttpException,
+    HttpCode,
     HttpStatus,
-    Logger
-} from '@nestjs/common';
-import { ClientGrpc } from '@nestjs/microservices';
-import { Inject } from '@nestjs/common';
-
-import { CreateTaskDto } from './dto/create-task.dto';
-import { UpdateTaskDto } from './dto/update-task.dto';
-import { firstValueFrom, timeout, catchError } from 'rxjs';
-import { of } from 'rxjs';
-import { JwtGuard } from './guards/jwt.guard';
-import { AdminGuard } from './guards/admin.guard';
-
-interface TaskServiceClient {
-    createTask(data: any): any;
-    getAllTasks(data: any): any;
-    getTaskById(data: any): any;
-    updateTask(data: any): any;
-    deleteTask(data: any): any;
-    getAllTasksForAdmin(data: any): any;
-    adminDeleteTask(data: any): any;
-    adminUpdateTask(data: any): any;
-    getTaskByIdForAdmin(data: any): any;
-    getAllTasksByUserId(data: any): any;
-}
-
-@Controller('tasks')
-export class TaskController {
-    private taskService: TaskServiceClient;
-    private readonly logger = new Logger(TaskController.name);
-    private readonly TIMEOUT_MS = 5000; // 5 seconds timeout for gRPC calls
-
-    constructor(@Inject('TASK_PACKAGE') private client: ClientGrpc) { }
-
-    onModuleInit() {
-        this.taskService = this.client.getService<TaskServiceClient>('TaskService');
-    }
-
-    // Helper method to handle gRPC call errors
-    private async handleGrpcCall<T>(methodName: string, call: any, errorMessage: string): Promise<T> {
-        try {
-            this.logger.debug(`Making gRPC call: ${methodName}`);
-            return await firstValueFrom(
-                call.pipe(
-                    timeout(this.TIMEOUT_MS),
-                    catchError(error => {
-                        this.logger.error(`gRPC ${methodName} error:`, error);
-
-                        // Map gRPC error codes to HTTP status codes
-                        let status = HttpStatus.INTERNAL_SERVER_ERROR;
-                        let message = errorMessage;
-
-                        if (error.code) {
-                            switch (error.code) {
-                                case 5: // NOT_FOUND
-                                    status = HttpStatus.NOT_FOUND;
-                                    message = error.details || 'Resource not found';
-                                    break;
-                                case 7: // PERMISSION_DENIED
-                                    status = HttpStatus.FORBIDDEN;
-                                    message = error.details || 'Permission denied';
-                                    break;
-                                case 3: // INVALID_ARGUMENT
-                                    status = HttpStatus.BAD_REQUEST;
-                                    message = error.details || 'Invalid arguments';
-                                    break;
-                                case 16: // UNAUTHENTICATED
-                                    status = HttpStatus.UNAUTHORIZED;
-                                    message = error.details || 'Not authenticated';
-                                    break;
-                            }
-                        }
-
-                        throw new HttpException(
-                            {
-                                status,
-                                error: message,
-                                details: error.details || {},
-                            },
-                            status
-                        );
-                    })
-                )
-            );
-        } catch (error) {
-            // If it's already an HttpException, rethrow it
-            if (error instanceof HttpException) {
-                throw error;
-            }
-
-            // Otherwise, create a new one with a generic message
-            throw new HttpException(
-                {
-                    status: HttpStatus.INTERNAL_SERVER_ERROR,
-                    error: errorMessage,
-                },
-                HttpStatus.INTERNAL_SERVER_ERROR
-            );
-        }
-    }
-
+    ValidationPipe
+  } from '@nestjs/common';
+  import { TaskService } from './task.service';
+  import { CreateTaskDto } from './dto/create-task.dto';
+  import { UpdateTaskDto } from './dto/update-task.dto';
+  import { JwtGuard } from './guards/jwt.guard';
+  import { AdminGuard } from './guards/admin.guard';
+  
+  @Controller('tasks')
+  export class TaskController {
+    constructor(private readonly taskService: TaskService) {}
+  
     @Post()
     @UseGuards(JwtGuard)
-    async create(@Body() createTaskDto: CreateTaskDto, @Request() req) {
-        const user = {
-            userId: req.user.id,
-            email: req.user.email,
-            role: req.user.role
-        };
-
-        return this.handleGrpcCall(
-            'createTask',
-            this.taskService.createTask({ ...createTaskDto, user }),
-            'Failed to create task'
-        );
+    @HttpCode(HttpStatus.CREATED)
+    async create(@Body(ValidationPipe) createTaskDto: CreateTaskDto, @Request() req) {
+      //console.log('Calling gRPC CreateTask with:', createTaskDto, req.user);
+      return this.taskService.create(createTaskDto, req.user);
     }
-
+  
     @Get()
     @UseGuards(JwtGuard)
+    @HttpCode(HttpStatus.OK)
     async findAll(@Request() req) {
-        const user = {
-            userId: req.user.id,
-            email: req.user.email,
-            role: req.user.role
-        };
-
-        return this.handleGrpcCall(
-            'getAllTasks',
-            this.taskService.getAllTasks({}),
-            'Failed to retrieve tasks'
-        );
+      return this.taskService.findAll(req.user);
     }
-
+  
     @Get(':id')
     @UseGuards(JwtGuard)
+    @HttpCode(HttpStatus.OK)
     async findOne(@Param('id') id: string, @Request() req) {
-        const user = {
-            userId: req.user.id,
-            email: req.user.email,
-            role: req.user.role
-        };
-
-        return this.handleGrpcCall(
-            'getTaskById',
-            this.taskService.getTaskById({ id: parseInt(id, 10) }),
-            `Failed to retrieve task with id ${id}`
-        );
+      return this.taskService.findOne(parseInt(id, 10), req.user);
     }
-
+  
     @Patch(':id')
     @UseGuards(JwtGuard)
-    async update(@Param('id') id: string, @Body() updateTaskDto: UpdateTaskDto, @Request() req) {
-        const user = {
-            userId: req.user.id,
-            email: req.user.email,
-            role: req.user.role
-        };
-
-        return this.handleGrpcCall(
-            'updateTask',
-            this.taskService.updateTask({
-                id: parseInt(id, 10),
-                ...updateTaskDto,
-                user
-            }),
-            `Failed to update task with id ${id}`
-        );
+    @HttpCode(HttpStatus.OK)
+    async update(
+      @Param('id') id: string, 
+      @Body(ValidationPipe) updateTaskDto: UpdateTaskDto, 
+      @Request() req
+    ) {
+      return this.taskService.update(parseInt(id, 10), updateTaskDto, req.user);
     }
-
+  
     @Delete(':id')
     @UseGuards(JwtGuard)
+    @HttpCode(HttpStatus.OK)
     async remove(@Param('id') id: string, @Request() req) {
-        const user = {
-            userId: req.user.id,
-            email: req.user.email,
-            role: req.user.role
-        };
-
-        return this.handleGrpcCall(
-            'deleteTask',
-            this.taskService.deleteTask({ id: parseInt(id, 10) }),
-            `Failed to delete task with id ${id}`
-        );
+      return this.taskService.remove(parseInt(id, 10), req.user);
     }
-
-    // Admin routes with role guards
+  
+    // Admin routes
     @Get('admin/all')
     @UseGuards(JwtGuard, AdminGuard)
-    async getAllTasksForAdmin(@Request() req) {
-        const user = {
-            userId: req.user.id,
-            email: req.user.email,
-            role: req.user.role
-        };
-
-        return this.handleGrpcCall(
-            'getAllTasksForAdmin',
-            this.taskService.getAllTasksForAdmin({}),
-            'Failed to retrieve all tasks'
-        );
+    @HttpCode(HttpStatus.OK)
+    async getAllTasksForAdmin() {
+      return this.taskService.getAllTasksForAdmin();
     }
-
-    @Delete('admin/:id')
-    @UseGuards(JwtGuard, AdminGuard)
-
-    async adminDeleteTask(@Param('id') id: string, @Request() req) {
-        const user = {
-            userId: req.user.id,
-            email: req.user.email,
-            role: req.user.role
-        };
-
-        return this.handleGrpcCall(
-            'adminDeleteTask',
-            this.taskService.adminDeleteTask({ id: parseInt(id, 10) }),
-            `Failed to delete task with id ${id}`
-        );
-    }
-
-    @Patch('admin/:id')
-    @UseGuards(JwtGuard, AdminGuard)
-
-    async adminUpdateTask(@Param('id') id: string, @Body() updateTaskDto: UpdateTaskDto, @Request() req) {
-        const user = {
-            userId: req.user.id,
-            email: req.user.email,
-            role: req.user.role
-        };
-
-        return this.handleGrpcCall(
-            'adminUpdateTask',
-            this.taskService.adminUpdateTask({
-                id: parseInt(id, 10),
-                ...updateTaskDto,
-                user
-            }),
-            `Failed to update task with id ${id}`
-        );
-    }
-
+  
     @Get('admin/:id')
     @UseGuards(JwtGuard, AdminGuard)
-
-    async adminGetTaskById(@Param('id') id: string, @Request() req) {
-        const user = {
-            userId: req.user.id,
-            email: req.user.email,
-            role: req.user.role
-        };
-
-        return this.handleGrpcCall(
-            'getTaskByIdForAdmin',
-            this.taskService.getTaskByIdForAdmin({ id: parseInt(id, 10) }),
-            `Failed to retrieve task with id ${id}`
-        );
+    @HttpCode(HttpStatus.OK)
+    async getTaskByIdForAdmin(@Param('id') id: string) {
+      return this.taskService.getTaskByIdForAdmin(parseInt(id, 10));
     }
-
+  
+    @Patch('admin/:id')
+    @UseGuards(JwtGuard, AdminGuard)
+    @HttpCode(HttpStatus.OK)
+    async adminUpdateTask(
+      @Param('id') id: string, 
+      @Body(ValidationPipe) updateTaskDto: UpdateTaskDto
+    ) {
+      return this.taskService.adminUpdateTask(parseInt(id, 10), updateTaskDto);
+    }
+  
+    @Delete('admin/:id')
+    @UseGuards(JwtGuard, AdminGuard)
+    @HttpCode(HttpStatus.OK)
+    async adminDeleteTask(@Param('id') id: string) {
+      return this.taskService.adminDeleteTask(parseInt(id, 10));
+    }
+  
     @Get('admin/user/:userId')
     @UseGuards(JwtGuard, AdminGuard)
-    async getAllTasksByUserId(@Param('userId') userId: string, @Request() req) {
-        const user = {
-            userId: req.user.id,
-            email: req.user.email,
-            role: req.user.role
-        };
-
-        return this.handleGrpcCall(
-            'getAllTasksByUserId',
-            this.taskService.getAllTasksByUserId({ userId: parseInt(userId, 10) }),
-            `Failed to retrieve tasks for user ${userId}`
-        );
+    @HttpCode(HttpStatus.OK)
+    async getAllTasksByUserId(@Param('userId') userId: string) {
+      return this.taskService.getAllTasksByUserId(parseInt(userId, 10));
     }
-}
+  }

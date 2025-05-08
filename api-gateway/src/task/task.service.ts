@@ -1,26 +1,23 @@
 import { Injectable, OnModuleInit, Inject, HttpException, HttpStatus } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
-import { catchError, firstValueFrom, timeout } from 'rxjs';
-import { CreateTaskDto } from './dto/create-task.dto';
-import { UpdateTaskDto } from './dto/update-task.dto';
+import { catchError, firstValueFrom } from 'rxjs';
 
 interface TaskGrpcService {
-  CreateTask(data: any): any;
-  GetAllTasks(data: any): any;
-  GetTaskById(data: any): any;
-  UpdateTask(data: any): any;
-  DeleteTask(data: any): any;
-  GetAllTasksForAdmin(data: any): any;
-  AdminDeleteTask(data: any): any;
-  AdminUpdateTask(data: any): any;
-  GetTaskByIdForAdmin(data: any): any;
-  GetAllTasksByUserId(data: any): any;
+  createTask(data: any): any;
+  getAllTasks(data: any): any;
+  getTaskById(data: any): any;
+  updateTask(data: any): any;
+  deleteTask(data: any): any;
+  getAllTasksForAdmin(data: any): any;
+  getTaskByIdForAdmin(data: any): any;
+  adminUpdateTask(data: any): any;
+  adminDeleteTask(data: any): any;
+  getAllTasksByUserId(data: any): any;
 }
 
 @Injectable()
 export class TaskService implements OnModuleInit {
   private taskGrpcService: TaskGrpcService;
-  private readonly TIMEOUT_MS = 500000; // 5 seconds timeout for gRPC calls
 
   constructor(@Inject('TASK_PACKAGE') private readonly client: ClientGrpc) {}
 
@@ -28,7 +25,7 @@ export class TaskService implements OnModuleInit {
     this.taskGrpcService = this.client.getService<TaskGrpcService>('TaskService');
   }
 
-  async create(dto: CreateTaskDto, user: any) {
+  async create(dto: any, user: any) {
     try {
       const userData = {
         userId: user.userId,
@@ -37,8 +34,7 @@ export class TaskService implements OnModuleInit {
       };
 
       const response = await firstValueFrom(
-        this.taskGrpcService.CreateTask({ ...dto, user: userData }).pipe(
-          timeout(this.TIMEOUT_MS),
+        this.taskGrpcService.createTask({ ...dto, user: userData }).pipe(
           catchError(error => {
             if (error.details === 'Task with this title already exists') {
               throw new HttpException('Task with this title already exists', HttpStatus.CONFLICT);
@@ -65,8 +61,7 @@ export class TaskService implements OnModuleInit {
       };
 
       const response = await firstValueFrom(
-        this.taskGrpcService.GetAllTasks({ user: userData }).pipe(
-          timeout(this.TIMEOUT_MS),
+        this.taskGrpcService.getAllTasks({ user: userData }).pipe(
           catchError(error => {
             throw new HttpException(error.details || 'Failed to retrieve tasks', HttpStatus.INTERNAL_SERVER_ERROR);
           }),
@@ -90,8 +85,7 @@ export class TaskService implements OnModuleInit {
       };
 
       const response = await firstValueFrom(
-        this.taskGrpcService.GetTaskById({ id, user: userData }).pipe(
-          timeout(this.TIMEOUT_MS),
+        this.taskGrpcService.getTaskById({ id, user: userData }).pipe(
           catchError(error => {
             if (error.details === 'Task not found') {
               throw new HttpException('Task not found', HttpStatus.NOT_FOUND);
@@ -112,7 +106,7 @@ export class TaskService implements OnModuleInit {
     }
   }
 
-  async update(id: number, dto: UpdateTaskDto, user: any) {
+  async update(id: number, dto: any, user: any) {
     try {
       const userData = {
         userId: user.userId,
@@ -121,8 +115,7 @@ export class TaskService implements OnModuleInit {
       };
 
       const response = await firstValueFrom(
-        this.taskGrpcService.UpdateTask({ id, ...dto, user: userData }).pipe(
-          timeout(this.TIMEOUT_MS),
+        this.taskGrpcService.updateTask({ id, ...dto, user: userData }).pipe(
           catchError(error => {
             if (error.details === 'Task not found') {
               throw new HttpException('Task not found', HttpStatus.NOT_FOUND);
@@ -152,8 +145,7 @@ export class TaskService implements OnModuleInit {
       };
 
       const response = await firstValueFrom(
-        this.taskGrpcService.DeleteTask({ id, user: userData }).pipe(
-          timeout(this.TIMEOUT_MS),
+        this.taskGrpcService.deleteTask({ id, user: userData }).pipe(
           catchError(error => {
             if (error.details === 'Task not found') {
               throw new HttpException('Task not found', HttpStatus.NOT_FOUND);
@@ -177,8 +169,7 @@ export class TaskService implements OnModuleInit {
   async getAllTasksForAdmin() {
     try {
       const response = await firstValueFrom(
-        this.taskGrpcService.GetAllTasksForAdmin({}).pipe(
-          timeout(this.TIMEOUT_MS),
+        this.taskGrpcService.getAllTasksForAdmin({}).pipe(
           catchError(error => {
             throw new HttpException(error.details || 'Failed to retrieve tasks', HttpStatus.INTERNAL_SERVER_ERROR);
           }),
@@ -196,8 +187,7 @@ export class TaskService implements OnModuleInit {
   async getTaskByIdForAdmin(id: number) {
     try {
       const response = await firstValueFrom(
-        this.taskGrpcService.GetTaskByIdForAdmin({ id }).pipe(
-          timeout(this.TIMEOUT_MS),
+        this.taskGrpcService.getTaskByIdForAdmin({ id }).pipe(
           catchError(error => {
             if (error.details === 'Task not found') {
               throw new HttpException('Task not found', HttpStatus.NOT_FOUND);
@@ -215,11 +205,10 @@ export class TaskService implements OnModuleInit {
     }
   }
 
-  async adminUpdateTask(id: number, dto: UpdateTaskDto) {
+  async adminUpdateTask(id: number, dto: any) {
     try {
       const response = await firstValueFrom(
-        this.taskGrpcService.AdminUpdateTask({ id, ...dto }).pipe(
-          timeout(this.TIMEOUT_MS),
+        this.taskGrpcService.adminUpdateTask({ id, ...dto }).pipe(
           catchError(error => {
             if (error.details === 'Task not found') {
               throw new HttpException('Task not found', HttpStatus.NOT_FOUND);
@@ -240,8 +229,7 @@ export class TaskService implements OnModuleInit {
   async adminDeleteTask(id: number) {
     try {
       const response = await firstValueFrom(
-        this.taskGrpcService.AdminDeleteTask({ id }).pipe(
-          timeout(this.TIMEOUT_MS),
+        this.taskGrpcService.adminDeleteTask({ id }).pipe(
           catchError(error => {
             if (error.details === 'Task not found') {
               throw new HttpException('Task not found', HttpStatus.NOT_FOUND);
@@ -262,8 +250,7 @@ export class TaskService implements OnModuleInit {
   async getAllTasksByUserId(userId: number) {
     try {
       const response = await firstValueFrom(
-        this.taskGrpcService.GetAllTasksByUserId({ userId }).pipe(
-          timeout(this.TIMEOUT_MS),
+        this.taskGrpcService.getAllTasksByUserId({ userId }).pipe(
           catchError(error => {
             if (error.details === 'User not found') {
               throw new HttpException('User not found', HttpStatus.NOT_FOUND);

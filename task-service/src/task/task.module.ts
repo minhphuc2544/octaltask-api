@@ -3,8 +3,7 @@ import { TaskService } from './task.service';
 import { TaskController } from './task.controller';
 import { Task } from 'src/task/entities/task.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { JwtStrategy } from 'src/task/strategies/jwt.strategy';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule} from '@nestjs/config';
 
 @Module({
   imports: [
@@ -12,6 +11,6 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     TypeOrmModule.forFeature([Task])
   ],
   controllers: [TaskController],
-  providers: [TaskService, JwtStrategy],
+  providers: [TaskService],
 })
 export class TaskModule {}

@@ -1,27 +1,40 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateTaskDto } from 'src/task/dto/create-task.dto';
-import { UpdateTaskDto } from 'src/task/dto/update-task.dto';
-import { Task } from 'src/task/entities/task.entity';
-import { InjectRepository } from '@nestjs/typeorm'
-import { Repository } from 'typeorm'
-
-
+import { Injectable, NotFoundException, ForbiddenException, ConflictException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Task } from './entities/task.entity';
 
 @Injectable()
 export class TaskService {
   constructor(
-    @InjectRepository(Task) private taskRepo: Repository<Task>
+    @InjectRepository(Task)
+    private taskRepo: Repository<Task>
   ) {}
 
-  async create(dto: CreateTaskDto, user: { userId: number }): Promise<Task> {
+  async create(dto: any, user: { userId: number; email?: string; role?: string }) {
+    // Check if a task with the same title exists for this user
+    const existingTask = await this.taskRepo.findOne({
+      where: {
+        title: dto.title,
+        user: { id: user.userId }
+      }
+    });
+
+    if (existingTask) {
+      throw new ConflictException('Task with this title already exists');
+    }
+
     const task = this.taskRepo.create({
-      ...dto,
+      title: dto.title,
+      description: dto.description,
+      isCompleted: dto.isCompleted || false,
+      dueDate: dto.dueDate,
       user: { id: user.userId },
     });
+
     return await this.taskRepo.save(task);
   }
 
-  async findAll(user: { userId: number }): Promise<Task[]> {
+  async findAll(user: { userId: number; email?: string; role?: string }) {
     return await this.taskRepo.find({
       where: {
         user: { id: user.userId },
@@ -43,11 +56,11 @@ export class TaskService {
     });
   }
 
-  async findOne(id: number, user: { userId: number }): Promise<Task> {
+  async findOne(id: number, user: { userId: number; email?: string; role?: string }) {
     const task = await this.taskRepo.findOne({
       where: {
         id,
-        user: { id: user.userId },
+        user: { id: user.userId }
       },
       relations: ['user'],
       select: {
@@ -64,36 +77,151 @@ export class TaskService {
         }
       }
     });
-    
+
     if (!task) {
-      throw new NotFoundException(`Task with ID ${id} not found`);
+      throw new NotFoundException('Task not found');
     }
-    
+
     return task;
   }
 
-  async update(id: number, updateTaskDto: UpdateTaskDto, user: { userId: number }): Promise<Task> {
-    const task = await this.findOne(id, user);
-    
-    // Update the task with new values
+  async update(id: number, updateTaskDto: any, user: { userId: number; email?: string; role?: string }) {
+    // First, find the task to ensure it exists and belongs to the user
+    const task = await this.taskRepo.findOne({
+      where: {
+        id,
+        user: { id: user.userId }
+      }
+    });
+
+    if (!task) {
+      throw new NotFoundException('Task not found');
+    }
+
+    // Update the task
     Object.assign(task, updateTaskDto);
-    
+
     return await this.taskRepo.save(task);
   }
 
-  async remove(id: number, user: { userId: number }): Promise<void> {
-    const task = await this.findOne(id, user);
+  async remove(id: number, user: { userId: number; email?: string; role?: string }) {
+    // First, find the task to ensure it exists and belongs to the user
+    const task = await this.taskRepo.findOne({
+      where: {
+        id,
+        user: { id: user.userId }
+      }
+    });
+
+    if (!task) {
+      throw new NotFoundException('Task not found');
+    }
+
+    // Delete the task
     await this.taskRepo.remove(task);
+
+    return { success: true };
   }
 
-  async getAllTasksForAdmin(): Promise<Task[]> {
-    return await this.taskRepo.find();
+  async getAllTasksForAdmin() {
+    return await this.taskRepo.find({
+      relations: ['user'],
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        isCompleted: true,
+        dueDate: true,
+        user: {
+          id: true,
+          email: true,
+          name: true,
+          role: true
+        }
+      }
+    });
   }
-  
-  async adminDeleteTask(id: number): Promise<void> {
-    const task = await this.taskRepo.findOneBy({ id });
-    if (!task) throw new NotFoundException('Task not found');
+
+  async getTaskByIdForAdmin(id: number) {
+    const task = await this.taskRepo.findOne({
+      where: { id },
+      relations: ['user'],
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        isCompleted: true,
+        dueDate: true,
+        user: {
+          id: true,
+          email: true,
+          name: true,
+          role: true
+        }
+      }
+    });
+
+    if (!task) {
+      throw new NotFoundException('Task not found');
+    }
+
+    return task;
+  }
+
+  async adminUpdateTask(id: number, updateTaskDto: any) {
+    // First, find the task to ensure it exists
+    const task = await this.taskRepo.findOne({
+      where: { id },
+      relations: ['user']
+    });
+
+    if (!task) {
+      throw new NotFoundException('Task not found');
+    }
+
+    // Update the task
+    Object.assign(task, updateTaskDto);
+
+    return await this.taskRepo.save(task);
+  }
+
+  async adminDeleteTask(id: number) {
+    // First, find the task to ensure it exists
+    const task = await this.taskRepo.findOne({
+      where: { id }
+    });
+
+    if (!task) {
+      throw new NotFoundException('Task not found');
+    }
+
+    // Delete the task
     await this.taskRepo.remove(task);
+
+    return { success: true };
   }
-  
+
+  async getAllTasksByUserId(userId: number) {
+    const tasks = await this.taskRepo.find({
+      where: {
+        user: { id: userId }
+      },
+      relations: ['user'],
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        isCompleted: true,
+        dueDate: true,
+        user: {
+          id: true,
+          email: true,
+          name: true,
+          role: true
+        }
+      }
+    });
+
+    return tasks;
+  }
 }

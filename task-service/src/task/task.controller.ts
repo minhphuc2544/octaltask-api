@@ -1,80 +1,178 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  UseGuards,
-  ParseIntPipe,
-  Req,
-} from '@nestjs/common'
-import { TaskService } from './task.service'
-import { CreateTaskDto } from 'src/task/dto/create-task.dto'
-import { UpdateTaskDto } from 'src/task/dto/update-task.dto'
-import { JwtGuard } from './guards/jwt.guard'
-import { Request } from 'express'
-import { Task } from 'src/task/entities/task.entity'
-import { AdminGuard } from 'src/task/guards/admin.guard'
+import { Controller } from '@nestjs/common';
+import { TaskService } from './task.service';
+import { GrpcMethod, RpcException } from '@nestjs/microservices';
 
-
-
-@Controller('tasks')
+@Controller()
 export class TaskController {
   constructor(private readonly taskService: TaskService) {}
 
-  @UseGuards(JwtGuard)
-  @Post()
-  async create(@Body() dto: CreateTaskDto, @Req() req: Request): Promise<Task> {
-    // object deserialization to get the user's info that are returned from JwtStrategy
-    const user = req.user as { userId: number, email: string, role: string }
-    return await this.taskService.create(dto, user)
+  @GrpcMethod('TaskService', 'CreateTask')
+  async createTask(data: { 
+    title: string; 
+    description: string; 
+    isCompleted?: boolean; 
+    dueDate?: string;
+    user: { userId: number; email: string; role: string } 
+  }) {
+    try {
+      if (!data.title) {
+        throw new RpcException('Title is required');
+      }
+      
+      return await this.taskService.create(data, data.user);
+    } catch (error) {
+      throw new RpcException(error.message || 'Failed to create task');
+    }
   }
 
-  @UseGuards(JwtGuard)
-  @Get()
-  async findAll(@Req() req: Request): Promise<Task[]> {
-    const user = req.user as { userId: number, email: string, role: string };
-    return await this.taskService.findAll(user);
+  @GrpcMethod('TaskService', 'GetAllTasks')
+  async getAllTasks(data: { user: { userId: number; email: string; role: string } }) {
+    try {
+      if (!data.user || !data.user.userId) {
+        throw new RpcException('User information missing from request');
+      }
+      
+      const tasks = await this.taskService.findAll(data.user);
+      return { tasks };
+    } catch (error) {
+      throw new RpcException(error.message || 'Failed to retrieve tasks');
+    }
   }
 
-  @UseGuards(JwtGuard)
-  @Get(':id')
-  async findOne(@Param('id', ParseIntPipe) id: number, @Req() req: Request): Promise<Task> {
-    const user = req.user as { userId: number, email: string, role: string };
-    return await this.taskService.findOne(id, user);
+  @GrpcMethod('TaskService', 'GetTaskById')
+  async getTaskById(data: { 
+    id: number; 
+    user: { userId: number; email: string; role: string } 
+  }) {
+    try {
+      if (!data || typeof data.id !== 'number') {
+        throw new RpcException('Invalid task ID format');
+      }
+      
+      if (!data.user || !data.user.userId) {
+        throw new RpcException('User information missing from request');
+      }
+      
+      return await this.taskService.findOne(data.id, data.user);
+    } catch (error) {
+      throw new RpcException(error.message || 'Failed to retrieve task');
+    }
   }
 
-  @UseGuards(JwtGuard)
-  @Patch(':id')
-  async update(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() updateTaskDto: UpdateTaskDto,
-    @Req() req: Request,
-  ): Promise<Task> {
-    const user = req.user as { userId: number, email: string, role: string };
-    return await this.taskService.update(id, updateTaskDto, user);
+  @GrpcMethod('TaskService', 'UpdateTask')
+  async updateTask(data: { 
+    id: number; 
+    title?: string; 
+    description?: string; 
+    isCompleted?: boolean; 
+    dueDate?: string;
+    user: { userId: number; email: string; role: string } 
+  }) {
+    try {
+      if (!data || typeof data.id !== 'number') {
+        throw new RpcException('Invalid task data format');
+      }
+      
+      if (!data.user || !data.user.userId) {
+        throw new RpcException('User information missing from request');
+      }
+      
+      const { id, user, ...updateTaskDto } = data;
+      return await this.taskService.update(id, updateTaskDto, user);
+    } catch (error) {
+      throw new RpcException(error.message || 'Failed to update task');
+    }
   }
 
-  @UseGuards(JwtGuard)
-  @Delete(':id')
-  async remove(@Param('id', ParseIntPipe) id: number, @Req() req: Request): Promise<void> {
-    const user = req.user as { userId: number, email: string, role: string };
-    return await this.taskService.remove(id, user);
+  @GrpcMethod('TaskService', 'DeleteTask')
+  async deleteTask(data: { 
+    id: number; 
+    user: { userId: number; email: string; role: string } 
+  }) {
+    try {
+      if (!data || typeof data.id !== 'number') {
+        throw new RpcException('Invalid task ID format');
+      }
+      
+      if (!data.user || !data.user.userId) {
+        throw new RpcException('User information missing from request');
+      }
+      
+      await this.taskService.remove(data.id, data.user);
+      return { message: 'Task deleted successfully' };
+    } catch (error) {
+      throw new RpcException(error.message || 'Failed to delete task');
+    }
   }
 
-  
-  @UseGuards(JwtGuard, AdminGuard)
-  @Get('/admin/all')
-  async getAllTasksForAdmin(): Promise<Task[]> {
-  return await this.taskService.getAllTasksForAdmin();
+  @GrpcMethod('TaskService', 'GetAllTasksForAdmin')
+  async getAllTasksForAdmin() {
+    try {
+      const tasks = await this.taskService.getAllTasksForAdmin();
+      return { tasks };
+    } catch (error) {
+      throw new RpcException(error.message || 'Failed to retrieve tasks');
+    }
   }
 
-  @UseGuards(JwtGuard, AdminGuard)
-  @Delete('/admin/:id')
-  async adminDeleteTask(@Param('id', ParseIntPipe) id: number): Promise<void> {
-  return await this.taskService.adminDeleteTask(id);
+  @GrpcMethod('TaskService', 'GetTaskByIdForAdmin')
+  async getTaskByIdForAdmin(data: { id: number }) {
+    try {
+      if (!data || typeof data.id !== 'number') {
+        throw new RpcException('Invalid task ID format');
+      }
+      
+      return await this.taskService.getTaskByIdForAdmin(data.id);
+    } catch (error) {
+      throw new RpcException(error.message || 'Failed to retrieve task');
+    }
   }
 
+  @GrpcMethod('TaskService', 'AdminUpdateTask')
+  async adminUpdateTask(data: { 
+    id: number; 
+    title?: string; 
+    description?: string; 
+    isCompleted?: boolean; 
+    dueDate?: string 
+  }) {
+    try {
+      if (!data || typeof data.id !== 'number') {
+        throw new RpcException('Invalid task data format');
+      }
+      
+      const { id, ...updateTaskDto } = data;
+      return await this.taskService.adminUpdateTask(id, updateTaskDto);
+    } catch (error) {
+      throw new RpcException(error.message || 'Failed to update task');
+    }
+  }
+
+  @GrpcMethod('TaskService', 'AdminDeleteTask')
+  async adminDeleteTask(data: { id: number }) {
+    try {
+      if (!data || typeof data.id !== 'number') {
+        throw new RpcException('Invalid task ID format');
+      }
+      
+      await this.taskService.adminDeleteTask(data.id);
+      return { message: 'Task deleted successfully' };
+    } catch (error) {
+      throw new RpcException(error.message || 'Failed to delete task');
+    }
+  }
+
+  @GrpcMethod('TaskService', 'GetAllTasksByUserId')
+  async getAllTasksByUserId(data: { userId: number }) {
+    try {
+      if (!data || typeof data.userId !== 'number') {
+        throw new RpcException('Invalid user ID format');
+      }
+      
+      const tasks = await this.taskService.getAllTasksByUserId(data.userId);
+      return { tasks };
+    } catch (error) {
+      throw new RpcException(error.message || 'Failed to retrieve tasks');
+    }
+  }
 }

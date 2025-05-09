@@ -13,23 +13,10 @@ import {
   ValidationPipe
 } from '@nestjs/common';
 import { TaskService } from './task.service';
-import { JwtGuard } from './guards/jwt.guard';
-import { AdminGuard } from './guards/admin.guard';
-
-// Create DTOs for request validation
-class CreateTaskDto {
-  title: string;
-  description: string;
-  isCompleted?: boolean;
-  dueDate?: string;
-}
-
-class UpdateTaskDto {
-  title?: string;
-  description?: string;
-  isCompleted?: boolean;
-  dueDate?: string;
-}
+import { JwtGuard } from '../guards/jwt.guard';
+import { AdminGuard } from '../guards/admin.guard';
+import { CreateTaskDto } from './dto/create-task.dto';
+import { UpdateTaskDto } from './dto/update-task.dto';
 
 @Controller('tasks')
 export class TaskController {

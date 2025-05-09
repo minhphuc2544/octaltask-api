@@ -1,23 +1,8 @@
 import { Controller, Post, Body, HttpCode, HttpStatus, ValidationPipe } from '@nestjs/common';
 import { AuthService } from './auth.service';
-
-// Create DTOs for request validation
-class LoginDto {
-  email: string;
-  password: string;
-}
-
-class SignupDto {
-  email: string;
-  password: string;
-  name: string;
-}
-
-class ResetPasswordDto {
-  token: string;
-  newPassword: string;
-}
-
+import { LoginDto } from './dto/login.dto';
+import { SignupDto } from './dto/signup.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}

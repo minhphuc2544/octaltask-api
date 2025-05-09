@@ -5,7 +5,7 @@ import { ClientsModule } from '@nestjs/microservices';
 import { getTaskGrpcClientOptions} from '../client-options/task.grpc-client';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
-import { JwtStrategy } from './strategies/jwt.strategy';
+import { JwtStrategy } from '../strategies/jwt.strategy';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 @Module({
   imports: [

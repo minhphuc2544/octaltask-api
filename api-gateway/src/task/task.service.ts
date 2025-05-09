@@ -1,6 +1,8 @@
 import { Injectable, OnModuleInit, Inject, HttpException, HttpStatus } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
 import { catchError, firstValueFrom } from 'rxjs';
+import { CreateTaskDto } from './dto/create-task.dto';
+import { UpdateTaskDto } from './dto/update-task.dto';
 
 interface TaskGrpcService {
   createTask(data: any): any;
@@ -25,7 +27,7 @@ export class TaskService implements OnModuleInit {
     this.taskGrpcService = this.client.getService<TaskGrpcService>('TaskService');
   }
 
-  async create(dto: any, user: any) {
+  async create(dto: CreateTaskDto, user: any) {
     try {
       const userData = {
         userId: user.userId,
@@ -106,7 +108,7 @@ export class TaskService implements OnModuleInit {
     }
   }
 
-  async update(id: number, dto: any, user: any) {
+  async update(id: number, dto: UpdateTaskDto, user: any) {
     try {
       const userData = {
         userId: user.userId,
@@ -205,7 +207,7 @@ export class TaskService implements OnModuleInit {
     }
   }
 
-  async adminUpdateTask(id: number, dto: any) {
+  async adminUpdateTask(id: number, dto: UpdateTaskDto) {
     try {
       const response = await firstValueFrom(
         this.taskGrpcService.adminUpdateTask({ id, ...dto }).pipe(

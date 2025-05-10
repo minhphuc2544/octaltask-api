@@ -17,6 +17,7 @@ async function bootstrap() {
     .setDescription('Documentation for Octaltask application')
     .setVersion('1.0')
     .addTag('Authentication', 'Authentication endpoints for login, signup, password reset')
+    .addTag('Task', 'Task management operations')
     .addBearerAuth(
       {
         type: 'http',

@@ -9,13 +9,25 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe({
     transform: true,
   }));
-  
+
   app.enableCors();
 
   const config = new DocumentBuilder()
     .setTitle('Octaltask API Documentation')
     .setDescription('Documentation for Octaltask application')
     .setVersion('1.0')
+    .addTag('Authentication', 'Authentication endpoints for login, signup, password reset')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        name: 'JWT',
+        description: 'Enter JWT token',
+        in: 'header',
+      },
+      'access-token',
+    )
     .build();
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, documentFactory);

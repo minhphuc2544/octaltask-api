@@ -2,6 +2,7 @@ import { Injectable, NotFoundException, ForbiddenException, ConflictException } 
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Task } from './entities/task.entity';
+import { console } from 'inspector';
 
 @Injectable()
 export class TaskService {
@@ -11,28 +12,19 @@ export class TaskService {
   ) {}
 
   async create(dto: any, user: { userId: number; email?: string; role?: string }) {
-    // Check if a task with the same title exists for this user
-    const existingTask = await this.taskRepo.findOne({
-      where: {
-        title: dto.title,
-        user: { id: user.userId }
-      }
-    });
-
-    if (existingTask) {
-      throw new ConflictException('Task with this title already exists');
-    }
-
+    
     const task = this.taskRepo.create({
       title: dto.title,
       description: dto.description,
       isCompleted: dto.isCompleted || false,
       dueDate: dto.dueDate,
-      user: { id: user.userId },
+       user: { id: user.userId },
     });
-
+    
+  console.log('\n\n\n\nTask created:', user.userId);
     return await this.taskRepo.save(task);
   }
+           
 
   async findAll(user: { userId: number; email?: string; role?: string }) {
     return await this.taskRepo.find({

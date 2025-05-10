@@ -2,6 +2,14 @@ syntax = "proto3";
 
 package auth;
 
+message User {
+  int32 id = 1;
+  string email = 2;
+  string name = 3;
+  string role = 4;
+}
+
+
 service AuthService {
   rpc Login (LoginRequest) returns (TokenResponse);
   rpc Signup (SignupRequest) returns (MessageResponse);
@@ -35,4 +43,5 @@ message TokenResponse {
 
 message MessageResponse {
   string message = 1;
+  User user = 2;
 }

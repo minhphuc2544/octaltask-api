@@ -55,7 +55,9 @@ export class AuthController {
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Password must be at least 8 characters long' })
   @ApiResponse({ status: HttpStatus.SERVICE_UNAVAILABLE, description: 'Authentication service unavailable' })
   async signup(@Body(ValidationPipe) body: SignupDto) {
-    return this.authService.signup(body.email, body.password, body.name);
+    const something = await this.authService.signup(body.email, body.password, body.name);
+   // console.log('User created:', something);
+    return something;
   }
 
   @Post('forgot-password')

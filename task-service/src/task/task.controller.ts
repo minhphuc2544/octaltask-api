@@ -18,8 +18,8 @@ export class TaskController {
       if (!data.title) {
         throw new RpcException('Title is required');
       }
-      
-      return await this.taskService.create(data, data.user);
+      const something = await this.taskService.create(data, data.user);
+      return something;
     } catch (error) {
       throw new RpcException(error.message || 'Failed to create task');
     }

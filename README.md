@@ -104,6 +104,7 @@ npm run build
 npm run start
 ```
 - The API will be available at http://localhost:3000
+- The API Documentation will be available at http://localhost:3000/api
 - The API Gateway will expose HTTP endpoints and forward them to microservices via gRPC.
 
 ## 📦 Proto Files

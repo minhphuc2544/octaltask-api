@@ -1,26 +1,22 @@
-import { Injectable, NotFoundException, ForbiddenException, ConflictException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Task } from './entities/task.entity';
+import { User } from './entities/user.entity';
 
 @Injectable()
 export class TaskService {
   constructor(
     @InjectRepository(Task)
-    private taskRepo: Repository<Task>
-  ) {}
+    private taskRepo: Repository<Task>,
+    @InjectRepository(User)
+    private userRepo: Repository<User>,
+  ) { }
 
-  async create(dto: any, user: { userId: number; email?: string; role?: string }) {
-    // Check if a task with the same title exists for this user
-    const existingTask = await this.taskRepo.findOne({
-      where: {
-        title: dto.title,
-        user: { id: user.userId }
-      }
-    });
-
-    if (existingTask) {
-      throw new ConflictException('Task with this title already exists');
+  async create(dto: any, user1: { userId: number; email?: string; role?: string }) {
+    const user = await this.userRepo.findOneBy({ id: user1.userId });
+    if (!user) {
+      throw new NotFoundException('User not found');
     }
 
     const task = this.taskRepo.create({
@@ -28,11 +24,11 @@ export class TaskService {
       description: dto.description,
       isCompleted: dto.isCompleted || false,
       dueDate: dto.dueDate,
-      user: { id: user.userId },
+      user,
     });
-
     return await this.taskRepo.save(task);
   }
+           
 
   async findAll(user: { userId: number; email?: string; role?: string }) {
     return await this.taskRepo.find({

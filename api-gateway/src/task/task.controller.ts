@@ -20,7 +20,6 @@ import { UpdateTaskDto } from './dto/update-task.dto';
 import {
   ApiTags,
   ApiOperation,
-  ApiResponse,
   ApiBody,
   ApiBearerAuth,
   ApiParam,
@@ -33,7 +32,7 @@ import {
 } from '@nestjs/swagger';
 
 @ApiTags('Task')
-@ApiBearerAuth()
+@ApiBearerAuth('accessToken')
 @Controller('tasks')
 export class TaskController {
   constructor(private readonly taskService: TaskService) {}

@@ -1,12 +1,15 @@
 import { Injectable, OnModuleInit, Inject, HttpException, HttpStatus } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
 import { catchError, firstValueFrom } from 'rxjs';
+import { LoginDto } from './dto/login.dto';
+import { SignupDto } from './dto/signup.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 interface AuthGrpcService {
-  login(data: { email: string; password: string }): any;
-  signup(data: { email: string; password: string; name: string }): any;
+  login(data: LoginDto): any;
+  signup(data: SignupDto): any;
   requestPasswordReset(data: { email: string }): any;
-  resetPassword(data: { token: string; newPassword: string }): any;
+  resetPassword(data: ResetPasswordDto): any;
 }
 
 @Injectable()
@@ -21,8 +24,9 @@ export class AuthService implements OnModuleInit {
 
   async login(email: string, password: string) {
     try {
+      const loginDto: LoginDto = { email, password };
       const response = await firstValueFrom(
-        this.authGrpcService.login({ email, password }).pipe(
+        this.authGrpcService.login(loginDto).pipe(
           catchError(error => {
             // Map gRPC errors to appropriate HTTP exceptions
             if (error.details === 'Invalid credentials') {
@@ -44,8 +48,9 @@ export class AuthService implements OnModuleInit {
 
   async signup(email: string, password: string, name: string) {
     try {
+      const signupDto: SignupDto = { email, password, name };
       const response = await firstValueFrom(
-        this.authGrpcService.signup({ email, password, name }).pipe(
+        this.authGrpcService.signup(signupDto).pipe(
           catchError(error => {
             if (error.details === 'Email already exists') {
               throw new HttpException('Email already exists', HttpStatus.CONFLICT);
@@ -89,8 +94,9 @@ export class AuthService implements OnModuleInit {
 
   async resetPassword(token: string, newPassword: string) {
     try {
+      const resetPasswordDto: ResetPasswordDto = { token, newPassword };
       const response = await firstValueFrom(
-        this.authGrpcService.resetPassword({ token, newPassword }).pipe(
+        this.authGrpcService.resetPassword(resetPasswordDto).pipe(
           catchError(error => {
             if (error.details === 'Invalid or expired token') {
               throw new HttpException('Invalid or expired token', HttpStatus.BAD_REQUEST);

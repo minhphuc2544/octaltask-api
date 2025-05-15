@@ -8,6 +8,9 @@ import * as bcrypt from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid';
 import { addMinutes } from 'date-fns';
 import { MailerService } from 'src/mailer/mailer.service';
+import { LoginDto } from './dto/login.dto';
+import { SignupDto } from './dto/signup.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 @Injectable()
 export class AuthService {
@@ -38,6 +41,7 @@ export class AuthService {
     const { password: _, ...userWithoutPassword } = user;
     return userWithoutPassword;
   }
+  
   async login(user: any) {
     const payload = { email: user.email, sub: user.id, role: user.role };
     return {
@@ -45,7 +49,8 @@ export class AuthService {
     };
   }
 
-  async signup(email: string, password: string, name: string) {
+  async signup(signupDto: SignupDto) {
+    const { email, password, name } = signupDto;
     const existing = await this.userRepo.findOne({ where: { email } });
     if (existing) throw new ConflictException('Email already exists');
 
@@ -73,7 +78,8 @@ export class AuthService {
     return { message: 'Reset email sent' };
   }
 
-  async resetPassword(token: string, newPassword: string) {
+  async resetPassword(resetPasswordDto: ResetPasswordDto) {
+    const { token, newPassword } = resetPasswordDto;
     const user = await this.userRepo.findOne({ where: { resetToken: token } });
     if (!user || !user.resetTokenExpires || user.resetTokenExpires < new Date()) {
       throw new BadRequestException('Invalid or expired token');

@@ -1,25 +1,30 @@
 // src/task/entities/task.entity.ts
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm'
-import { User } from './user.entity'
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany } from 'typeorm';
+import { User } from './user.entity';
+import { Comment } from './comment.entity';
 
 @Entity('tasks')
 export class Task {
   @PrimaryGeneratedColumn()
-  id: number
+  id: number;
 
   @Column()
-  title: string
+  title: string;
 
   @Column({ nullable: true })
-  description?: string
+  description?: string;
 
   @Column({ default: false })
-  isCompleted: boolean
+  isCompleted: boolean;
 
   @Column({ type: 'timestamp', nullable: true })
-  dueDate?: Date
+  dueDate?: Date;
 
   @ManyToOne(() => User, (user) => user.tasks, { onDelete: 'CASCADE' })
-  user: User
-  createdBy: any
+  user: User;
+  
+  @OneToMany(() => Comment, (comment) => comment.task)
+  comments: Comment[];
+  
+  createdBy: any;
 }

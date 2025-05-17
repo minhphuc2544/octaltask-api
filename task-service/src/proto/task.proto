@@ -13,6 +13,12 @@ service TaskService {
   rpc AdminUpdateTask (AdminUpdateTaskRequest) returns (TaskResponse);
   rpc AdminDeleteTask (TaskIdRequest) returns (MessageResponse);
   rpc GetAllTasksByUserId (UserIdRequest) returns (TaskListResponse);
+  
+  // New comment-related methods
+  rpc AddCommentToTask (AddCommentRequest) returns (CommentResponse);
+  rpc GetCommentsForTask (TaskCommentsRequest) returns (CommentListResponse);
+  rpc UpdateComment (UpdateCommentRequest) returns (CommentResponse);
+  rpc DeleteComment (DeleteCommentRequest) returns (MessageResponse);
 }
 
 message EmptyRequest {}
@@ -80,4 +86,40 @@ message TaskListResponse {
 
 message MessageResponse {
   string message = 1;
+}
+
+// New message types for comment functionality
+message AddCommentRequest {
+  int32 taskId = 1;
+  string content = 2;
+  UserInfo user = 3;
+}
+
+message TaskCommentsRequest {
+  int32 taskId = 1;
+  UserInfo user = 2;
+}
+
+message CommentResponse {
+  int32 id = 1;
+  string content = 2;
+  string createdAt = 3;
+  UserInfo user = 4;
+}
+
+message CommentListResponse {
+  repeated CommentResponse comments = 1;
+}
+
+message UpdateCommentRequest {
+  int32 taskId = 1;
+  int32 commentId = 2;
+  string content = 3;
+  UserInfo user = 4;
+}
+
+message DeleteCommentRequest{
+  int32 taskId = 1;
+  int32 commentId = 2;
+  UserInfo user = 3;
 }

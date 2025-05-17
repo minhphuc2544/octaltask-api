@@ -7,6 +7,7 @@ import { User } from './task/entities/user.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { join } from 'path';
+import { Comment } from './task/entities/comment.entity';
 
 @Module({
   imports: [
@@ -22,7 +23,7 @@ import { join } from 'path';
         username: config.get<string>('DB_USERNAME'),
         password: config.get<string>('DB_PASSWORD'),
         database: config.get<string>('DB_DATABASE'),
-        entities: [Task, User],
+        entities: [Task, User,Comment],
         synchronize: true,
         logging: true,
       }),

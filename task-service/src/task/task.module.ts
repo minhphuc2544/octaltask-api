@@ -5,12 +5,14 @@ import { Task } from 'src/task/entities/task.entity';
 import { User } from 'src/task/entities/user.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule} from '@nestjs/config';
+import { Comment } from './entities/comment.entity';
 
 @Module({
   imports: [
     ConfigModule, 
     TypeOrmModule.forFeature([Task]),
     TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([Comment]),
   ],
   controllers: [TaskController],
   providers: [TaskService],

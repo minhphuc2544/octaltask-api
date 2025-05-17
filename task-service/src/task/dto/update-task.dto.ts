@@ -1,15 +1,15 @@
-import { IsNotEmpty, IsString, IsOptional, IsBoolean } from 'class-validator';
+import { IsOptional, IsString, IsBoolean } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class UpdateTaskDto {
     @ApiProperty({
         description: 'Title of the task',
         example: 'Updated project documentation',
-        required: true
+        required: false
     })
-    @IsNotEmpty()
     @IsString()
-    title: string;
+    @IsOptional()
+    title?: string;
 
     @ApiProperty({
         description: 'Detailed description of the task',

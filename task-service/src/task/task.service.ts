@@ -40,7 +40,7 @@ export class TaskService {
     });
     return await this.taskRepo.save(task);
   }
-           
+
   async findAll(user: TaskUser) {
     return await this.taskRepo.find({
       where: {
@@ -231,13 +231,13 @@ export class TaskService {
 
     return tasks;
   }
-   async addCommentToTask(taskId: number, content: string, userInfo: { userId: number; email?: string; role?: string }) {
+  async addCommentToTask(taskId: number, content: string, userInfo: { userId: number; email?: string; role?: string }) {
     // Find the task
-    const task = await this.taskRepo.findOne({ 
+    const task = await this.taskRepo.findOne({
       where: { id: taskId },
       relations: ['user']
     });
-    
+
     if (!task) {
       throw new NotFoundException('Task not found');
     }
@@ -262,7 +262,7 @@ export class TaskService {
     });
 
     const savedComment = await this.commentRepo.save(comment);
-    
+
     // Format the response
     return {
       id: savedComment.id,
@@ -279,11 +279,11 @@ export class TaskService {
 
   async getCommentsForTask(taskId: number, userInfo: { userId: number; email?: string; role?: string }) {
     // Find the task
-    const task = await this.taskRepo.findOne({ 
+    const task = await this.taskRepo.findOne({
       where: { id: taskId },
       relations: ['user']
     });
-    
+
     if (!task) {
       throw new NotFoundException('Task not found');
     }
@@ -327,20 +327,20 @@ export class TaskService {
       }
     }));
   }
-  
+
   async updateComment(taskId: number, commentId: number, updateCommentDto: UpdateCommentDto, userInfo: { userId: number; email?: string; role?: string }) {
     // First, find the task to make sure it exists
-    const task = await this.taskRepo.findOne({ 
+    const task = await this.taskRepo.findOne({
       where: { id: taskId }
     });
-    
+
     if (!task) {
       throw new NotFoundException('Task not found');
     }
 
     // Find the comment making sure it belongs to the specified task
     const comment = await this.commentRepo.findOne({
-      where: { 
+      where: {
         id: commentId,
         task: { id: taskId }
       },
@@ -359,9 +359,9 @@ export class TaskService {
 
     // Update the comment
     comment.content = updateCommentDto.content;
-    
+
     const updatedComment = await this.commentRepo.save(comment);
-    
+
     // Format the response
     return {
       id: updatedComment.id,
@@ -375,4 +375,27 @@ export class TaskService {
       }
     };
   }
+
+  async deleteComment(taskId: number, commentId: number, user: { userId: number }) {
+    const comment = await this.commentRepo.findOne({
+      where: {
+        id: commentId,
+        task: { id: taskId }
+      },
+      relations: ['user', 'task']
+    });
+
+    if (!comment) {
+      throw new NotFoundException('Comment not found');
+    }
+
+    if (comment.user.id !== user.userId) {
+      throw new ForbiddenException('Permission denied to delete this comment');
+    }
+
+    await this.commentRepo.remove(comment);
+
+    return { message: 'Comment deleted successfully' };
+  }
+
 }

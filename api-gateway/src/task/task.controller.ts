@@ -38,13 +38,13 @@ import { UpdateCommentDto } from './dto/update-comment.dto';
 @ApiBearerAuth('accessToken')
 @Controller('tasks')
 export class TaskController {
-  constructor(private readonly taskService: TaskService) {}
+  constructor(private readonly taskService: TaskService) { }
 
   @Post()
   @UseGuards(JwtGuard)
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Create a new task' })
-  @ApiCreatedResponse({ 
+  @ApiCreatedResponse({
     description: 'The task has been successfully created',
     schema: {
       type: 'object',
@@ -76,7 +76,7 @@ export class TaskController {
   @UseGuards(JwtGuard)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get all tasks for the current user' })
-  @ApiOkResponse({ 
+  @ApiOkResponse({
     description: 'Retrieved all tasks for the current user',
     schema: {
       type: 'object',
@@ -116,7 +116,7 @@ export class TaskController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get a task by ID' })
   @ApiParam({ name: 'id', description: 'Task ID', type: 'number' })
-  @ApiOkResponse({ 
+  @ApiOkResponse({
     description: 'Retrieved the task successfully',
     schema: {
       type: 'object',
@@ -151,7 +151,7 @@ export class TaskController {
   @ApiOperation({ summary: 'Update a task' })
   @ApiParam({ name: 'id', description: 'Task ID', type: 'number' })
   @ApiBody({ type: UpdateTaskDto })
-  @ApiOkResponse({ 
+  @ApiOkResponse({
     description: 'Task updated successfully',
     schema: {
       type: 'object',
@@ -177,8 +177,8 @@ export class TaskController {
   @ApiForbiddenResponse({ description: 'Permission denied' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   async update(
-    @Param('id') id: string, 
-    @Body(ValidationPipe) updateTaskDto: UpdateTaskDto, 
+    @Param('id') id: string,
+    @Body(ValidationPipe) updateTaskDto: UpdateTaskDto,
     @Request() req
   ) {
     return this.taskService.update(parseInt(id, 10), updateTaskDto, req.user);
@@ -189,7 +189,7 @@ export class TaskController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Delete a task' })
   @ApiParam({ name: 'id', description: 'Task ID', type: 'number' })
-  @ApiOkResponse({ 
+  @ApiOkResponse({
     description: 'Task deleted successfully',
     schema: {
       type: 'object',
@@ -210,7 +210,7 @@ export class TaskController {
   @UseGuards(JwtGuard, AdminGuard)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Admin: Get all tasks in the system' })
-  @ApiOkResponse({ 
+  @ApiOkResponse({
     description: 'Retrieved all tasks successfully',
     schema: {
       type: 'object',
@@ -251,7 +251,7 @@ export class TaskController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Admin: Get a task by ID' })
   @ApiParam({ name: 'id', description: 'Task ID', type: 'number' })
-  @ApiOkResponse({ 
+  @ApiOkResponse({
     description: 'Retrieved the task successfully',
     schema: {
       type: 'object',
@@ -286,7 +286,7 @@ export class TaskController {
   @ApiOperation({ summary: 'Admin: Update any task' })
   @ApiParam({ name: 'id', description: 'Task ID', type: 'number' })
   @ApiBody({ type: UpdateTaskDto })
-  @ApiOkResponse({ 
+  @ApiOkResponse({
     description: 'Task updated successfully',
     schema: {
       type: 'object',
@@ -312,7 +312,7 @@ export class TaskController {
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @ApiForbiddenResponse({ description: 'Forbidden - Admin access required' })
   async adminUpdateTask(
-    @Param('id') id: string, 
+    @Param('id') id: string,
     @Body(ValidationPipe) updateTaskDto: UpdateTaskDto
   ) {
     return this.taskService.adminUpdateTask(parseInt(id, 10), updateTaskDto);
@@ -323,7 +323,7 @@ export class TaskController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Admin: Delete any task' })
   @ApiParam({ name: 'id', description: 'Task ID', type: 'number' })
-  @ApiOkResponse({ 
+  @ApiOkResponse({
     description: 'Task deleted successfully',
     schema: {
       type: 'object',
@@ -344,7 +344,7 @@ export class TaskController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Admin: Get all tasks by user ID' })
   @ApiParam({ name: 'userId', description: 'User ID', type: 'number' })
-  @ApiOkResponse({ 
+  @ApiOkResponse({
     description: 'Retrieved all tasks for the specified user',
     schema: {
       type: 'object',
@@ -387,7 +387,7 @@ export class TaskController {
   @ApiOperation({ summary: 'Add a comment to a task' })
   @ApiParam({ name: 'id', description: 'Task ID', type: 'number' })
   @ApiBody({ type: CreateCommentDto })
-  @ApiCreatedResponse({ 
+  @ApiCreatedResponse({
     description: 'Comment added successfully',
     type: CommentResponseDto
   })
@@ -407,7 +407,7 @@ export class TaskController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get all comments for a task' })
   @ApiParam({ name: 'id', description: 'Task ID', type: 'number' })
-  @ApiOkResponse({ 
+  @ApiOkResponse({
     description: 'Retrieved all comments for the task',
     type: CommentListResponseDto
   })
@@ -425,7 +425,7 @@ export class TaskController {
   @ApiParam({ name: 'taskId', description: 'Task ID', type: 'number' })
   @ApiParam({ name: 'commentId', description: 'Comment ID', type: 'number' })
   @ApiBody({ type: UpdateCommentDto })
-  @ApiOkResponse({ 
+  @ApiOkResponse({
     description: 'Comment updated successfully',
     schema: {
       type: 'object',
@@ -455,9 +455,39 @@ export class TaskController {
     @Request() req
   ) {
     return this.taskService.updateComment(
-      parseInt(taskId, 10), 
-      parseInt(commentId, 10), 
-      updateCommentDto, 
+      parseInt(taskId, 10),
+      parseInt(commentId, 10),
+      updateCommentDto,
+      req.user
+    );
+  }
+
+  @Delete(':taskId/comments/:commentId')
+  @UseGuards(JwtGuard)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Delete a comment on a task' })
+  @ApiParam({ name: 'taskId', description: 'Task ID', type: 'number' })
+  @ApiParam({ name: 'commentId', description: 'Comment ID', type: 'number' })
+  @ApiOkResponse({
+    description: 'Comment deleted successfully',
+    schema: {
+      type: 'object',
+      properties: {
+        message: { type: 'string', example: 'Comment deleted successfully' }
+      }
+    }
+  })
+  @ApiNotFoundResponse({ description: 'Task or comment not found' })
+  @ApiForbiddenResponse({ description: 'Permission denied to delete this comment' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  async deleteComment(
+    @Param('taskId') taskId: string,
+    @Param('commentId') commentId: string,
+    @Request() req
+  ) {
+    return this.taskService.deleteComment(
+      parseInt(taskId, 10),
+      parseInt(commentId, 10),
       req.user
     );
   }

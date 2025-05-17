@@ -18,6 +18,7 @@ service TaskService {
   rpc AddCommentToTask (AddCommentRequest) returns (CommentResponse);
   rpc GetCommentsForTask (TaskCommentsRequest) returns (CommentListResponse);
   rpc UpdateComment (UpdateCommentRequest) returns (CommentResponse);
+  rpc DeleteComment (DeleteCommentRequest) returns (MessageResponse);
 }
 
 message EmptyRequest {}
@@ -115,4 +116,10 @@ message UpdateCommentRequest {
   int32 commentId = 2;
   string content = 3;
   UserInfo user = 4;
+}
+
+message DeleteCommentRequest{
+  int32 taskId = 1;
+  int32 commentId = 2;
+  UserInfo user = 3;
 }

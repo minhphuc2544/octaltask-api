@@ -20,6 +20,7 @@ interface TaskGrpcService {
   addCommentToTask(data: any): any;
   getCommentsForTask(data: any): any;
   updateComment(data: any):any;
+  deleteComment(data: any):any;
 }
 
 @Injectable()
@@ -378,5 +379,23 @@ export class TaskService implements OnModuleInit {
       throw new HttpException('Task service unavailable', HttpStatus.SERVICE_UNAVAILABLE);
     }
   }
+
+  async deleteComment(taskId: number, commentId: number, user: any) {
+  const userData = {
+    userId: user.userId,
+    email: user.email,
+    role: user.role
+  };
+
+  const response = await firstValueFrom(
+    this.taskGrpcService.deleteComment({ taskId, commentId, user: userData }).pipe(
+      catchError(error => {
+        throw new HttpException(error.details || 'Failed to delete comment', HttpStatus.INTERNAL_SERVER_ERROR);
+      })
+    )
+  );
+  return response;
+}
+
   
 }

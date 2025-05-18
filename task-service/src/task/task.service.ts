@@ -3,10 +3,12 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Task } from './entities/task.entity';
 import { User } from './entities/user.entity';
+import { Comment } from './entities/comment.entity';
+import { Subtask } from './entities/subtask.entity';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
-import { Comment } from './entities/comment.entity';
 import { UpdateCommentDto } from './dto/update-comment.dto';
+import { UpdateSubtaskDto } from './dto/update-subtask.dto';
 
 interface TaskUser {
   userId: number;
@@ -22,7 +24,9 @@ export class TaskService {
     @InjectRepository(User)
     private userRepo: Repository<User>,
     @InjectRepository(Comment)
-    private commentRepo: Repository<Comment>
+    private commentRepo: Repository<Comment>,
+    @InjectRepository(Subtask)
+    private subtaskRepo: Repository<Subtask>
   ) { }
 
   async create(createTaskDto: CreateTaskDto, user: TaskUser) {
@@ -193,18 +197,13 @@ export class TaskService {
   }
 
   async adminDeleteTask(id: number) {
-    // First, find the task to ensure it exists
     const task = await this.taskRepo.findOne({
       where: { id }
     });
-
     if (!task) {
       throw new NotFoundException('Task not found');
     }
-
-    // Delete the task
     await this.taskRepo.remove(task);
-
     return { success: true };
   }
 
@@ -231,6 +230,165 @@ export class TaskService {
 
     return tasks;
   }
+
+  async addSubtaskToTask(taskId: number, content: string, isCompleted: boolean, userInfo: { userId: number; email?: string; role?: string }) {
+    const task = await this.taskRepo.findOne({
+      where: { id: taskId },
+      relations: ['user']
+    });
+
+    if (!task) {
+      throw new NotFoundException('Task not found');
+    }
+
+    if (task.user.id !== userInfo.userId && userInfo.role !== 'admin') {
+      throw new ForbiddenException('Permission denied to subtask on this task');
+    }
+
+    const user = await this.userRepo.findOneBy({ id: userInfo.userId });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const subtask = this.subtaskRepo.create({
+      content,
+      isCompleted,
+      task,
+      user
+    });
+
+    const savedSubtask = await this.subtaskRepo.save(subtask);
+
+    return {
+      id: savedSubtask.id,
+      content: savedSubtask.content,
+      isComplete: savedSubtask.isCompleted,
+      createdAt: savedSubtask.createdAt.toISOString(),
+      user: {
+        userId: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role
+      }
+    };
+  }
+
+  async getSubtasksForTask(taskId: number, userInfo: { userId: number; email?: string; role?: string }) {
+    const task = await this.taskRepo.findOne({
+      where: { id: taskId },
+      relations: ['user']
+    });
+
+    if (!task) {
+      throw new NotFoundException('Task not found');
+    }
+
+    if (task.user.id !== userInfo.userId && userInfo.role !== 'admin') {
+      throw new ForbiddenException('Permission denied to view subtasks on this task');
+    }
+
+    const subtasks = await this.subtaskRepo.find({
+      where: { task: { id: taskId } },
+      relations: ['user'],
+      select: {
+        id: true,
+        content: true,
+        isCompleted: true,
+        createdAt: true,
+        user: {
+          id: true,
+          email: true,
+          name: true,
+          role: true
+        }
+      },
+      order: {
+        createdAt: 'DESC'
+      }
+    });
+
+    return subtasks.map(subtask => ({
+      id: subtask.id,
+      content: subtask.content,
+      isCompleted:subtask.isCompleted,
+      createdAt: subtask.createdAt.toISOString(),
+      user: {
+        userId: subtask.user.id,
+        email: subtask.user.email,
+        name: subtask.user.name,
+        role: subtask.user.role
+      }
+    }));
+  }
+
+  async updateSubtask(taskId: number, subtaskId: number, updateSubtaskDto: UpdateSubtaskDto, userInfo: { userId: number; email?: string; role?: string }) {
+    const task = await this.taskRepo.findOne({
+      where: { id: taskId }
+    });
+
+    //console.log(updateSubtaskDto);
+    if (!task) {
+      throw new NotFoundException('Task not found');
+    }
+
+    const subtask = await this.subtaskRepo.findOne({
+      where: {
+        id: subtaskId,
+        task: { id: taskId }
+      },
+      relations: ['user']
+    });
+   
+    if (!subtask) {
+      throw new NotFoundException('subtask not found');
+    }
+
+    if (subtask.user.id !== userInfo.userId) {
+      throw new ForbiddenException('Permission denied to update this subtask');
+    }
+
+    subtask.content = updateSubtaskDto.content;
+    subtask.isCompleted = updateSubtaskDto.isCompleted;
+    
+    const updatedSubtask = await this.subtaskRepo.save(subtask);
+
+    return {
+      id: updatedSubtask.id,
+      content: updatedSubtask.content,
+      isCompleted: updatedSubtask.isCompleted,
+      createdAt: updatedSubtask.createdAt.toISOString(),
+      user: {
+        userId: subtask.user.id,
+        email: subtask.user.email,
+        name: subtask.user.name,
+        role: subtask.user.role
+      }
+    };
+  }
+
+  async deleteSubtask(taskId: number, subtaskId: number, user: { userId: number }) {
+    const subtask = await this.subtaskRepo.findOne({
+      where: {
+        id: subtaskId,
+        task: { id: taskId }
+      },
+      relations: ['user', 'task']
+    });
+
+    if (!subtask) {
+      throw new NotFoundException('Subtask not found');
+    }
+
+    if (subtask.user.id !== user.userId) {
+      throw new ForbiddenException('Permission denied to delete this Subtask');
+    }
+
+    await this.subtaskRepo.remove(subtask);
+
+    return { message: 'Subtask deleted successfully' };
+  }
+
+
   async addCommentToTask(taskId: number, content: string, userInfo: { userId: number; email?: string; role?: string }) {
     // Find the task
     const task = await this.taskRepo.findOne({
@@ -399,3 +557,4 @@ export class TaskService {
   }
 
 }
+

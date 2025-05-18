@@ -6,6 +6,7 @@ import { User } from 'src/task/entities/user.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule} from '@nestjs/config';
 import { Comment } from './entities/comment.entity';
+import { Subtask } from './entities/subtask.entity';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { Comment } from './entities/comment.entity';
     TypeOrmModule.forFeature([Task]),
     TypeOrmModule.forFeature([User]),
     TypeOrmModule.forFeature([Comment]),
+    TypeOrmModule.forFeature([Subtask]),
   ],
   controllers: [TaskController],
   providers: [TaskService],

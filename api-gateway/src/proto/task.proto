@@ -19,6 +19,13 @@ service TaskService {
   rpc GetCommentsForTask (TaskCommentsRequest) returns (CommentListResponse);
   rpc UpdateComment (UpdateCommentRequest) returns (CommentResponse);
   rpc DeleteComment (DeleteCommentRequest) returns (MessageResponse);
+
+  
+  // New subtask methods
+  rpc AddSubtaskToTask (AddSubtaskRequest) returns (SubtaskResponse);
+  rpc GetSubtasksForTask (TaskSubtasksRequest) returns (SubtaskListResponse);
+  rpc UpdateSubtask (UpdateSubtaskRequest) returns (SubtaskResponse);
+  rpc DeleteSubtask (DeleteSubtaskRequest) returns (MessageResponse);
 }
 
 message EmptyRequest {}
@@ -121,5 +128,44 @@ message UpdateCommentRequest {
 message DeleteCommentRequest{
   int32 taskId = 1;
   int32 commentId = 2;
+  UserInfo user = 3;
+}
+
+// New message types for subtask functionality
+message AddSubtaskRequest {
+  int32 taskId = 1;
+  string content = 2;
+  bool isCompleted = 3;
+  UserInfo user = 4;
+}
+
+message TaskSubtasksRequest {
+  int32 taskId = 1;
+  UserInfo user = 2;
+}
+
+message SubtaskResponse {
+  int32 id = 1;
+  string content = 2;
+  bool isCompleted = 3;
+  string createdAt = 4;
+  UserInfo user = 5;
+}
+
+message SubtaskListResponse {
+  repeated SubtaskResponse subtasks = 1;
+}
+
+message UpdateSubtaskRequest {
+  int32 taskId = 1;
+  int32 subtaskId = 2;
+  string content = 3;
+  bool isCompleted = 4;
+  UserInfo user = 5;
+}
+
+message DeleteSubtaskRequest{
+  int32 taskId = 1;
+  int32 subtaskId = 2;
   UserInfo user = 3;
 }

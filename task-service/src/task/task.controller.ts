@@ -303,4 +303,109 @@ export class TaskController {
     }
   }
 
+  
+  @GrpcMethod('TaskService', 'AddSubtaskToTask')
+  async addSubtaskToTask(data: {
+    taskId: number;
+    content: string;
+    isCompleted: boolean;
+    user: { userId: number; email: string; role: string }
+  }) {
+    try {
+      if (!data.taskId || typeof data.taskId !== 'number') {
+        throw new RpcException('Invalid task ID format');
+      }
+
+      if (!data.content) {
+        throw new RpcException('Subtask content is required');
+      }
+
+      if (!data.user || !data.user.userId) {
+        throw new RpcException('User information missing from request');
+      }
+
+      return await this.taskService.addSubtaskToTask(data.taskId, data.content,data.isCompleted, data.user);
+    } catch (error) {
+      throw new RpcException(error.message || 'Failed to add Subtask');
+    }
+  }
+
+  @GrpcMethod('TaskService', 'GetSubtasksForTask')
+  async getSubtasksForTask(data: {
+    taskId: number;
+    user: { userId: number; email: string; role: string }
+  }) {
+    try {
+      if (!data.taskId || typeof data.taskId !== 'number') {
+        throw new RpcException('Invalid task ID format');
+      }
+
+      if (!data.user || !data.user.userId) {
+        throw new RpcException('User information missing from request');
+      }
+
+      const subtasks = await this.taskService.getSubtasksForTask(data.taskId, data.user);
+      return { subtasks };
+    } catch (error) {
+      throw new RpcException(error.message || 'Failed to retrieve Subtask');
+    }
+  }
+
+  @GrpcMethod('TaskService', 'UpdateSubtask')
+  async updateSubtask(data: {
+    taskId: number;
+    subtaskId: number;
+    content: string;
+    isCompleted: boolean;
+    user: { userId: number; email: string; role: string }
+  }) {
+    try {
+      if (!data.taskId || typeof data.taskId !== 'number') {
+        throw new RpcException('Invalid task ID format');
+      }
+
+      if (!data.subtaskId || typeof data.subtaskId !== 'number') {
+        throw new RpcException('Invalid Subtask ID format');
+      }
+
+      if (!data.content) {
+        throw new RpcException('Subtask content is required');
+      }
+
+      if (!data.user || !data.user.userId) {
+        throw new RpcException('User information missing from request');
+      }
+
+      const something= await this.taskService.updateSubtask(
+        data.taskId,
+        data.subtaskId,
+        { content: data.content,
+          isCompleted: data.isCompleted
+        },
+        data.user
+      );
+      
+      return something;
+    } catch (error) {
+      throw new RpcException(error.message || 'Failed to update Subtask');
+    }
+  }
+
+  @GrpcMethod('TaskService', 'DeleteSubtask')
+  async deleteSubtask(data: { taskId: number; subtaskId: number; user: { userId: number } }) {
+    try {
+      if (!data || typeof data.taskId !== 'number') {
+        throw new RpcException('Invalid task ID format');
+      }
+
+      if (!data.user || !data.user.userId) {
+        throw new RpcException('User information missing from request');
+      }
+
+      return await this.taskService.deleteSubtask(data.taskId, data.subtaskId, data.user);
+    } catch (error) {
+      throw new RpcException(error.message || 'Failed to delete Subtask');
+    }
+  }
+
 }

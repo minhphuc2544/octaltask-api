@@ -2,6 +2,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany } from 'typeorm';
 import { User } from './user.entity';
 import { Comment } from './comment.entity';
+import { Subtask } from './subtask.entity';
 
 @Entity('tasks')
 export class Task {
@@ -25,6 +26,9 @@ export class Task {
   
   @OneToMany(() => Comment, (comment) => comment.task)
   comments: Comment[];
+
+  @OneToMany(() => Subtask, (subtask) => subtask.task)
+  subtasks: Subtask[];
   
   createdBy: any;
 }

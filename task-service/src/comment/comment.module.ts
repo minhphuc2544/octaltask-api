@@ -3,10 +3,10 @@ import { CommentService } from './comment.service';
 import { CommentController } from './comment.controller';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Task } from 'src/task/entities/task.entity';
-import { User } from 'src/task/entities/user.entity';
-import { Subtask } from 'src/task/entities/subtask.entity';
-import { Comment } from 'src/task/entities/comment.entity';
+import { Task } from 'src/entities/task.entity';
+import { User } from 'src/entities/user.entity';
+import { Subtask } from 'src/entities/subtask.entity';
+import { Comment } from 'src/entities/comment.entity';
 
 @Module({
   imports: [

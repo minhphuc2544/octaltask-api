@@ -1,8 +1,8 @@
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Subtask } from '../task/entities/subtask.entity';
-import { User } from '../task/entities/user.entity';
+import { Subtask } from '../entities/subtask.entity';
+import { User } from '../entities/user.entity';
 
 @Injectable()
 export class SubtaskService {

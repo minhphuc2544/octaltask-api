@@ -9,6 +9,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { join } from 'path';
 import { Comment } from './task/entities/comment.entity';
 import { Subtask } from './task/entities/subtask.entity';
+import { CommentModule } from './comment/comment.module';
+import { SubtaskModule } from './subtask/subtask.module';
 
 @Module({
   imports: [
@@ -31,6 +33,8 @@ import { Subtask } from './task/entities/subtask.entity';
       inject: [ConfigService],
     }),
     TaskModule,
+    CommentModule,
+    SubtaskModule,
   ],
   controllers: [AppController],
   providers: [AppService],

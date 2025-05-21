@@ -6,6 +6,8 @@ import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { join } from 'path';
 import { TaskModule } from './task/task.module';
+import { CommentModule } from './comment/comment.module';
+import { SubtaskModule } from './subtask/subtask.module';
 
 @Module({
   imports: [
@@ -14,7 +16,9 @@ import { TaskModule } from './task/task.module';
       envFilePath: join(__dirname, '..', '..', '.env'),
     }),
     AuthModule,
-    TaskModule
+    TaskModule,
+    CommentModule,
+    SubtaskModule
   ],
   controllers: [AppController, AuthController],
   providers: [AppService],

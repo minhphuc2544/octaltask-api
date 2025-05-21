@@ -14,7 +14,6 @@ import {
 } from '@nestjs/swagger';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { CommentListResponseDto, CommentResponseDto } from './dto/comment-response.dto';
-import { UpdateCommentDto } from './dto/update-comment.dto';
 import { CreateSubtaskDto } from './dto/create-subtask.dto';
 import { SubtaskListResponseDto, SubtaskResponseDto } from './dto/subtask-response.dto';
 import { UpdateSubtaskDto } from './dto/update-subtask.dto';
@@ -402,82 +401,6 @@ export class TaskController {
   async getCommentsForTask(@Param('id') id: string, @Request() req) {
     return this.taskService.getCommentsForTask(parseInt(id, 10), req.user);
   }
-
-  // NEED TO ADD @Get(':taskId/comments/:commentId') there
-
-  @Patch(':taskId/comments/:commentId') // NEED TO BE SEPARATED TO COMMNENT CONTROLLER
-  @UseGuards(JwtGuard)
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Update a comment on a task' })
-  @ApiParam({ name: 'taskId', description: 'Task ID', type: 'number' })
-  @ApiParam({ name: 'commentId', description: 'Comment ID', type: 'number' })
-  @ApiBody({ type: UpdateCommentDto })
-  @ApiOkResponse({
-    description: 'Comment updated successfully',
-    schema: {
-      type: 'object',
-      properties: {
-        id: { type: 'number', example: 1 },
-        content: { type: 'string', example: 'This is the updated comment text' },
-        createdAt: { type: 'string', example: '2025-05-17T10:30:00Z' },
-        user: {
-          type: 'object',
-          properties: {
-            userId: { type: 'number', example: 1 },
-            email: { type: 'string', example: 'user@example.com' },
-            name: { type: 'string', example: 'John Doe' },
-            role: { type: 'string', example: 'user' }
-          }
-        }
-      }
-    }
-  })
-  @ApiNotFoundResponse({ description: 'Task or comment not found' })
-  @ApiForbiddenResponse({ description: 'Permission denied to update this comment' })
-  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
-  async updateComment(
-    @Param('taskId') taskId: string,
-    @Param('commentId') commentId: string,
-    @Body(ValidationPipe) updateCommentDto: UpdateCommentDto,
-    @Request() req
-  ) {
-    return this.taskService.updateComment(
-      parseInt(taskId, 10),
-      parseInt(commentId, 10),
-      updateCommentDto,
-      req.user
-    );
-  }
-
-  @Delete(':taskId/comments/:commentId') // NEED TO BE SEPARATED TO COMMNENT CONTROLLER
-  @UseGuards(JwtGuard)
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Delete a comment on a task' })
-  @ApiParam({ name: 'taskId', description: 'Task ID', type: 'number' })
-  @ApiParam({ name: 'commentId', description: 'Comment ID', type: 'number' })
-  @ApiOkResponse({
-    description: 'Comment deleted successfully',
-    schema: {
-      type: 'object',
-      properties: {
-        message: { type: 'string', example: 'Comment deleted successfully' }
-      }
-    }
-  })
-  @ApiNotFoundResponse({ description: 'Task or comment not found' })
-  @ApiForbiddenResponse({ description: 'Permission denied to delete this comment' })
-  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
-  async deleteComment(
-    @Param('taskId') taskId: string,
-    @Param('commentId') commentId: string,
-    @Request() req
-  ) {
-    return this.taskService.deleteComment(
-      parseInt(taskId, 10),
-      parseInt(commentId, 10),
-      req.user
-    );
-  }
   
   @Post(':id/subtasks') // OKAY
   @UseGuards(JwtGuard)
@@ -514,82 +437,5 @@ export class TaskController {
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   async getSubtasksForTask(@Param('id') id: string, @Request() req) {
     return this.taskService.getSubtasksForTask(parseInt(id, 10), req.user);
-  }
-
-  // NEED TO ADD @Get(':taskId/subtasks/:subtaskId') there
-
-  @Patch(':taskId/subtasks/:subtaskId') // NEED TO BE SEPARATED TO SUBTASK CONTROLLER
-  @UseGuards(JwtGuard)
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Update a Subtask on a task' })
-  @ApiParam({ name: 'taskId', description: 'Task ID', type: 'number' })
-  @ApiParam({ name: 'subtaskId', description: 'Subtask ID', type: 'number' })
-  @ApiBody({ type: UpdateSubtaskDto })
-  @ApiOkResponse({
-    description: 'Subtask updated successfully',
-    schema: {
-      type: 'object',
-      properties: {
-        id: { type: 'number', example: 1 },
-        content: { type: 'string', example: 'This is the updated Subtask text' },
-        createdAt: { type: 'string', example: '2025-05-17T10:30:00Z' },
-        user: {
-          type: 'object',
-          properties: {
-            userId: { type: 'number', example: 1 },
-            email: { type: 'string', example: 'user@example.com' },
-            name: { type: 'string', example: 'John Doe' },
-            role: { type: 'string', example: 'user' }
-          }
-        }
-      }
-    }
-  })
-  @ApiNotFoundResponse({ description: 'Task or Subtask not found' })
-  @ApiForbiddenResponse({ description: 'Permission denied to update this Subtask' })
-  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
-  async updateSubtask(
-    @Param('taskId') taskId: number,
-    @Param('subtaskId') subtaskId: number,
-    @Body(ValidationPipe) updateSubtaskDto: UpdateSubtaskDto,
-    @Request() req
-  ) {
-    const something=this.taskService.updateSubtask(
-      taskId,
-      subtaskId,
-      updateSubtaskDto,
-      req.user
-    );
-    return something;
-  }
-
-  @Delete(':taskId/subtasks/:subtaskId') // NEED TO BE SEPARATED TO SUBTASK CONTROLLER
-  @UseGuards(JwtGuard)
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Delete a subtask on a task' })
-  @ApiParam({ name: 'taskId', description: 'Task ID', type: 'number' })
-  @ApiParam({ name: 'subtaskId', description: 'Subtask ID', type: 'number' })
-  @ApiOkResponse({
-    description: 'Subtask deleted successfully',
-    schema: {
-      type: 'object',
-      properties: {
-        message: { type: 'string', example: 'Subtask deleted successfully' }
-      }
-    }
-  })
-  @ApiNotFoundResponse({ description: 'Task or Subtask not found' })
-  @ApiForbiddenResponse({ description: 'Permission denied to delete this Subtask' })
-  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
-  async deleteSubtask(
-    @Param('taskId') taskId: string,
-    @Param('subtaskId') subtaskId: string,
-    @Request() req
-  ) {
-    return this.taskService.deleteSubtask(
-      parseInt(taskId, 10),
-      parseInt(subtaskId, 10),
-      req.user
-    );
   }
 }

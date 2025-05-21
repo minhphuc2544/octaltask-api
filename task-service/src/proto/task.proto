@@ -14,16 +14,17 @@ service TaskService {
   rpc AdminDeleteTask (TaskIdRequest) returns (MessageResponse);
   rpc GetAllTasksByUserId (UserIdRequest) returns (TaskListResponse);
   
-  // New comment-related methods
+  // Updated comment methods
   rpc AddCommentToTask (AddCommentRequest) returns (CommentResponse);
   rpc GetCommentsForTask (TaskCommentsRequest) returns (CommentListResponse);
+  rpc GetComment (CommentByIdRequest) returns (CommentResponse);
   rpc UpdateComment (UpdateCommentRequest) returns (CommentResponse);
   rpc DeleteComment (DeleteCommentRequest) returns (MessageResponse);
-
   
-  // New subtask methods
+  // Updated subtask methods
   rpc AddSubtaskToTask (AddSubtaskRequest) returns (SubtaskResponse);
   rpc GetSubtasksForTask (TaskSubtasksRequest) returns (SubtaskListResponse);
+  rpc GetSubtask (SubtaskByIdRequest) returns (SubtaskResponse);
   rpc UpdateSubtask (UpdateSubtaskRequest) returns (SubtaskResponse);
   rpc DeleteSubtask (DeleteSubtaskRequest) returns (MessageResponse);
 }
@@ -168,4 +169,15 @@ message DeleteSubtaskRequest{
   int32 taskId = 1;
   int32 subtaskId = 2;
   UserInfo user = 3;
+}
+
+// New request types
+message CommentByIdRequest {
+  int32 commentId = 1;
+  UserInfo user = 2;
+}
+
+message SubtaskByIdRequest {
+  int32 subtaskId = 1;
+  UserInfo user = 2;
 }

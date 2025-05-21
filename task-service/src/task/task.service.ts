@@ -7,8 +7,6 @@ import { Comment } from '../entities/comment.entity';
 import { Subtask } from '../entities/subtask.entity';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
-import { UpdateCommentDto } from './dto/update-comment.dto';
-import { UpdateSubtaskDto } from './dto/update-subtask.dto';
 
 interface TaskUser {
   userId: number;

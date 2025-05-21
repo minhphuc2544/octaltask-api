@@ -1,10 +1,6 @@
-import { Controller, Get, Post, Patch, Delete, Param, Body, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Patch, Delete, Param, Body, UseGuards, Request } from '@nestjs/common';
 import { CommentService } from './comment.service';
 import { JwtGuard } from '../guards/jwt.guard';
-
-interface CreateCommentDto {
-  content: string;
-}
 
 interface UpdateCommentDto {
   content: string;

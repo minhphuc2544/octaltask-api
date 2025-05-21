@@ -2,15 +2,12 @@ import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/commo
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Comment } from '../entities/comment.entity';
-import { User } from '../entities/user.entity';
 
 @Injectable()
 export class CommentService {
   constructor(
     @InjectRepository(Comment)
-    private commentRepo: Repository<Comment>,
-    @InjectRepository(User)
-    private userRepo: Repository<User>
+    private commentRepo: Repository<Comment>
   ) {}
 
   async getComment(id: number, userInfo: { userId: number; role?: string }) {

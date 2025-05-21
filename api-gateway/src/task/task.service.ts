@@ -4,7 +4,6 @@ import { catchError, firstValueFrom } from 'rxjs';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { CreateCommentDto } from './dto/create-comment.dto';
-import { UpdateSubtaskDto } from './dto/update-subtask.dto';
 import { CreateSubtaskDto } from './dto/create-subtask.dto';
 
 interface TaskGrpcService {

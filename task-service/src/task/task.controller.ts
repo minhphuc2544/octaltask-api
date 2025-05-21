@@ -205,7 +205,7 @@ export class TaskController {
     }
   }
 
-  @GrpcMethod('TaskService', 'AddCommentToTask')
+  @GrpcMethod('TaskService', 'AddCommentToTask') // OKAY
   async addCommentToTask(data: {
     taskId: number;
     content: string;
@@ -230,7 +230,7 @@ export class TaskController {
     }
   }
 
-  @GrpcMethod('TaskService', 'GetCommentsForTask')
+  @GrpcMethod('TaskService', 'GetCommentsForTask') // OKAY
   async getCommentsForTask(data: {
     taskId: number;
     user: { userId: number; email: string; role: string }
@@ -251,7 +251,9 @@ export class TaskController {
     }
   }
 
-  @GrpcMethod('TaskService', 'UpdateComment')
+  // NEED TO ADD @GrpcMethod('TaskService', 'GetComment') there
+
+  @GrpcMethod('TaskService', 'UpdateComment') // NEED TO BE SEPARATED TO COMMNENT CONTROLLER
   async updateComment(data: {
     taskId: number;
     commentId: number;
@@ -286,7 +288,7 @@ export class TaskController {
     }
   }
 
-  @GrpcMethod('TaskService', 'DeleteComment')
+  @GrpcMethod('TaskService', 'DeleteComment') // NEED TO BE SEPARATED TO COMMNENT CONTROLLER
   async deleteComment(data: { taskId: number; commentId: number; user: { userId: number } }) {
     try {
       if (!data || typeof data.taskId !== 'number') {
@@ -304,7 +306,7 @@ export class TaskController {
   }
 
   
-  @GrpcMethod('TaskService', 'AddSubtaskToTask')
+  @GrpcMethod('TaskService', 'AddSubtaskToTask') // OKAY
   async addSubtaskToTask(data: {
     taskId: number;
     content: string;
@@ -330,7 +332,7 @@ export class TaskController {
     }
   }
 
-  @GrpcMethod('TaskService', 'GetSubtasksForTask')
+  @GrpcMethod('TaskService', 'GetSubtasksForTask') // OKAY
   async getSubtasksForTask(data: {
     taskId: number;
     user: { userId: number; email: string; role: string }
@@ -351,7 +353,9 @@ export class TaskController {
     }
   }
 
-  @GrpcMethod('TaskService', 'UpdateSubtask')
+  // NEED TO ADD @GrpcMethod('TaskService', 'GetSubtask') there
+
+  @GrpcMethod('TaskService', 'UpdateSubtask') // NEED TO BE SEPARATED TO SUBTASK CONTROLLER
   async updateSubtask(data: {
     taskId: number;
     subtaskId: number;
@@ -391,7 +395,7 @@ export class TaskController {
     }
   }
 
-  @GrpcMethod('TaskService', 'DeleteSubtask')
+  @GrpcMethod('TaskService', 'DeleteSubtask') // NEED TO BE SEPARATED TO SUBTASK CONTROLLER
   async deleteSubtask(data: { taskId: number; subtaskId: number; user: { userId: number } }) {
     try {
       if (!data || typeof data.taskId !== 'number') {

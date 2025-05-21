@@ -96,7 +96,7 @@ export class TaskController {
     return this.taskService.findAll(req.user);
   }
 
-  @Get(':id')
+  @Get(':id') // OKAY
   @UseGuards(JwtGuard)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get a task by ID' })
@@ -130,7 +130,7 @@ export class TaskController {
     return this.taskService.findOne(parseInt(id, 10), req.user);
   }
 
-  @Patch(':id')
+  @Patch(':id') // OKAY
   @UseGuards(JwtGuard)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Update a task' })
@@ -169,7 +169,7 @@ export class TaskController {
     return this.taskService.update(parseInt(id, 10), updateTaskDto, req.user);
   }
 
-  @Delete(':id')
+  @Delete(':id') // OKAY
   @UseGuards(JwtGuard)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Delete a task' })
@@ -366,7 +366,7 @@ export class TaskController {
     return this.taskService.getAllTasksByUserId(parseInt(userId, 10));
   }
 
-  @Post(':id/comments')
+  @Post(':id/comments') // OKAY
   @UseGuards(JwtGuard)
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Add a comment to a task' })
@@ -387,7 +387,7 @@ export class TaskController {
     return this.taskService.addCommentToTask(parseInt(id, 10), createCommentDto, req.user);
   }
 
-  @Get(':id/comments')
+  @Get(':id/comments') // OKAY
   @UseGuards(JwtGuard)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get all comments for a task' })
@@ -403,7 +403,9 @@ export class TaskController {
     return this.taskService.getCommentsForTask(parseInt(id, 10), req.user);
   }
 
-  @Patch(':taskId/comments/:commentId')
+  // NEED TO ADD @Get(':taskId/comments/:commentId') there
+
+  @Patch(':taskId/comments/:commentId') // NEED TO BE SEPARATED TO COMMNENT CONTROLLER
   @UseGuards(JwtGuard)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Update a comment on a task' })
@@ -447,7 +449,7 @@ export class TaskController {
     );
   }
 
-  @Delete(':taskId/comments/:commentId')
+  @Delete(':taskId/comments/:commentId') // NEED TO BE SEPARATED TO COMMNENT CONTROLLER
   @UseGuards(JwtGuard)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Delete a comment on a task' })
@@ -477,7 +479,7 @@ export class TaskController {
     );
   }
   
-  @Post(':id/subtasks')
+  @Post(':id/subtasks') // OKAY
   @UseGuards(JwtGuard)
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Add a Subtask to a task' })
@@ -498,7 +500,7 @@ export class TaskController {
     return this.taskService.addSubtaskToTask(parseInt(id, 10), createSubtaskDto, req.user);
   }
 
-  @Get(':id/subtasks')
+  @Get(':id/subtasks') // OKAY
   @UseGuards(JwtGuard)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get all Subtasks for a task' })
@@ -514,12 +516,14 @@ export class TaskController {
     return this.taskService.getSubtasksForTask(parseInt(id, 10), req.user);
   }
 
-  @Patch(':taskId/subtasks/:subtaskId')
+  // NEED TO ADD @Get(':taskId/subtasks/:subtaskId') there
+
+  @Patch(':taskId/subtasks/:subtaskId') // NEED TO BE SEPARATED TO SUBTASK CONTROLLER
   @UseGuards(JwtGuard)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Update a Subtask on a task' })
   @ApiParam({ name: 'taskId', description: 'Task ID', type: 'number' })
-  @ApiParam({ name: 'subtaskId', description: 'subtask ID', type: 'number' })
+  @ApiParam({ name: 'subtaskId', description: 'Subtask ID', type: 'number' })
   @ApiBody({ type: UpdateSubtaskDto })
   @ApiOkResponse({
     description: 'Subtask updated successfully',
@@ -559,7 +563,7 @@ export class TaskController {
     return something;
   }
 
-  @Delete(':taskId/subtasks/:subtaskId')
+  @Delete(':taskId/subtasks/:subtaskId') // NEED TO BE SEPARATED TO SUBTASK CONTROLLER
   @UseGuards(JwtGuard)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Delete a subtask on a task' })

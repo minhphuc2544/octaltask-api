@@ -5,14 +5,9 @@ import { Task } from '../entities/task.entity';
 import { User } from '../entities/user.entity';
 import { Comment } from '../entities/comment.entity';
 import { Subtask } from '../entities/subtask.entity';
-import { CreateTaskDto } from './dto/create-task.dto';
-import { UpdateTaskDto } from './dto/update-task.dto';
-
-interface TaskUser {
-  userId: number;
-  email?: string;
-  role?: string;
-}
+import { CreateTaskDto } from '../dto/create-task.dto';
+import { UpdateTaskDto } from '../dto/update-task.dto';
+import { TaskUser } from './task.controller';
 
 @Injectable()
 export class TaskService {

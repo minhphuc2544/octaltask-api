@@ -1,10 +1,10 @@
 import { Controller } from '@nestjs/common';
 import { TaskService } from './task.service';
 import { GrpcMethod, RpcException } from '@nestjs/microservices';
-import { CreateTaskDto } from './dto/create-task.dto';
-import { UpdateTaskDto } from './dto/update-task.dto';
+import { CreateTaskDto } from '../dto/create-task.dto';
+import { UpdateTaskDto } from '../dto/update-task.dto';
 
-interface TaskUser {
+export interface TaskUser {
   userId: number;
   email: string;
   role: string;

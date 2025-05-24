@@ -11,6 +11,8 @@ import { Comment } from './entities/comment.entity';
 import { Subtask } from './entities/subtask.entity';
 import { CommentModule } from './comment/comment.module';
 import { SubtaskModule } from './subtask/subtask.module';
+import { List } from './entities/list.entity';
+import { ListModule } from './list/list.module';
 
 @Module({
   imports: [
@@ -26,7 +28,7 @@ import { SubtaskModule } from './subtask/subtask.module';
         username: config.get<string>('DB_USERNAME'),
         password: config.get<string>('DB_PASSWORD'),
         database: config.get<string>('DB_DATABASE'),
-        entities: [Task, User,Comment,Subtask],
+        entities: [Task, User,Comment,Subtask,List],
         synchronize: true,
         logging: true,
       }),
@@ -35,6 +37,7 @@ import { SubtaskModule } from './subtask/subtask.module';
     TaskModule,
     CommentModule,
     SubtaskModule,
+    ListModule,
   ],
   controllers: [AppController],
   providers: [AppService],

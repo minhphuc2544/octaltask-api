@@ -2,13 +2,13 @@ import { Controller, Get, Post, Body, Param, Delete, Patch, UseGuards, Request, 
 import { TaskService } from './task.service';
 import { JwtGuard } from '../guards/jwt.guard';
 import { AdminGuard } from '../guards/admin.guard';
-import { CreateTaskDto } from './dto/create-task.dto';
-import { UpdateTaskDto } from './dto/update-task.dto';
+import { CreateTaskDto } from '../dto/create-task.dto';
+import { UpdateTaskDto } from '../dto/update-task.dto';
 import { ApiTags, ApiOperation, ApiBody, ApiBearerAuth, ApiParam, ApiUnauthorizedResponse, ApiForbiddenResponse, ApiNotFoundResponse, ApiConflictResponse, ApiCreatedResponse, ApiOkResponse } from '@nestjs/swagger';
-import { CreateCommentDto } from './dto/create-comment.dto';
-import { CommentListResponseDto, CommentResponseDto } from './dto/comment-response.dto';
-import { CreateSubtaskDto } from './dto/create-subtask.dto';
-import { SubtaskListResponseDto, SubtaskResponseDto } from './dto/subtask-response.dto';
+import { CreateCommentDto } from '../dto/create-comment.dto';
+import { CommentListResponseDto, CommentResponseDto } from '../dto/comment-response.dto';
+import { CreateSubtaskDto } from '../dto/create-subtask.dto';
+import { SubtaskListResponseDto, SubtaskResponseDto } from '../dto/subtask-response.dto';
 
 @ApiTags('Task')
 @ApiBearerAuth('accessToken')
@@ -393,7 +393,7 @@ export class TaskController {
   async getCommentsForTask(@Param('id') id: string, @Request() req) {
     return this.taskService.getCommentsForTask(parseInt(id, 10), req.user);
   }
-  
+
   @Post(':id/subtasks') // OKAY
   @UseGuards(JwtGuard)
   @HttpCode(HttpStatus.CREATED)

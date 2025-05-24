@@ -3,6 +3,7 @@ import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany } from 'ty
 import { User } from './user.entity';
 import { Comment } from './comment.entity';
 import {Subtask} from './subtask.entity'
+import { List } from './list.entity';
 
 @Entity('tasks')
 export class Task {
@@ -18,6 +19,9 @@ export class Task {
   @Column({ default: false })
   isCompleted: boolean;
 
+  @Column({default:false})
+  isImportant:boolean;
+
   @Column({ type: 'timestamp', nullable: true })
   dueDate?: Date;
 
@@ -29,6 +33,9 @@ export class Task {
 
   @OneToMany(() => Subtask, (subtask) => subtask.task)
   subtasks: Subtask[];
+
+  @ManyToOne(() => List, (list) => list.tasks, { onDelete: 'SET NULL', nullable: true })
+  list: List;
   
   createdBy: any;
 }

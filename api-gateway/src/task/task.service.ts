@@ -1,10 +1,10 @@
 import { Injectable, OnModuleInit, Inject, HttpException, HttpStatus } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
 import { catchError, firstValueFrom } from 'rxjs';
-import { CreateTaskDto } from './dto/create-task.dto';
-import { UpdateTaskDto } from './dto/update-task.dto';
-import { CreateCommentDto } from './dto/create-comment.dto';
-import { CreateSubtaskDto } from './dto/create-subtask.dto';
+import { CreateTaskDto } from '../dto/create-task.dto';
+import { UpdateTaskDto } from '../dto/update-task.dto';
+import { CreateCommentDto } from '../dto/create-comment.dto';
+import { CreateSubtaskDto } from '../dto/create-subtask.dto';
 
 interface TaskGrpcService {
   createTask(data: any): any;

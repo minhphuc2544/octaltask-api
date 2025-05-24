@@ -27,6 +27,13 @@ service TaskService {
   rpc GetSubtask (SubtaskByIdRequest) returns (SubtaskResponse);
   rpc UpdateSubtask (UpdateSubtaskRequest) returns (SubtaskResponse);
   rpc DeleteSubtask (DeleteSubtaskRequest) returns (MessageResponse);
+
+  // List methods
+  rpc CreateList (CreateListRequest) returns (ListResponse);
+  rpc GetAllLists (GetAllListsRequest) returns (ListListResponse);
+  rpc GetListById (ListByIdRequest) returns (ListResponse);
+  rpc UpdateList (UpdateListRequest) returns (ListResponse);
+  rpc DeleteList (ListByIdRequest) returns (MessageResponse);
 }
 
 message EmptyRequest {}
@@ -180,4 +187,45 @@ message CommentByIdRequest {
 message SubtaskByIdRequest {
   int32 subtaskId = 1;
   UserInfo user = 2;
+}
+
+// New message types for list functionality
+message CreateListRequest {
+  string name = 1;
+  string icon = 2;
+  string color = 3;
+  string dueDate = 4;
+  UserInfo user = 5;
+}
+
+message GetAllListsRequest {
+  UserInfo user = 1;
+}
+
+message ListByIdRequest {
+  int32 id = 1;
+  UserInfo user = 2;
+}
+
+message UpdateListRequest {
+  int32 id = 1;
+  string name = 2;
+  string icon = 3;
+  string color = 4;
+  string dueDate = 5;
+  UserInfo user = 6;
+}
+
+message ListResponse {
+  int32 id = 1;
+  string name = 2;
+  string icon = 3;
+  string color = 4;
+  string dueDate = 5;
+  UserInfo user = 6;
+  repeated TaskResponse tasks = 7;
+}
+
+message ListListResponse {
+  repeated ListResponse lists = 1;
 }

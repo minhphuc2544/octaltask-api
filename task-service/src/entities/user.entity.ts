@@ -1,5 +1,6 @@
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 import { Task } from './task.entity';
+import { List } from './list.entity';
 
 export enum Role {
   USER = 'user',
@@ -35,4 +36,7 @@ export class User {
 
   @Column({ nullable: true, type: 'datetime' })
   resetTokenExpires: Date | null;;
+
+  @OneToMany(() => List, (list) => list.createdBy)
+  lists: List[];
 }

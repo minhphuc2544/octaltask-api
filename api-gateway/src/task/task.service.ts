@@ -1,12 +1,10 @@
 import { Injectable, OnModuleInit, Inject, HttpException, HttpStatus } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
 import { catchError, firstValueFrom } from 'rxjs';
-import { CreateTaskDto } from './dto/create-task.dto';
-import { UpdateTaskDto } from './dto/update-task.dto';
-import { CreateCommentDto } from './dto/create-comment.dto';
-import { UpdateCommentDto } from './dto/update-comment.dto';
-import { UpdateSubtaskDto } from './dto/update-subtask.dto';
-import { CreateSubtaskDto } from './dto/create-subtask.dto';
+import { CreateTaskDto } from '../dto/create-task.dto';
+import { UpdateTaskDto } from '../dto/update-task.dto';
+import { CreateCommentDto } from '../dto/create-comment.dto';
+import { CreateSubtaskDto } from '../dto/create-subtask.dto';
 
 interface TaskGrpcService {
   createTask(data: any): any;
@@ -21,12 +19,8 @@ interface TaskGrpcService {
   getAllTasksByUserId(data: any): any;
   addCommentToTask(data: any): any;
   getCommentsForTask(data: any): any;
-  updateComment(data: any): any;
-  deleteComment(data: any): any;
   addSubtaskToTask(data: any): any;
   getSubtasksForTask(data: any): any;
-  updateSubtask(data: any): any;
-  deleteSubtask(data: any): any;
 }
 
 @Injectable()
@@ -349,61 +343,6 @@ export class TaskService implements OnModuleInit {
     }
   }
 
-  async updateComment(taskId: number, commentId: number, dto: UpdateCommentDto, user: any) {
-    try {
-      const userData = {
-        userId: user.userId,
-        email: user.email,
-        role: user.role
-      };
-
-      const response = await firstValueFrom(
-        this.taskGrpcService.updateComment({
-          taskId,
-          commentId,
-          content: dto.content,
-          user: userData
-        }).pipe(
-          catchError(error => {
-            if (error.details === 'Task not found') {
-              throw new HttpException('Task not found', HttpStatus.NOT_FOUND);
-            }
-            if (error.details === 'Comment not found') {
-              throw new HttpException('Comment not found', HttpStatus.NOT_FOUND);
-            }
-            if (error.details === 'Permission denied to update this comment') {
-              throw new HttpException('Permission denied', HttpStatus.FORBIDDEN);
-            }
-            throw new HttpException(error.details || 'Failed to update comment', HttpStatus.INTERNAL_SERVER_ERROR);
-          }),
-        ),
-      );
-      return response;
-    } catch (error) {
-      if (error instanceof HttpException) {
-        throw error;
-      }
-      throw new HttpException('Task service unavailable', HttpStatus.SERVICE_UNAVAILABLE);
-    }
-  }
-
-  async deleteComment(taskId: number, commentId: number, user: any) {
-    const userData = {
-      userId: user.userId,
-      email: user.email,
-      role: user.role
-    };
-
-    const response = await firstValueFrom(
-      this.taskGrpcService.deleteComment({ taskId, commentId, user: userData }).pipe(
-        catchError(error => {
-          throw new HttpException(error.details || 'Failed to delete comment', HttpStatus.INTERNAL_SERVER_ERROR);
-        })
-      )
-    );
-    return response;
-  }
-
   async addSubtaskToTask(taskId: number, dto: CreateSubtaskDto, user: any) {
     try {
       const userData = {
@@ -471,63 +410,4 @@ export class TaskService implements OnModuleInit {
       throw new HttpException('Task service unavailable', HttpStatus.SERVICE_UNAVAILABLE);
     }
   }
-
-  async updateSubtask(taskId: number, subtaskId: number, dto: UpdateSubtaskDto, user: any) {
-    try {
-      const userData = {
-        userId: user.userId,
-        email: user.email,
-        role: user.role
-      };
-      
-      const response = await firstValueFrom(
-        this.taskGrpcService.updateSubtask({
-          taskId: taskId,
-          subtaskId: subtaskId,
-          content: dto.content,
-          isCompleted: dto.isCompleted,
-          user: userData
-        }).pipe(
-          catchError(error => {
-            if (error.details === 'Task not found') {
-              throw new HttpException('Task not found', HttpStatus.NOT_FOUND);
-            }
-            if (error.details === 'Subtask not found') {
-              throw new HttpException('Subtask not found', HttpStatus.NOT_FOUND);
-            }
-            if (error.details === 'Permission denied to update this Subtask') {
-              throw new HttpException('Permission denied', HttpStatus.FORBIDDEN);
-            }
-            throw new HttpException(error.details || 'Failed to update Subtask', HttpStatus.INTERNAL_SERVER_ERROR);
-          }),
-        ),
-      );
-
-      return response;
-    } catch (error) {
-      if (error instanceof HttpException) {
-        throw error;
-      }
-      throw new HttpException('Task service unavailable', HttpStatus.SERVICE_UNAVAILABLE);
-    }
-  }
-
-  async deleteSubtask(taskId: number, SubtaskId: number, user: any) {
-    const userData = {
-      userId: user.userId,
-      email: user.email,
-      role: user.role
-    };
-
-    const response = await firstValueFrom(
-      this.taskGrpcService.deleteSubtask({ taskId, SubtaskId, user: userData }).pipe(
-        catchError(error => {
-          throw new HttpException(error.details || 'Failed to delete Subtask', HttpStatus.INTERNAL_SERVER_ERROR);
-        })
-      )
-    );
-    return response;
-  }
-
-
 }

@@ -1,10 +1,10 @@
 import { Controller } from '@nestjs/common';
 import { TaskService } from './task.service';
 import { GrpcMethod, RpcException } from '@nestjs/microservices';
-import { CreateTaskDto } from './dto/create-task.dto';
-import { UpdateTaskDto } from './dto/update-task.dto';
+import { CreateTaskDto } from '../dto/create-task.dto';
+import { UpdateTaskDto } from '../dto/update-task.dto';
 
-interface TaskUser {
+export interface TaskUser {
   userId: number;
   email: string;
   role: string;
@@ -205,7 +205,7 @@ export class TaskController {
     }
   }
 
-  @GrpcMethod('TaskService', 'AddCommentToTask')
+  @GrpcMethod('TaskService', 'AddCommentToTask') // OKAY
   async addCommentToTask(data: {
     taskId: number;
     content: string;
@@ -230,7 +230,7 @@ export class TaskController {
     }
   }
 
-  @GrpcMethod('TaskService', 'GetCommentsForTask')
+  @GrpcMethod('TaskService', 'GetCommentsForTask') // OKAY
   async getCommentsForTask(data: {
     taskId: number;
     user: { userId: number; email: string; role: string }
@@ -250,61 +250,8 @@ export class TaskController {
       throw new RpcException(error.message || 'Failed to retrieve comments');
     }
   }
-
-  @GrpcMethod('TaskService', 'UpdateComment')
-  async updateComment(data: {
-    taskId: number;
-    commentId: number;
-    content: string;
-    user: { userId: number; email: string; role: string }
-  }) {
-    try {
-      if (!data.taskId || typeof data.taskId !== 'number') {
-        throw new RpcException('Invalid task ID format');
-      }
-
-      if (!data.commentId || typeof data.commentId !== 'number') {
-        throw new RpcException('Invalid comment ID format');
-      }
-
-      if (!data.content) {
-        throw new RpcException('Comment content is required');
-      }
-
-      if (!data.user || !data.user.userId) {
-        throw new RpcException('User information missing from request');
-      }
-
-      return await this.taskService.updateComment(
-        data.taskId,
-        data.commentId,
-        { content: data.content },
-        data.user
-      );
-    } catch (error) {
-      throw new RpcException(error.message || 'Failed to update comment');
-    }
-  }
-
-  @GrpcMethod('TaskService', 'DeleteComment')
-  async deleteComment(data: { taskId: number; commentId: number; user: { userId: number } }) {
-    try {
-      if (!data || typeof data.taskId !== 'number') {
-        throw new RpcException('Invalid task ID format');
-      }
-
-      if (!data.user || !data.user.userId) {
-        throw new RpcException('User information missing from request');
-      }
-
-      return await this.taskService.deleteComment(data.taskId, data.commentId, data.user);
-    } catch (error) {
-      throw new RpcException(error.message || 'Failed to delete comment');
-    }
-  }
-
   
-  @GrpcMethod('TaskService', 'AddSubtaskToTask')
+  @GrpcMethod('TaskService', 'AddSubtaskToTask') // OKAY
   async addSubtaskToTask(data: {
     taskId: number;
     content: string;
@@ -330,7 +277,7 @@ export class TaskController {
     }
   }
 
-  @GrpcMethod('TaskService', 'GetSubtasksForTask')
+  @GrpcMethod('TaskService', 'GetSubtasksForTask') // OKAY
   async getSubtasksForTask(data: {
     taskId: number;
     user: { userId: number; email: string; role: string }
@@ -350,62 +297,4 @@ export class TaskController {
       throw new RpcException(error.message || 'Failed to retrieve Subtask');
     }
   }
-
-  @GrpcMethod('TaskService', 'UpdateSubtask')
-  async updateSubtask(data: {
-    taskId: number;
-    subtaskId: number;
-    content: string;
-    isCompleted: boolean;
-    user: { userId: number; email: string; role: string }
-  }) {
-    try {
-      if (!data.taskId || typeof data.taskId !== 'number') {
-        throw new RpcException('Invalid task ID format');
-      }
-
-      if (!data.subtaskId || typeof data.subtaskId !== 'number') {
-        throw new RpcException('Invalid Subtask ID format');
-      }
-
-      if (!data.content) {
-        throw new RpcException('Subtask content is required');
-      }
-
-      if (!data.user || !data.user.userId) {
-        throw new RpcException('User information missing from request');
-      }
-
-      const something= await this.taskService.updateSubtask(
-        data.taskId,
-        data.subtaskId,
-        { content: data.content,
-          isCompleted: data.isCompleted
-        },
-        data.user
-      );
-      
-      return something;
-    } catch (error) {
-      throw new RpcException(error.message || 'Failed to update Subtask');
-    }
-  }
-
-  @GrpcMethod('TaskService', 'DeleteSubtask')
-  async deleteSubtask(data: { taskId: number; subtaskId: number; user: { userId: number } }) {
-    try {
-      if (!data || typeof data.taskId !== 'number') {
-        throw new RpcException('Invalid task ID format');
-      }
-
-      if (!data.user || !data.user.userId) {
-        throw new RpcException('User information missing from request');
-      }
-
-      return await this.taskService.deleteSubtask(data.taskId, data.subtaskId, data.user);
-    } catch (error) {
-      throw new RpcException(error.message || 'Failed to delete Subtask');
-    }
-  }
-
 }

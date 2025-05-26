@@ -2,13 +2,17 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TaskModule } from './task/task.module';
-import { Task } from './task/entities/task.entity';
-import { User } from './task/entities/user.entity';
+import { Task } from './entities/task.entity';
+import { User } from './entities/user.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { join } from 'path';
-import { Comment } from './task/entities/comment.entity';
-import { Subtask } from './task/entities/subtask.entity';
+import { Comment } from './entities/comment.entity';
+import { Subtask } from './entities/subtask.entity';
+import { CommentModule } from './comment/comment.module';
+import { SubtaskModule } from './subtask/subtask.module';
+import { List } from './entities/list.entity';
+import { ListModule } from './list/list.module';
 
 @Module({
   imports: [
@@ -24,13 +28,16 @@ import { Subtask } from './task/entities/subtask.entity';
         username: config.get<string>('DB_USERNAME'),
         password: config.get<string>('DB_PASSWORD'),
         database: config.get<string>('DB_DATABASE'),
-        entities: [Task, User,Comment,Subtask],
+        entities: [Task, User,Comment,Subtask,List],
         synchronize: true,
         logging: true,
       }),
       inject: [ConfigService],
     }),
     TaskModule,
+    CommentModule,
+    SubtaskModule,
+    ListModule,
   ],
   controllers: [AppController],
   providers: [AppService],

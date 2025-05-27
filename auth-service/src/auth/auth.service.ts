@@ -92,4 +92,23 @@ export class AuthService {
     await this.userRepo.save(user);
     return { message: 'Password successfully reset' };
   }
+
+  async getUserById(userId: number) {
+    try {
+      // Find the user in the database by ID
+      const user = await this.userRepo.findOne({ where: { id: userId } });
+      
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
+
+      // Return user without sensitive information
+      const { password, resetToken, resetTokenExpires, ...safeUser } = user;
+      return safeUser;
+      
+    } catch (error) {
+      // Rethrow the error (like NotFoundException)
+      throw error;
+    }
+  }
 }

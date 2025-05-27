@@ -1,10 +1,12 @@
-//api-gateway/src/auth
-import { Controller, Post, Body, HttpCode, HttpStatus, ValidationPipe } from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, HttpStatus, ValidationPipe, Get, UseGuards, Request } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { SignupDto } from './dto/signup.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
-import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
+import { JwtGuard } from 'src/guards/jwt.guard';
+// Import your existing JwtGuard
+// import { JwtGuard } from './guards/jwt.guard'; // Update path as needed
 
 @ApiTags('Authentication')
 @Controller('auth')
@@ -104,5 +106,36 @@ export class AuthController {
   @ApiResponse({ status: HttpStatus.SERVICE_UNAVAILABLE, description: 'Authentication service unavailable' })
   async resetPassword(@Body(ValidationPipe) body: ResetPasswordDto) {
     return this.authService.resetPassword(body.token, body.newPassword);
+  }
+
+  @Get('me')
+  @UseGuards(JwtGuard) // Use your existing JwtGuard
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get current user', description: 'Get current authenticated user information' })
+  @ApiResponse({ 
+    status: HttpStatus.OK, 
+    description: 'Returns current user information',
+    schema: {
+      properties: {
+        user: { 
+          type: 'object',
+          properties: {
+            id: { type: 'number', example: 1 },
+            email: { type: 'string', example: 'user@example.com' },
+            name: { type: 'string', example: 'John Doe' },
+            role: { type: 'string', example: 'user' }
+          }
+        }
+      }
+    }
+  })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Invalid or expired token' })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'User not found' })
+  @ApiResponse({ status: HttpStatus.SERVICE_UNAVAILABLE, description: 'Authentication service unavailable' })
+  async getMe(@Request() req: any) {
+    // Your JwtGuard should populate req.user with user info including user ID
+    const userId = req.user.sub || req.user.id; // Adjust based on your JWT payload structure
+    return this.authService.getUserById(userId);
   }
 }

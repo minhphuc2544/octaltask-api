@@ -10,6 +10,7 @@ interface AuthGrpcService {
   signup(data: SignupDto): any;
   requestPasswordReset(data: { email: string }): any;
   resetPassword(data: ResetPasswordDto): any;
+  getUserById(data: { userId: number }): any;
 }
 
 @Injectable()
@@ -102,6 +103,27 @@ export class AuthService implements OnModuleInit {
               throw new HttpException('Invalid or expired token', HttpStatus.BAD_REQUEST);
             }
             throw new HttpException(error.details || 'Password reset failed', HttpStatus.INTERNAL_SERVER_ERROR);
+          }),
+        ),
+      );
+      return response;
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException('Authentication service unavailable', HttpStatus.SERVICE_UNAVAILABLE);
+    }
+  }
+
+  async getUserById(userId: number) {
+    try {
+      const response = await firstValueFrom(
+        this.authGrpcService.getUserById({ userId }).pipe(
+          catchError(error => {
+            if (error.details === 'User not found') {
+              throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+            }
+            throw new HttpException(error.details || 'Failed to get user information', HttpStatus.INTERNAL_SERVER_ERROR);
           }),
         ),
       );

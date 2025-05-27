@@ -1,4 +1,4 @@
-import { Injectable, Inject, HttpException, HttpStatus } from '@nestjs/common';
+import { Injectable, Inject, HttpException, HttpStatus, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 
@@ -30,7 +30,7 @@ export class CommentService {
         this.commentGrpcService.getComment({ commentId: id, user: userData })
       );
     } catch (error) {
-      throw new HttpException(error.message || 'Failed to get comment', HttpStatus.INTERNAL_SERVER_ERROR);
+      this.handleGrpcError(error);
     }
   }
 
@@ -50,7 +50,7 @@ export class CommentService {
         })
       );
     } catch (error) {
-      throw new HttpException(error.message || 'Failed to update comment', HttpStatus.INTERNAL_SERVER_ERROR);
+      this.handleGrpcError(error);
     }
   }
 
@@ -66,7 +66,26 @@ export class CommentService {
         this.commentGrpcService.deleteComment({ commentId: id, user: userData })
       );
     } catch (error) {
-      throw new HttpException(error.message || 'Failed to delete comment', HttpStatus.INTERNAL_SERVER_ERROR);
+      this.handleGrpcError(error);
+    }
+  }
+
+  private handleGrpcError(error: any) {
+    // Extract gRPC error details
+    const grpcError = error.details || error.message || 'Unknown error';
+    const grpcCode = error.code;
+
+    // Map gRPC status codes to HTTP status codes
+    switch (grpcCode) {
+      case 5: // NOT_FOUND
+        throw new NotFoundException(grpcError);
+      case 7: // PERMISSION_DENIED
+        throw new ForbiddenException(grpcError);
+      case 3: // INVALID_ARGUMENT
+        throw new HttpException(grpcError, HttpStatus.BAD_REQUEST);
+      case 13: // INTERNAL
+      default:
+        throw new HttpException(grpcError, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 }

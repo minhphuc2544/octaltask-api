@@ -56,4 +56,14 @@ export class AuthController {
       throw new RpcException(error.message || 'Password reset failed');
     }
   }
+
+  @GrpcMethod('AuthService', 'GetUserById')
+  async getUserById(data: { userId: number }) {
+    try {
+      const user = await this.authService.getUserById(data.userId);
+      return { user };
+    } catch (error) {
+      throw new RpcException(error.message || 'Failed to get user information');
+    }
+  }
 }

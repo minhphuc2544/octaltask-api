@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { TaskModule } from './task/task.module';
+import { TaskModule } from './resources/task/task.module';
 import { Task } from './entities/task.entity';
 import { User } from './entities/user.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -9,10 +9,10 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { join } from 'path';
 import { Comment } from './entities/comment.entity';
 import { Subtask } from './entities/subtask.entity';
-import { CommentModule } from './comment/comment.module';
-import { SubtaskModule } from './subtask/subtask.module';
+import { CommentModule } from './resources/comment/comment.module';
+import { SubtaskModule } from './resources/subtask/subtask.module';
 import { List } from './entities/list.entity';
-import { ListModule } from './list/list.module';
+import { ListModule } from './resources/list/list.module';
 
 @Module({
   imports: [

@@ -1,15 +1,15 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { AuthController } from './auth/auth.controller';
-import { AuthModule } from './auth/auth.module';
+import { AuthController } from './resources/auth/auth.controller';
+import { AuthModule } from './resources/auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { join } from 'path';
-import { TaskModule } from './task/task.module';
-import { CommentModule } from './comment/comment.module';
-import { SubtaskModule } from './subtask/subtask.module';
-import { ListController } from './list/list.controller';
-import { ListModule } from './list/list.module';
+import { TaskModule } from './resources/task/task.module';
+import { CommentModule } from './resources/comment/comment.module';
+import { SubtaskModule } from './resources/subtask/subtask.module';
+import { ListController } from './resources/list/list.controller';
+import { ListModule } from './resources/list/list.module';
 
 @Module({
   imports: [

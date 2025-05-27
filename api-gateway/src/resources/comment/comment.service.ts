@@ -1,6 +1,7 @@
 import { Injectable, Inject, HttpException, HttpStatus, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
+import { status } from '@grpc/grpc-js';
 
 interface CommentGrpcService {
   getComment(data: any): any;
@@ -77,13 +78,13 @@ export class CommentService {
 
     // Map gRPC status codes to HTTP status codes
     switch (grpcCode) {
-      case 5: // NOT_FOUND
+      case status.NOT_FOUND: // NOT_FOUND
         throw new NotFoundException(grpcError);
-      case 7: // PERMISSION_DENIED
+      case status.PERMISSION_DENIED: // PERMISSION_DENIED
         throw new ForbiddenException(grpcError);
-      case 3: // INVALID_ARGUMENT
+      case status.INVALID_ARGUMENT: // INVALID_ARGUMENT
         throw new HttpException(grpcError, HttpStatus.BAD_REQUEST);
-      case 13: // INTERNAL
+      case status.INTERNAL: // INTERNAL
       default:
         throw new HttpException(grpcError, HttpStatus.INTERNAL_SERVER_ERROR);
     }

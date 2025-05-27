@@ -1,6 +1,7 @@
 import { Injectable, Inject, HttpException, HttpStatus, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
+import { status } from '@grpc/grpc-js';
 
 interface SubtaskGrpcService {
   getSubtask(data: any): any;
@@ -77,13 +78,13 @@ export class SubtaskService {
     const message = error.details || error.message || 'Unknown error';
 
     switch (grpcCode) {
-      case 3: // INVALID_ARGUMENT
+      case status.INVALID_ARGUMENT: // INVALID_ARGUMENT
         throw new BadRequestException(message);
-      case 5: // NOT_FOUND
+      case status.NOT_FOUND: // NOT_FOUND
         throw new NotFoundException(message);
-      case 7: // PERMISSION_DENIED
+      case status.PERMISSION_DENIED: // PERMISSION_DENIED
         throw new ForbiddenException(message);
-      case 2: // UNKNOWN
+      case status.UNKNOWN: // UNKNOWN
       default:
         throw new HttpException(message, HttpStatus.INTERNAL_SERVER_ERROR);
     }

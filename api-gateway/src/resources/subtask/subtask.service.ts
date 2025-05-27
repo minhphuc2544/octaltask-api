@@ -1,4 +1,4 @@
-import { Injectable, Inject, HttpException, HttpStatus } from '@nestjs/common';
+import { Injectable, Inject, HttpException, HttpStatus, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 
@@ -30,7 +30,7 @@ export class SubtaskService {
         this.subtaskGrpcService.getSubtask({ subtaskId: id, user: userData })
       );
     } catch (error) {
-      throw new HttpException(error.message || 'Failed to get subtask', HttpStatus.INTERNAL_SERVER_ERROR);
+      this.handleGrpcError(error);
     }
   }
 
@@ -51,7 +51,7 @@ export class SubtaskService {
         })
       );
     } catch (error) {
-      throw new HttpException(error.message || 'Failed to update subtask', HttpStatus.INTERNAL_SERVER_ERROR);
+      this.handleGrpcError(error);
     }
   }
 
@@ -67,7 +67,25 @@ export class SubtaskService {
         this.subtaskGrpcService.deleteSubtask({ subtaskId: id, user: userData })
       );
     } catch (error) {
-      throw new HttpException(error.message || 'Failed to delete subtask', HttpStatus.INTERNAL_SERVER_ERROR);
+      this.handleGrpcError(error);
+    }
+  }
+
+  private handleGrpcError(error: any) {
+    // Extract gRPC error details
+    const grpcCode = error.code;
+    const message = error.details || error.message || 'Unknown error';
+
+    switch (grpcCode) {
+      case 3: // INVALID_ARGUMENT
+        throw new BadRequestException(message);
+      case 5: // NOT_FOUND
+        throw new NotFoundException(message);
+      case 7: // PERMISSION_DENIED
+        throw new ForbiddenException(message);
+      case 2: // UNKNOWN
+      default:
+        throw new HttpException(message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 }

@@ -24,6 +24,7 @@ export class UserController {
   @GrpcMethod('UserService', 'GetCurrentUser')
   async getCurrentUser(data: { user: any }) {
     try {
+      console.log("data:",data);
       const user = await this.userService.getCurrentUser(data.user.userId);
       return { user };
     } catch (error) {

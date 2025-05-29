@@ -20,18 +20,25 @@ export class TaskController {
     description?: string;
     isCompleted?: boolean;
     dueDate?: string;
+    listId: number; // Thêm listId bắt buộc cho create task
     user: TaskUser
   }) {
+    
     try {
       if (!data.title) {
         throw new RpcException('Title is required');
+      }
+
+      if (!data.listId) {
+        throw new RpcException('List ID is required');
       }
 
       const createTaskDto: CreateTaskDto = {
         title: data.title,
         description: data.description,
         isCompleted: data.isCompleted,
-        dueDate: data.dueDate
+        dueDate: data.dueDate,
+        listId: data.listId // Thêm listId vào DTO
       };
 
       return await this.taskService.create(createTaskDto, data.user);
@@ -81,6 +88,7 @@ export class TaskController {
     description?: string;
     isCompleted?: boolean;
     dueDate?: string;
+    listId?: number; // listId là optional cho update
     user: TaskUser
   }) {
     try {
@@ -97,7 +105,8 @@ export class TaskController {
         title: updateData.title,
         description: updateData.description,
         isCompleted: updateData.isCompleted,
-        dueDate: updateData.dueDate
+        dueDate: updateData.dueDate,
+        listId: updateData.listId // Thêm listId vào DTO
       };
 
       return await this.taskService.update(id, updateTaskDto, user);
@@ -156,7 +165,8 @@ export class TaskController {
     title?: string;
     description?: string;
     isCompleted?: boolean;
-    dueDate?: string
+    dueDate?: string;
+    listId?: number; // Thêm listId cho admin update
   }) {
     try {
       if (!data || typeof data.id !== 'number') {
@@ -168,7 +178,8 @@ export class TaskController {
         title: updateData.title,
         description: updateData.description,
         isCompleted: updateData.isCompleted,
-        dueDate: updateData.dueDate
+        dueDate: updateData.dueDate,
+        listId: updateData.listId
       };
 
       return await this.taskService.adminUpdateTask(id, updateTaskDto);

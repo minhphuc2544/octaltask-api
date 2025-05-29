@@ -44,6 +44,7 @@ message CreateTaskRequest {
   bool isCompleted = 3;
   string dueDate = 4;
   UserInfo user = 5;
+  int32 listId =6;
 }
 
 message GetAllTasksRequest {
@@ -93,6 +94,7 @@ message TaskResponse {
   bool isCompleted = 4;
   string dueDate = 5;
   UserInfo user = 6;
+  int32 listId = 7;
 }
 
 message TaskListResponse {
@@ -158,6 +160,7 @@ message SubtaskResponse {
   bool isCompleted = 3;
   string createdAt = 4;
   UserInfo user = 5;
+  int32 taskId = 6;
 }
 
 message SubtaskListResponse {

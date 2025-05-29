@@ -1,4 +1,4 @@
-import { Injectable, OnModuleInit, Inject, HttpException, HttpStatus } from '@nestjs/common';
+import { Injectable, OnModuleInit, Inject, HttpException, HttpStatus, Controller } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
 import { catchError, firstValueFrom } from 'rxjs';
 import { CreateTaskDto } from './dto/create-task.dto';
@@ -41,6 +41,7 @@ export class TaskService implements OnModuleInit {
         role: user.role
       };
 
+      console.log("Controller",dto);
       const response = await firstValueFrom(
         this.taskGrpcService.createTask({ ...dto, user: userData }).pipe(
           catchError(error => {

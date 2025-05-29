@@ -32,12 +32,13 @@ export class SubtaskService {
       content: subtask.content,
       isCompleted: subtask.isCompleted,
       createdAt: subtask.createdAt.toISOString(),
+      taskId: subtask.task.id,
       user: {
         userId: subtask.user.id,
         email: subtask.user.email,
         name: subtask.user.name,
         role: subtask.user.role
-      }
+      },
     };
   }
 
@@ -69,6 +70,7 @@ export class SubtaskService {
       content: updatedSubtask.content,
       isCompleted: updatedSubtask.isCompleted,
       createdAt: updatedSubtask.createdAt.toISOString(),
+      taskId: subtask.task.id,
       user: {
         userId: subtask.user.id,
         email: subtask.user.email,

@@ -28,6 +28,7 @@ export class CommentService {
       id: comment.id,
       content: comment.content,
       createdAt: comment.createdAt.toISOString(),
+      taskId: comment.task.id,
       user: {
         userId: comment.user.id,
         email: comment.user.email,
@@ -58,6 +59,7 @@ export class CommentService {
       id: updatedComment.id,
       content: updatedComment.content,
       createdAt: updatedComment.createdAt.toISOString(),
+      taskId: comment.task.id,
       user: {
         userId: comment.user.id,
         email: comment.user.email,

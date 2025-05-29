@@ -8,10 +8,26 @@ import { ConfigModule} from '@nestjs/config';
 import { Comment } from '../../entities/comment.entity';
 import { Subtask } from '../../entities/subtask.entity';
 import { List } from 'src/entities/list.entity';
+import { ClientsModule, Transport } from '@nestjs/microservices';
+import { join } from 'path';
 
 @Module({
   imports: [
-    ConfigModule, 
+    ConfigModule,
+    
+    
+    ClientsModule.register([
+      {
+        name: 'USER_INFO_PACKAGE',
+        transport: Transport.GRPC,
+        options: {
+          package: 'userinfo',
+          protoPath: join(__dirname, '../../proto/userinfo.proto'),
+          url: 'localhost:50054', // User service gRPC endpoint
+        },
+      },
+    ]),
+    
     TypeOrmModule.forFeature([Task]),
     TypeOrmModule.forFeature([User]),
     TypeOrmModule.forFeature([Comment]),

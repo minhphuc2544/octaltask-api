@@ -17,10 +17,116 @@ interface AdminUpdateUserDto extends UpdateUserDto {
   role?: string;
 }
 
+export interface UserResponse {
+  id: number;
+  email: string;
+  name: string;
+  role: string;
+}
+
+export interface UsersResponse {
+  users: UserResponse[];
+}
+
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
+  @GrpcMethod('UserService', 'GetUserByIdInfo')
+  async getUserByIdInfo(data: { id: number }): Promise<UserResponse> {
+    console.log("hi");
+    try {
+      if (!data.id || typeof data.id !== 'number') {
+        throw new RpcException('Invalid user ID format');
+      }
+
+      const user = await this.userService.findById(data.id);
+      if (!user) {
+        throw new RpcException('User not found');
+      }
+
+      return {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role
+      };
+    } catch (error) {
+      throw new RpcException(error.message || 'Failed to retrieve user');
+    }
+  }
+
+  @GrpcMethod('UserService', 'GetUsersByIds')
+  async getUsersByIds(data: { ids: number[] }): Promise<UsersResponse> {
+    try {
+      if (!data.ids || !Array.isArray(data.ids)) {
+        throw new RpcException('Invalid user IDs format');
+      }
+
+      const users = await this.userService.findByIds(data.ids);
+      
+      return {
+        users: users.map(user => ({
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          role: user.role
+        }))
+      };
+    } catch (error) {
+      throw new RpcException(error.message || 'Failed to retrieve users');
+    }
+  }
+
+  @GrpcMethod('UserService', 'ValidateUser')
+  async validateUser(data: { userId: number, email?: string }): Promise<{ 
+    exists: boolean; 
+    user?: UserResponse 
+  }> {
+    try {
+      if (!data.userId || typeof data.userId !== 'number') {
+        throw new RpcException('Invalid user ID format');
+      }
+
+      const user = await this.userService.findById(data.userId);
+      
+      if (!user) {
+        return { exists: false };
+      }
+
+      // Optional: validate email if provided
+      if (data.email && user.email !== data.email) {
+        return { exists: false };
+      }
+
+      return {
+        exists: true,
+        user: {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          role: user.role
+        }
+      };
+    } catch (error) {
+      throw new RpcException(error.message || 'Failed to validate user');
+    }
+  }
+
+  @GrpcMethod('UserService', 'CheckUserExists')
+  async checkUserExists(data: { userId: number }): Promise<{ exists: boolean }> {
+    try {
+      if (!data.userId || typeof data.userId !== 'number') {
+        throw new RpcException('Invalid user ID format');
+      }
+
+      const exists = await this.userService.exists(data.userId);
+      return { exists };
+    } catch (error) {
+      throw new RpcException(error.message || 'Failed to check user existence');
+    }
+  }
+  
   @GrpcMethod('UserService', 'GetCurrentUser')
   async getCurrentUser(data: { user: any }) {
     try {

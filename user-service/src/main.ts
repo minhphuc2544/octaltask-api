@@ -19,6 +19,18 @@ async function bootstrap() {
     },
   });
 
+  const grpcUrl2 = configService.get<string>('GRPC_USER_INFO_URL');
+
+  const app2 = await NestFactory.createMicroservice<MicroserviceOptions>(AppModule, {
+    transport: Transport.GRPC,
+    options: {
+      package: 'userinfo',
+      protoPath: join(__dirname, './proto/userinfo.proto'),
+      url: grpcUrl2,
+    },
+  });
+
   await app.listen();
+  await app2.listen();
 }
 bootstrap();

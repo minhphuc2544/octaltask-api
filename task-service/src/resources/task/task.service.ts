@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Task } from '../../entities/task.entity';
@@ -8,9 +8,28 @@ import { Subtask } from '../../entities/subtask.entity';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { TaskUser } from './task.controller';
+import { catchError, firstValueFrom, timeout } from 'rxjs';
+import { ClientGrpc } from '@nestjs/microservices';
+
+interface UserGrpcService {
+  getUserByIdInfo(data: { id: number }): any;
+  getUsersByIds(data: { ids: number[] }): any;
+  validateUser(data: { userId: number; email?: string }): any;
+  checkUserExists(data: { userId: number }): any;
+}
+
+interface UserInfo {
+  id: number;
+  email: string;
+  name: string;
+  role: string;
+}
 
 @Injectable()
 export class TaskService {
+  private readonly logger = new Logger(TaskService.name);
+  private userGrpcService: UserGrpcService;
+  
   constructor(
     @InjectRepository(Task)
     private taskRepo: Repository<Task>,
@@ -19,12 +38,67 @@ export class TaskService {
     @InjectRepository(Comment)
     private commentRepo: Repository<Comment>,
     @InjectRepository(Subtask)
-    private subtaskRepo: Repository<Subtask>
+    private subtaskRepo: Repository<Subtask>,
+    @Inject('USER_INFO_PACKAGE') private readonly client: ClientGrpc
+    
   ) { }
 
+  onModuleInit() {
+    this.userGrpcService = this.client.getService<UserGrpcService>('UserService');
+  }
+  private async validateUserExists(userId: number): Promise<UserInfo|any> {
+    try {
+      this.logger.debug(`Validating user with ID: ${userId}`);
+      
+      const response = await firstValueFrom(
+        this.userGrpcService.getUserByIdInfo({ id: userId }).pipe(
+          timeout(5000), // 5 second timeout
+          catchError((error) => {
+            this.logger.error(`Failed to validate user ${userId}:`, error);
+            throw error;
+          })
+        )
+      );
+      
+      this.logger.debug(`User validation successful for ID: ${userId}`);
+      return response;
+    } catch (error) {
+      this.logger.error(`User validation failed for ID ${userId}:`, error.message);
+      throw new NotFoundException(`User with ID ${userId} not found`);
+    }
+  }
+
+  private async getUsersByIds(userIds: number[]): Promise<UserInfo[]|any> {
+    if (userIds.length === 0) return [];
+    
+    try {
+      this.logger.debug(`Fetching users with IDs: ${userIds.join(', ')}`);
+      
+      const response = await firstValueFrom(
+        this.userGrpcService.getUsersByIds({ ids: userIds }).pipe(
+          timeout(5000),
+          catchError((error) => {
+            this.logger.error('Failed to fetch users:', error);
+            throw error;
+          })
+        )
+      )as { users: UserInfo[] };
+      
+      this.logger.debug(`Successfully fetched ${response.users?.length || 0} users`);
+      return response.users || [];
+    } catch (error) {
+      this.logger.error('Failed to fetch users by IDs:', error.message);
+      return []; // Return empty array if user service is unavailable
+    }
+  }
+
+  private async checkUserPermission(taskUserId: number, requestingUserId: number, userRole: string): Promise<boolean> {
+    return taskUserId === requestingUserId || userRole === 'admin';
+  }
+
   async create(createTaskDto: CreateTaskDto, user: TaskUser) {
-    const userEntity = await this.userRepo.findOneBy({ id: user.userId });
-    if (!userEntity) {
+    const userInfo = await this.validateUserExists(user.userId);
+    if (!userInfo) {
       throw new NotFoundException('User not found');
     }
 
@@ -33,7 +107,7 @@ export class TaskService {
       description: createTaskDto.description,
       isCompleted: createTaskDto.isCompleted || false,
       dueDate: createTaskDto.dueDate,
-      user: userEntity,
+      userId: user.userId,
     });
     return await this.taskRepo.save(task);
   }
@@ -41,21 +115,16 @@ export class TaskService {
   async findAll(user: TaskUser) {
     return await this.taskRepo.find({
       where: {
-        user: { id: user.userId },
+        userId: user.userId ,
       },
-      relations: ['user'],
       select: {
         id: true,
         title: true,
         description: true,
         isCompleted: true,
         dueDate: true,
-        user: {
-          id: true,
-          email: true,
-          name: true,
-          role: true
-        }
+        userId:true
+        
       }
     });
   }
@@ -64,21 +133,15 @@ export class TaskService {
     const task = await this.taskRepo.findOne({
       where: {
         id,
-        user: { id: user.userId }
+        userId: user.userId 
       },
-      relations: ['user'],
       select: {
         id: true,
         title: true,
         description: true,
         isCompleted: true,
         dueDate: true,
-        user: {
-          id: true,
-          email: true,
-          name: true,
-          role: true
-        }
+        userId: true
       }
     });
 
@@ -94,7 +157,7 @@ export class TaskService {
     const task = await this.taskRepo.findOne({
       where: {
         id,
-        user: { id: user.userId }
+        userId:user.userId 
       }
     });
 
@@ -113,7 +176,7 @@ export class TaskService {
     const task = await this.taskRepo.findOne({
       where: {
         id,
-        user: { id: user.userId }
+        userId: user.userId 
       }
     });
 
@@ -129,19 +192,13 @@ export class TaskService {
 
   async getAllTasksForAdmin() {
     return await this.taskRepo.find({
-      relations: ['user'],
       select: {
         id: true,
         title: true,
         description: true,
         isCompleted: true,
         dueDate: true,
-        user: {
-          id: true,
-          email: true,
-          name: true,
-          role: true
-        }
+        userId: true
       }
     });
   }
@@ -149,19 +206,14 @@ export class TaskService {
   async getTaskByIdForAdmin(id: number) {
     const task = await this.taskRepo.findOne({
       where: { id },
-      relations: ['user'],
       select: {
         id: true,
         title: true,
         description: true,
         isCompleted: true,
         dueDate: true,
-        user: {
-          id: true,
-          email: true,
-          name: true,
-          role: true
-        }
+        userId: true,
+        
       }
     });
 
@@ -176,7 +228,6 @@ export class TaskService {
     // First, find the task to ensure it exists
     const task = await this.taskRepo.findOne({
       where: { id },
-      relations: ['user']
     });
 
     if (!task) {
@@ -203,21 +254,15 @@ export class TaskService {
   async getAllTasksByUserId(userId: number) {
     const tasks = await this.taskRepo.find({
       where: {
-        user: { id: userId }
+        userId: userId 
       },
-      relations: ['user'],
       select: {
         id: true,
         title: true,
         description: true,
         isCompleted: true,
         dueDate: true,
-        user: {
-          id: true,
-          email: true,
-          name: true,
-          role: true
-        }
+        userId: true
       }
     });
 
@@ -227,14 +272,13 @@ export class TaskService {
   async addSubtaskToTask(taskId: number, content: string, isCompleted: boolean, userInfo: { userId: number; email?: string; role?: string }) {
     const task = await this.taskRepo.findOne({
       where: { id: taskId },
-      relations: ['user']
     });
 
     if (!task) {
       throw new NotFoundException('Task not found');
     }
 
-    if (task.user.id !== userInfo.userId && userInfo.role !== 'admin') {
+    if (!await this.checkUserPermission(task.userId, userInfo.userId, userInfo.role!)) {
       throw new ForbiddenException('Permission denied to subtask on this task');
     }
 
@@ -269,14 +313,13 @@ export class TaskService {
   async getSubtasksForTask(taskId: number, userInfo: { userId: number; email?: string; role?: string }) {
     const task = await this.taskRepo.findOne({
       where: { id: taskId },
-      relations: ['user']
     });
 
     if (!task) {
       throw new NotFoundException('Task not found');
     }
 
-    if (task.user.id !== userInfo.userId && userInfo.role !== 'admin') {
+    if (!await this.checkUserPermission(task.userId, userInfo.userId, userInfo.role!)) {
       throw new ForbiddenException('Permission denied to view subtasks on this task');
     }
 
@@ -318,7 +361,6 @@ export class TaskService {
     // Find the task
     const task = await this.taskRepo.findOne({
       where: { id: taskId },
-      relations: ['user']
     });
 
     if (!task) {
@@ -327,7 +369,7 @@ export class TaskService {
 
     // Check if the user has permission to comment on this task
     // Users can comment on their own tasks or admins can comment on any task
-    if (task.user.id !== userInfo.userId && userInfo.role !== 'admin') {
+    if (!await this.checkUserPermission(task.userId, userInfo.userId, userInfo.role!)) {
       throw new ForbiddenException('Permission denied to comment on this task');
     }
 
@@ -364,7 +406,6 @@ export class TaskService {
     // Find the task
     const task = await this.taskRepo.findOne({
       where: { id: taskId },
-      relations: ['user']
     });
 
     if (!task) {
@@ -373,7 +414,7 @@ export class TaskService {
 
     // Check if the user has permission to view comments on this task
     // Users can view comments on their own tasks or admins can view comments on any task
-    if (task.user.id !== userInfo.userId && userInfo.role !== 'admin') {
+   if (!await this.checkUserPermission(task.userId, userInfo.userId, userInfo.role!)) {
       throw new ForbiddenException('Permission denied to view comments on this task');
     }
 
@@ -411,4 +452,3 @@ export class TaskService {
     }));
   }
 }
-

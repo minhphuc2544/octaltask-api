@@ -29,6 +29,10 @@ export class UpdateTaskDto {
     @IsOptional()
     isCompleted?: boolean;
 
+    @IsBoolean()
+    @IsOptional()
+    isStarted?: boolean;
+    
     @ApiProperty({
         description: 'Due date for the task (ISO string format)',
         example: '2025-05-25T12:00:00Z',

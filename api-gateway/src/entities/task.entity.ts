@@ -19,6 +19,9 @@ export class Task {
   @Column({ default: false })
   isCompleted: boolean;
 
+  @Column({ default: false })
+  isStarted: boolean;
+
   @Column({default:false})
   isImportant:boolean;
 

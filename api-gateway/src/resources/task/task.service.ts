@@ -41,7 +41,6 @@ export class TaskService implements OnModuleInit {
         role: user.role
       };
 
-      console.log("Controller",dto);
       const response = await firstValueFrom(
         this.taskGrpcService.createTask({ ...dto, user: userData }).pipe(
           catchError(error => {

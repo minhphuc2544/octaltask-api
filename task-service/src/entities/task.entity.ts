@@ -22,6 +22,9 @@ export class Task {
   @Column({default:false})
   isImportant:boolean;
 
+  @Column({ default: false })
+  isStarted: boolean;
+
   @Column({ type: 'timestamp', nullable: true })
   dueDate?: Date;
 

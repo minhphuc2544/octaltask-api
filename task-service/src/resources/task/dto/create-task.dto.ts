@@ -13,6 +13,10 @@ export class CreateTaskDto {
     @IsOptional()
     isCompleted?: boolean;
 
+    @IsBoolean()
+    @IsOptional()
+    isStarted?: boolean;
+
     @IsOptional()
     @IsString()
     dueDate?: string;

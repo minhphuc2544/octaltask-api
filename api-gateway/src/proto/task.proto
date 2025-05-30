@@ -52,7 +52,8 @@ message CreateTaskRequest {
   bool isCompleted = 3;
   string dueDate = 4;
   UserInfo user = 5;
-  int32 listId =6;
+  int32 listId = 6;
+  bool isStarted = 7;
 }
 
 message GetAllTasksRequest {
@@ -75,6 +76,7 @@ message UpdateTaskRequest {
   bool isCompleted = 4;
   string dueDate = 5;
   UserInfo user = 6;
+  bool isStarted = 7;
 }
 
 message AdminUpdateTaskRequest {
@@ -83,6 +85,7 @@ message AdminUpdateTaskRequest {
   string description = 3;
   bool isCompleted = 4;
   string dueDate = 5;
+  bool isStarted = 8;
 }
 
 message UserIdRequest {
@@ -103,6 +106,7 @@ message TaskResponse {
   string dueDate = 5;
   UserInfo user = 6;
   int32 listId = 7;
+  bool isStarted = 8;
 }
 
 message TaskListResponse {

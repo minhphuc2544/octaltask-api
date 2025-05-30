@@ -13,6 +13,10 @@ export class UpdateTaskDto {
     @IsOptional()
     isCompleted?: boolean;
 
+    @IsBoolean()
+    @IsOptional()
+    isStarted?: boolean;
+
     @IsOptional()
     @IsString()
     dueDate?: string;

@@ -19,6 +19,7 @@ export class TaskController {
     title: string;
     description?: string;
     isCompleted?: boolean;
+    isStarted?: boolean;
     dueDate?: string;
     listId: number; // Thêm listId bắt buộc cho create task
     user: TaskUser
@@ -37,6 +38,7 @@ export class TaskController {
         title: data.title,
         description: data.description,
         isCompleted: data.isCompleted,
+        isStarted: data.isStarted,
         dueDate: data.dueDate,
         listId: data.listId // Thêm listId vào DTO
       };
@@ -87,6 +89,7 @@ export class TaskController {
     title?: string;
     description?: string;
     isCompleted?: boolean;
+    isStarted?: boolean;
     dueDate?: string;
     listId?: number; // listId là optional cho update
     user: TaskUser
@@ -105,6 +108,7 @@ export class TaskController {
         title: updateData.title,
         description: updateData.description,
         isCompleted: updateData.isCompleted,
+        isStarted: updateData.isStarted,
         dueDate: updateData.dueDate,
         listId: updateData.listId // Thêm listId vào DTO
       };
@@ -165,6 +169,7 @@ export class TaskController {
     title?: string;
     description?: string;
     isCompleted?: boolean;
+    isStarted?: boolean;
     dueDate?: string;
     listId?: number; // Thêm listId cho admin update
   }) {
@@ -177,7 +182,7 @@ export class TaskController {
       const updateTaskDto: UpdateTaskDto = {
         title: updateData.title,
         description: updateData.description,
-        isCompleted: updateData.isCompleted,
+        isStarted: updateData.isStarted,
         dueDate: updateData.dueDate,
         listId: updateData.listId
       };

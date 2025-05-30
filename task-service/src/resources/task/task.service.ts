@@ -116,12 +116,12 @@ export class TaskService {
     return list;
   }
 
+  #Task
   async create(createTaskDto: CreateTaskDto, user: TaskUser) {
     const userInfo = await this.validateUserExists(user.userId);
     if (!userInfo) {
       throw new NotFoundException('User not found');
     }
-
     // Validate list ownership
     const list = await this.validateListOwnership(createTaskDto.listId!, user.userId);
 
@@ -129,67 +129,72 @@ export class TaskService {
       title: createTaskDto.title,
       description: createTaskDto.description,
       isCompleted: createTaskDto.isCompleted || false,
+      isStarted: createTaskDto.isStarted || false,
       dueDate: createTaskDto.dueDate,
       userId: user.userId,
       list: list // Assign list to task
     });
     const savedTask = await this.taskRepo.save(task);
- //console.log(savedTask.list);
+    //console.log(savedTask.list);
     return {
       id: savedTask.id,
       title: savedTask.title,
       description: savedTask.description,
       isCompleted: savedTask.isCompleted,
+      isStarted: savedTask.isStarted,
+      dueDate: savedTask.dueDate,
       userId: savedTask.userId,
       listId: savedTask.list?.id ?? null
     };
   }
 
   async findAll(user: TaskUser) {
-  const tasks = await this.taskRepo.find({
-    where: {
-      userId: user.userId,
-    },
-    relations: ['list'], // Để truy cập list.id
-  });
+    const tasks = await this.taskRepo.find({
+      where: {
+        userId: user.userId,
+      },
+      relations: ['list'], // Để truy cập list.id
+    });
 
-  return tasks.map((task) => ({
-    id: task.id,
-    title: task.title,
-    description: task.description,
-    isCompleted: task.isCompleted,
-    dueDate: task.dueDate?.toISOString(),
-    userId: task.userId,
-    listId: task.list?.id ?? null,
-  }));
-}
+    return tasks.map((task) => ({
+      id: task.id,
+      title: task.title,
+      description: task.description,
+      isCompleted: task.isCompleted,
+      isStarted: task.isStarted,
+      dueDate: task.dueDate?.toISOString(),
+      userId: task.userId,
+      listId: task.list?.id ?? null,
+    }));
+  }
 
 
   async findOne(id: number, user: TaskUser) {
-  const task = await this.taskRepo.findOne({
-    where: {
-      id,
-      userId: user.userId
-    },
-    relations: ['list'],
-    select: {
-      id: true,
-      title: true,
-      description: true,
-      isCompleted: true,
-      dueDate: true,
-      userId: true,
-    }
-  });
+    const task = await this.taskRepo.findOne({
+      where: {
+        id,
+        userId: user.userId
+      },
+      relations: ['list'],
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        isCompleted: true,
+        isStarted: true,
+        dueDate: true,
+        userId: true,
+      }
+    });
 
-  if (!task) {
-    throw new NotFoundException('Task not found');
+    if (!task) {
+      throw new NotFoundException('Task not found');
+    }
+    return {
+      ...task,
+      listId: task.list?.id ?? null,
+    };
   }
-  return {
-    ...task,
-    listId: task.list?.id ?? null, 
-  };
-}
 
 
   async update(id: number, updateTaskDto: UpdateTaskDto, user: TaskUser) {
@@ -223,6 +228,11 @@ export class TaskService {
     if (updateTaskDto.isCompleted !== undefined) {
       task.isCompleted = updateTaskDto.isCompleted;
     }
+    if (updateTaskDto.isStarted !== undefined) {
+      task.isStarted = updateTaskDto.isStarted;
+    }
+    task.dueDate = new Date();
+    
     return await this.taskRepo.save(task);
   }
 
@@ -253,6 +263,7 @@ export class TaskService {
         title: true,
         description: true,
         isCompleted: true,
+        isStarted: true,
         dueDate: true,
         userId: true,
         list: {
@@ -274,6 +285,7 @@ export class TaskService {
         title: true,
         description: true,
         isCompleted: true,
+        isStarted: true,
         dueDate: true,
         userId: true,
         list: {
@@ -326,6 +338,12 @@ export class TaskService {
     if (updateTaskDto.isCompleted !== undefined) {
       task.isCompleted = updateTaskDto.isCompleted;
     }
+     if (updateTaskDto.isStarted !== undefined) {
+      task.isStarted = updateTaskDto.isStarted;
+    }
+    if (updateTaskDto.dueDate !== undefined) {
+      task.dueDate = new Date(updateTaskDto.dueDate);
+    }
     return await this.taskRepo.save(task);
   }
 
@@ -351,6 +369,7 @@ export class TaskService {
         title: true,
         description: true,
         isCompleted: true,
+        isStarted: true,
         dueDate: true,
         userId: true,
         list: {
@@ -397,7 +416,7 @@ export class TaskService {
       content: savedSubtask.content,
       isComplete: savedSubtask.isCompleted,
       createdAt: savedSubtask.createdAt.toISOString(),
-      taskId: task.id, 
+      taskId: task.id,
       user: {
         userId: user.id,
         email: user.email,
@@ -446,7 +465,7 @@ export class TaskService {
       content: subtask.content,
       isCompleted: subtask.isCompleted,
       createdAt: subtask.createdAt.toISOString(),
-      taskId: task.id, 
+      taskId: task.id,
       user: {
         userId: subtask.user.id,
         email: subtask.user.email,
@@ -492,7 +511,7 @@ export class TaskService {
       id: savedComment.id,
       content: savedComment.content,
       createdAt: savedComment.createdAt.toISOString(),
-      taskId: task.id, 
+      taskId: task.id,
       user: {
         userId: user.id,
         email: user.email,
@@ -543,7 +562,7 @@ export class TaskService {
       id: comment.id,
       content: comment.content,
       createdAt: comment.createdAt.toISOString(),
-      taskId: task.id, 
+      taskId: task.id,
       user: {
         userId: comment.user.id,
         email: comment.user.email,

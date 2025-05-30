@@ -34,6 +34,14 @@ service TaskService {
   rpc GetListById (ListByIdRequest) returns (ListResponse);
   rpc UpdateList (UpdateListRequest) returns (ListResponse);
   rpc DeleteList (ListByIdRequest) returns (MessageResponse);
+  
+  // New List sharing methods
+  rpc ShareList (ShareListRequest) returns (MessageResponse);
+  rpc GetSharedLists (GetSharedListsRequest) returns (ListListResponse);
+  rpc GetListSharedUsers (ListByIdRequest) returns (SharedUsersResponse);
+  rpc UpdateSharedRole (UpdateSharedRoleRequest) returns (MessageResponse);
+  rpc RemoveSharedUser (RemoveSharedUserRequest) returns (MessageResponse);
+  rpc GetUsersByEmail (GetUsersByEmailRequest) returns (UsersResponse);
 }
 
 message EmptyRequest {}
@@ -227,8 +235,61 @@ message ListResponse {
   string dueDate = 5;
   UserInfo user = 6;
   repeated TaskResponse tasks = 7;
+  repeated SharedUserInfo sharedUsers = 8;
+  string userRole = 9; // Role của user hiện tại với list này
 }
 
 message ListListResponse {
   repeated ListResponse lists = 1;
+}
+
+// New message types for list sharing functionality
+message ShareListRequest {
+  int32 listId = 1;
+  string email = 2;
+  string role = 3;
+  UserInfo user = 4;
+}
+
+message GetSharedListsRequest {
+  UserInfo user = 1;
+}
+
+message SharedUserInfo {
+  int32 userId = 1;
+  string email = 2;
+  string name = 3;
+  string role = 4;
+  string sharedAt = 5;
+}
+
+message SharedUsersResponse {
+  repeated SharedUserInfo sharedUsers = 1;
+}
+
+message UpdateSharedRoleRequest {
+  int32 listId = 1;
+  int32 userId = 2;
+  string role = 3;
+  UserInfo user = 4;
+}
+
+message RemoveSharedUserRequest {
+  int32 listId = 1;
+  int32 userId = 2;
+  UserInfo user = 3;
+}
+
+message GetUsersByEmailRequest {
+  string email = 1;
+}
+
+message UserResponse {
+  int32 id = 1;
+  string email = 2;
+  string name = 3;
+}
+
+message UsersResponse {
+  repeated UserResponse users = 1;
 }

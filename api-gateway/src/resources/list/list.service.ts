@@ -1,4 +1,4 @@
-// src/task/list.service.ts
+// src/task/list.service.ts - Updated with sharing features
 import { Injectable, Inject, NotFoundException, ForbiddenException, ConflictException } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
@@ -10,6 +10,12 @@ interface TaskUser {
   userId: number;
   email: string;
   role: string;
+}
+
+export enum SharedRole {
+  VIEWER = 'viewer',
+  EDITOR = 'editor',
+  ADMIN = 'admin',
 }
 
 interface ListServiceClient {
@@ -32,6 +38,33 @@ interface ListServiceClient {
     user: TaskUser;
   }): Promise<any>;
   DeleteList(data: { id: number; user: TaskUser }): Promise<any>;
+
+  // Sharing methods
+  ShareList(data: {
+    listId: number;
+    email: string;
+    role: string;
+    user: TaskUser;
+  }): Promise<any>;
+
+  GetSharedLists(data: { user: TaskUser }): Promise<any>;
+
+  GetListSharedUsers(data: { id: number; user: TaskUser }): Promise<any>;
+
+  UpdateSharedRole(data: {
+    listId: number;
+    userId: number;
+    role: string;
+    user: TaskUser;
+  }): Promise<any>;
+
+  RemoveSharedUser(data: {
+    listId: number;
+    userId: number;
+    user: TaskUser;
+  }): Promise<any>;
+
+  GetUsersByEmail(data: { email: string }): Promise<any>;
 }
 
 @Injectable()
@@ -44,7 +77,7 @@ export class ListService {
 
   async create(createListDto: CreateListDto, user: TaskUser) {
     try {
-        console.log('CreateListDto:', createListDto,user);
+      console.log('CreateListDto:', createListDto, user);
       return await firstValueFrom(
         this.listService.CreateList({
           name: createListDto.name,
@@ -125,6 +158,126 @@ export class ListService {
       if (error.message.includes('permission')) {
         throw new ForbiddenException('You do not have permission to delete this list');
       }
+      throw error;
+    }
+  }
+
+  // New sharing methods
+  async shareList(listId: number, email: string, role: SharedRole, user: TaskUser) {
+    try {
+      return await firstValueFrom(
+        this.listService.ShareList({
+          listId,
+          email,
+          role,
+          user,
+        }) as any
+      );
+    } catch (error) {
+      if (error.message.includes('not found')) {
+        if (error.message.includes('List')) {
+          throw new NotFoundException(`List with ID ${listId} not found`);
+        } else if (error.message.includes('User')) {
+          throw new NotFoundException('User with this email not found');
+        }
+        throw new NotFoundException(error.message);
+      }
+      if (error.message.includes('permission')) {
+        throw new ForbiddenException('You do not have permission to share this list');
+      }
+      if (error.message.includes('already shared') || error.message.includes('already exists')) {
+        throw new ConflictException('List is already shared with this user');
+      }
+      if (error.message.includes('owner')) {
+        throw new ConflictException('Cannot share list with the owner');
+      }
+      throw error;
+    }
+  }
+
+  async getSharedLists(user: TaskUser) {
+    try {
+      return await firstValueFrom(
+        this.listService.GetSharedLists({ user }) as any
+      );
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getListSharedUsers(listId: number, user: TaskUser) {
+    try {
+      return await firstValueFrom(
+        this.listService.GetListSharedUsers({ id: listId, user }) as any
+      );
+    } catch (error) {
+      if (error.message.includes('not found')) {
+        throw new NotFoundException(`List with ID ${listId} not found`);
+      }
+      if (error.message.includes('permission')) {
+        throw new ForbiddenException('You do not have permission to access this list');
+      }
+      throw error;
+    }
+  }
+
+  async updateSharedRole(listId: number, userId: number, role: SharedRole, user: TaskUser) {
+    try {
+      return await firstValueFrom(
+        this.listService.UpdateSharedRole({
+          listId,
+          userId,
+          role,
+          user,
+        }) as any
+      );
+    } catch (error) {
+      if (error.message.includes('not found')) {
+        if (error.message.includes('List')) {
+          throw new NotFoundException(`List with ID ${listId} not found`);
+        } else if (error.message.includes('Shared user')) {
+          throw new NotFoundException('Shared user not found');
+        }
+        throw new NotFoundException(error.message);
+      }
+      if (error.message.includes('permission')) {
+        throw new ForbiddenException('You do not have permission to update shared roles');
+      }
+      throw error;
+    }
+  }
+
+  async removeSharedUser(listId: number, userId: number, user: TaskUser) {
+    try {
+      return await firstValueFrom(
+        this.listService.RemoveSharedUser({
+          listId,
+          userId,
+          user,
+        }) as any
+      );
+    } catch (error) {
+      if (error.message.includes('not found')) {
+        if (error.message.includes('List')) {
+          throw new NotFoundException(`List with ID ${listId} not found`);
+        } else if (error.message.includes('Shared user')) {
+          throw new NotFoundException('Shared user not found');
+        }
+        throw new NotFoundException(error.message);
+      }
+      if (error.message.includes('permission')) {
+        throw new ForbiddenException('You do not have permission to remove this user');
+      }
+      throw error;
+    }
+  }
+
+  async getUsersByEmail(email: string) {
+    try {
+      return await firstValueFrom(
+        this.listService.GetUsersByEmail({ email }) as any
+      );
+    } catch (error) {
       throw error;
     }
   }

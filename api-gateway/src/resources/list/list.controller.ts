@@ -1,4 +1,4 @@
-// src/task/list.controller.ts
+// src/task/list.controller.ts - Updated with sharing features
 import {
   Controller,
   Get,
@@ -12,10 +12,13 @@ import {
   HttpCode,
   HttpStatus,
   ValidationPipe,
+  Query,
 } from '@nestjs/common';
 import { ListService } from './list.service';
 import { CreateListDto } from './dto/create-list.dto';
 import { UpdateListDto } from './dto/update-list.dto';
+import { ShareListDto } from './dto/share-list.dto';
+import { UpdateSharedRoleDto } from './dto/update-shared-role.dto';
 import { JwtGuard } from '../../guards/jwt.guard';
 import {
   ApiTags,
@@ -28,6 +31,7 @@ import {
   ApiConflictResponse,
   ApiBody,
   ApiParam,
+  ApiQuery,
 } from '@nestjs/swagger';
 
 @ApiTags('lists')
@@ -87,6 +91,60 @@ export class ListController {
               icon: { type: 'string' },
               color: { type: 'string' },
               dueDate: { type: 'string' },
+              userRole: { type: 'string', enum: ['owner', 'admin', 'editor', 'viewer'] },
+              user: {
+                type: 'object',
+                properties: {
+                  id: { type: 'number' },
+                  email: { type: 'string' },
+                  name: { type: 'string' },
+                  role: { type: 'string' }
+                }
+              },
+              sharedUsers: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    userId: { type: 'number' },
+                    email: { type: 'string' },
+                    name: { type: 'string' },
+                    role: { type: 'string', enum: ['admin', 'editor', 'viewer'] },
+                    sharedAt: { type: 'string' }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  async findAll(@Request() req) {
+    return this.listService.findAll(req.user);
+  }
+
+  @Get('shared')
+  @UseGuards(JwtGuard)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Get all shared lists for the current user' })
+  @ApiOkResponse({
+    description: 'Retrieved all shared lists for the current user',
+    schema: {
+      type: 'object',
+      properties: {
+        lists: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              id: { type: 'number' },
+              name: { type: 'string' },
+              icon: { type: 'string' },
+              color: { type: 'string' },
+              dueDate: { type: 'string' },
+              userRole: { type: 'string', enum: ['admin', 'editor', 'viewer'] },
               user: {
                 type: 'object',
                 properties: {
@@ -103,8 +161,37 @@ export class ListController {
     }
   })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
-  async findAll(@Request() req) {
-    return this.listService.findAll(req.user);
+  async getSharedLists(@Request() req) {
+    return this.listService.getSharedLists(req.user);
+  }
+
+  @Get('users/search')
+  @UseGuards(JwtGuard)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Search users by email for sharing' })
+  @ApiQuery({ name: 'email', description: 'Email to search for', type: 'string' })
+  @ApiOkResponse({
+    description: 'Users found',
+    schema: {
+      type: 'object',
+      properties: {
+        users: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              id: { type: 'number' },
+              email: { type: 'string' },
+              name: { type: 'string' }
+            }
+          }
+        }
+      }
+    }
+  })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  async searchUsers(@Query('email') email: string) {
+    return this.listService.getUsersByEmail(email);
   }
 
   @Get(':id')
@@ -122,6 +209,7 @@ export class ListController {
         icon: { type: 'string', example: 'personal' },
         color: { type: 'string', example: 'blue' },
         dueDate: { type: 'string', example: '2025-05-20T12:00:00Z' },
+        userRole: { type: 'string', enum: ['owner', 'admin', 'editor', 'viewer'] },
         user: {
           type: 'object',
           properties: {
@@ -129,6 +217,19 @@ export class ListController {
             email: { type: 'string', example: 'user@example.com' },
             name: { type: 'string', example: 'John Doe' },
             role: { type: 'string', example: 'user' }
+          }
+        },
+        sharedUsers: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              userId: { type: 'number' },
+              email: { type: 'string' },
+              name: { type: 'string' },
+              role: { type: 'string', enum: ['admin', 'editor', 'viewer'] },
+              sharedAt: { type: 'string' }
+            }
           }
         }
       }
@@ -139,6 +240,125 @@ export class ListController {
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   async findOne(@Param('id') id: string, @Request() req) {
     return this.listService.findOne(parseInt(id, 10), req.user);
+  }
+
+  @Get(':id/shared-users')
+  @UseGuards(JwtGuard)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Get all users who have access to a list' })
+  @ApiParam({ name: 'id', description: 'List ID', type: 'number' })
+  @ApiOkResponse({
+    description: 'Retrieved shared users successfully',
+    schema: {
+      type: 'object',
+      properties: {
+        sharedUsers: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              userId: { type: 'number' },
+              email: { type: 'string' },
+              name: { type: 'string' },
+              role: { type: 'string', enum: ['admin', 'editor', 'viewer'] },
+              sharedAt: { type: 'string' }
+            }
+          }
+        }
+      }
+    }
+  })
+  @ApiNotFoundResponse({ description: 'List not found' })
+  @ApiForbiddenResponse({ description: 'Permission denied' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  async getListSharedUsers(@Param('id') id: string, @Request() req) {
+    return this.listService.getListSharedUsers(parseInt(id, 10), req.user);
+  }
+
+  @Post(':id/share')
+  @UseGuards(JwtGuard)
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Share a list with another user' })
+  @ApiParam({ name: 'id', description: 'List ID', type: 'number' })
+  @ApiBody({ type: ShareListDto })
+  @ApiCreatedResponse({
+    description: 'List shared successfully',
+    schema: {
+      type: 'object',
+      properties: {
+        message: { type: 'string', example: 'List shared successfully' }
+      }
+    }
+  })
+  @ApiNotFoundResponse({ description: 'List not found or User not found' })
+  @ApiForbiddenResponse({ description: 'Permission denied' })
+  @ApiConflictResponse({ description: 'List is already shared with this user' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  async shareList(
+    @Param('id') id: string,
+    @Body(ValidationPipe) shareListDto: ShareListDto,
+    @Request() req
+  ) {
+    return this.listService.shareList(parseInt(id, 10), shareListDto.email, shareListDto.role, req.user);
+  }
+
+  @Patch(':id/shared-users/:userId/role')
+  @UseGuards(JwtGuard)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Update the role of a shared user' })
+  @ApiParam({ name: 'id', description: 'List ID', type: 'number' })
+  @ApiParam({ name: 'userId', description: 'User ID', type: 'number' })
+  @ApiBody({ type: UpdateSharedRoleDto })
+  @ApiOkResponse({
+    description: 'Role updated successfully',
+    schema: {
+      type: 'object',
+      properties: {
+        message: { type: 'string', example: 'Role updated successfully' }
+      }
+    }
+  })
+  @ApiNotFoundResponse({ description: 'List not found or Shared user not found' })
+  @ApiForbiddenResponse({ description: 'Permission denied' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  async updateSharedRole(
+    @Param('id') id: string,
+    @Param('userId') userId: string,
+    @Body(ValidationPipe) updateSharedRoleDto: UpdateSharedRoleDto,
+    @Request() req
+  ) {
+    return this.listService.updateSharedRole(
+      parseInt(id, 10),
+      parseInt(userId, 10),
+      updateSharedRoleDto.role,
+      req.user
+    );
+  }
+
+  @Delete(':id/shared-users/:userId')
+  @UseGuards(JwtGuard)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Remove a user from shared list access' })
+  @ApiParam({ name: 'id', description: 'List ID', type: 'number' })
+  @ApiParam({ name: 'userId', description: 'User ID', type: 'number' })
+  @ApiOkResponse({
+    description: 'User removed from list successfully',
+    schema: {
+      type: 'object',
+      properties: {
+        message: { type: 'string', example: 'User removed from list successfully' }
+      }
+    }
+  })
+  @ApiNotFoundResponse({ description: 'List not found or Shared user not found' })
+  @ApiForbiddenResponse({ description: 'Permission denied' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  async removeSharedUser(
+    @Param('id') id: string,
+    @Param('userId') userId: string,
+    @Request() req
+  ) {
+    return this.listService.removeSharedUser(parseInt(id, 10), parseInt(userId, 10), req.user);
   }
 
   @Patch(':id')

@@ -77,7 +77,6 @@ export class ListService {
 
   async create(createListDto: CreateListDto, user: TaskUser) {
     try {
-      console.log('CreateListDto:', createListDto, user);
       return await firstValueFrom(
         this.listService.CreateList({
           name: createListDto.name,

@@ -397,7 +397,6 @@ export class ListController {
     @Body(ValidationPipe) updateListDto: UpdateListDto,
     @Request() req
   ) {
-    console.log('UpdateListDto:', UpdateListDto, req.user);
     return this.listService.update(parseInt(id, 10), updateListDto, req.user);
   }
 

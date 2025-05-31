@@ -26,42 +26,6 @@ export class UserService {
     private readonly userRepo: Repository<User>,
   ) {}
 
-  async findById(id: number): Promise<User | null> {
-        try {
-            const user = await this.userRepo.findOne({
-                where: { id },
-            });
-            return user;
-        } catch (error) {
-            throw new Error(`Failed to find user by ID: ${error.message}`);
-        }
-    }
-    async findByIds(ids: number[]): Promise<User[]> {
-        try {
-            if (!ids || ids.length === 0) {
-                return [];
-            }
-
-            const users = await this.userRepo.find({
-                where: {
-                    id: In(ids),
-                },
-            });
-            return users;
-        } catch (error) {
-            throw new Error(`Failed to find users by IDs: ${error.message}`);
-        }
-    } async exists(userId: number): Promise<boolean> {
-        try {
-            const count = await this.userRepo.count({
-                where: { id: userId },
-            });
-            return count > 0;
-        } catch (error) {
-            throw new Error(`Failed to check user existence: ${error.message}`);
-        }
-    }
-
   async getCurrentUser(userId: number) {
     const user = await this.userRepo.findOne({ where: { id: userId } });
     

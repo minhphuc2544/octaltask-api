@@ -118,7 +118,7 @@ export class ListController {
         role: string;
         user: TaskUser;
     }) {
-        console.log("shared:", data)
+        
         try {
             if (!data || typeof data.listId !== 'number') {
                 throw new RpcException('Invalid list ID format');

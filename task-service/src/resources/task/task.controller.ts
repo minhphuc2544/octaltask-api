@@ -14,6 +14,31 @@ export interface TaskUser {
 export class TaskController {
   constructor(private readonly taskService: TaskService) { }
 
+  // NEW METHOD: Create default lists and tasks for new users
+  @GrpcMethod('TaskService', 'CreateDefaultUserSetup')
+  async createDefaultUserSetup(data: {
+    userId: number;
+    email: string;
+    name: string;
+    role?: string;
+  }) {
+    try {
+      if (!data.userId || !data.email) {
+        throw new RpcException('User ID and email are required');
+      }
+
+      const taskUser: TaskUser = {
+        userId: data.userId,
+        email: data.email,
+        role: data.role || 'user'
+      };
+
+      return await this.taskService.createDefaultUserSetup(taskUser, data.name);
+    } catch (error) {
+      throw new RpcException(error.message || 'Failed to create default user setup');
+    }
+  }
+
   @GrpcMethod('TaskService', 'CreateTask')
   async createTask(data: {
     title: string;

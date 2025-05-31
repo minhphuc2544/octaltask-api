@@ -7,6 +7,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { MailerModule } from '../mailer/mailer.module'; 
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ClientsModule, Transport } from '@nestjs/microservices';
+import { getTaskGrpcClientOptions} from '../client-options/task.grpc-client';
 
 @Module({
   imports: [
@@ -24,6 +26,15 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
         signOptions: { expiresIn: configService.get<string>('TOKEN_EXPIRE_TIME') },
       }),
     }),
+    // Add gRPC client for Task Service
+    ClientsModule.registerAsync([
+      {
+        name: 'TASK_PACKAGE',
+        imports: [ConfigModule],
+        inject: [ConfigService],
+        useFactory: getTaskGrpcClientOptions,
+      },
+    ]),
 
     TypeOrmModule.forFeature([User]), 
   ],

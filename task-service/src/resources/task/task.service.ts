@@ -29,7 +29,6 @@ interface UserInfo {
 @Injectable()
 export class TaskService {
   private readonly logger = new Logger(TaskService.name);
-  private userGrpcService: UserGrpcService;
 
   constructor(
     @InjectRepository(Task)
@@ -42,56 +41,174 @@ export class TaskService {
     private subtaskRepo: Repository<Subtask>,
     @InjectRepository(List)
     private listRepo: Repository<List>, // Inject List repository
-    @Inject('USER_INFO_PACKAGE') private readonly client: ClientGrpc
+    
   ) { }
 
-  onModuleInit() {
-    this.userGrpcService = this.client.getService<UserGrpcService>('UserService');
+  private async createDefaultList(user: TaskUser, name: string, icon: string, color: string) {
+    const list = this.listRepo.create({
+      name,
+      icon: icon as any,
+      color: color as any,
+      user: { id: user.userId } as any,
+      createdBy: user.userId
+    });
+
+    return await this.listRepo.save(list);
   }
 
-  private async validateUserExists(userId: number): Promise<UserInfo | any> {
-    try {
-      this.logger.debug(`Validating user with ID: ${userId}`);
+  private async createDefaultTasks(listId: number, user: TaskUser, tasksData: Array<{ title: string, description: string, isCompleted: boolean }>) {
+    const tasks: Task[] = [];
 
-      const response = await firstValueFrom(
-        this.userGrpcService.getUserByIdInfo({ id: userId }).pipe(
-          timeout(5000), // 5 second timeout
-          catchError((error) => {
-            this.logger.error(`Failed to validate user ${userId}:`, error);
-            throw error;
-          })
-        )
+    for (const taskData of tasksData) {
+      const task = this.taskRepo.create({
+        title: taskData.title,
+        description: taskData.description,
+        isCompleted: taskData.isCompleted,
+        isStarted: false,
+        userId: user.userId,
+        list: { id: listId } as any
+      });
+
+      const savedTask = await this.taskRepo.save(task);
+      tasks.push(savedTask);
+    }
+
+    return tasks;
+  }
+
+  // Enhanced createDefaultUserSetup method for task.service.ts
+  async createDefaultUserSetup(user: TaskUser, userName: string) {
+    try {
+      // Check if user already has lists to avoid duplicates
+      const existingLists = await this.listRepo.find({
+        where: { user: { id: user.userId } }
+      });
+
+      if (existingLists.length > 0) {
+        this.logger.warn(`User ${user.userId} already has lists, skipping default setup`);
+        return {
+          message: 'User already has existing lists',
+          lists: [],
+          totalTasks: 0
+        };
+      }
+
+      // Create default lists
+      const personalList = await this.createDefaultList(
+        user,
+        'Personal',
+        'personal',
+        'blue'
       );
 
-      this.logger.debug(`User validation successful for ID: ${userId}`);
-      return response;
+      const workList = await this.createDefaultList(
+        user,
+        'Work',
+        'work',
+        'purple'
+      );
+
+      // Create default tasks for Personal list
+      const personalTasks = await this.createDefaultTasks(personalList.id, user, [
+        {
+          title: `Welcome to your personal space, ${userName}!`,
+          description: `Hi ${userName}! This is your personal task list. Feel free to add your own tasks here and organize your personal life.`,
+          isCompleted: false
+        },
+        {
+          title: 'Set up your profile',
+          description: 'Complete your profile information, upload a profile picture, and configure your preferences',
+          isCompleted: false
+        },
+        {
+          title: 'Explore the app features',
+          description: 'Take some time to familiarize yourself with all the features: creating lists, setting due dates, adding comments, and more',
+          isCompleted: false
+        },
+        {
+          title: 'Try creating your first custom task',
+          description: 'Practice using the app by creating a task of your own in this list',
+          isCompleted: false
+        }
+      ]);
+
+      // Create default tasks for Work list
+      const workTasks = await this.createDefaultTasks(workList.id, user, [
+        {
+          title: 'Read onboarding documentation',
+          description: 'Go through the company onboarding materials, employee handbook, and important policies',
+          isCompleted: false
+        },
+        {
+          title: 'Set up your workspace',
+          description: 'Organize your desk, install necessary software, configure development environment, and set up accounts',
+          isCompleted: false
+        },
+        {
+          title: 'Meet your team',
+          description: 'Schedule introductory meetings with your team members, manager, and key stakeholders you\'ll be working with',
+          isCompleted: false
+        },
+        {
+          title: 'Review current projects',
+          description: 'Get up to speed with ongoing projects, understand your role, and identify immediate priorities',
+          isCompleted: false
+        },
+        {
+          title: 'Set up communication tools',
+          description: 'Configure Slack, email signatures, calendar settings, and other communication tools used by the team',
+          isCompleted: false
+        }
+      ]);
+
+      return {
+        message: 'Default user setup created successfully',
+        lists: [
+          {
+            id: personalList.id,
+            name: personalList.name,
+            icon: personalList.icon,
+            color: personalList.color,
+            taskCount: personalTasks.length
+          },
+          {
+            id: workList.id,
+            name: workList.name,
+            icon: workList.icon,
+            color: workList.color,
+            taskCount: workTasks.length
+          }
+        ],
+        totalTasks: personalTasks.length + workTasks.length
+      };
+
     } catch (error) {
-      this.logger.error(`User validation failed for ID ${userId}:`, error.message);
-      throw new NotFoundException(`User with ID ${userId} not found`);
+      this.logger.error(`Failed to create default setup for user ${user.userId}:`, error.message);
+      // Clean up any partially created data
+      await this.cleanupPartialSetup(user.userId);
+      throw error;
     }
   }
 
-  private async getUsersByIds(userIds: number[]): Promise<UserInfo[] | any> {
-    if (userIds.length === 0) return [];
-
+  private async cleanupPartialSetup(userId: number) {
     try {
-      this.logger.debug(`Fetching users with IDs: ${userIds.join(', ')}`);
+      // Find and remove any lists that might have been created
+      const partialLists = await this.listRepo.find({
+        where: { user: { id: userId } },
+        relations: ['tasks']
+      });
 
-      const response = await firstValueFrom(
-        this.userGrpcService.getUsersByIds({ ids: userIds }).pipe(
-          timeout(5000),
-          catchError((error) => {
-            this.logger.error('Failed to fetch users:', error);
-            throw error;
-          })
-        )
-      ) as { users: UserInfo[] };
+      for (const list of partialLists) {
+        // Remove tasks in the list
+        if (list.tasks && list.tasks.length > 0) {
+          await this.taskRepo.remove(list.tasks);
+        }
+        // Remove the list
+        await this.listRepo.remove(list);
+      }
 
-      this.logger.debug(`Successfully fetched ${response.users?.length || 0} users`);
-      return response.users || [];
-    } catch (error) {
-      this.logger.error('Failed to fetch users by IDs:', error.message);
-      return []; // Return empty array if user service is unavailable
+    } catch (cleanupError) {
+      this.logger.error(`Failed to cleanup partial setup for user ${userId}:`, cleanupError.message);
     }
   }
 
@@ -118,11 +235,6 @@ export class TaskService {
 
   #Task
   async create(createTaskDto: CreateTaskDto, user: TaskUser) {
-    const userInfo = await this.validateUserExists(user.userId);
-    if (!userInfo) {
-      throw new NotFoundException('User not found');
-    }
-    // Validate list ownership
     const list = await this.validateListOwnership(createTaskDto.listId!, user.userId);
 
     const task = this.taskRepo.create({
@@ -135,7 +247,6 @@ export class TaskService {
       list: list // Assign list to task
     });
     const savedTask = await this.taskRepo.save(task);
-    //console.log(savedTask.list);
     return {
       id: savedTask.id,
       title: savedTask.title,
@@ -232,7 +343,7 @@ export class TaskService {
       task.isStarted = updateTaskDto.isStarted;
     }
     task.dueDate = new Date();
-    
+
     return await this.taskRepo.save(task);
   }
 
@@ -338,7 +449,7 @@ export class TaskService {
     if (updateTaskDto.isCompleted !== undefined) {
       task.isCompleted = updateTaskDto.isCompleted;
     }
-     if (updateTaskDto.isStarted !== undefined) {
+    if (updateTaskDto.isStarted !== undefined) {
       task.isStarted = updateTaskDto.isStarted;
     }
     if (updateTaskDto.dueDate !== undefined) {

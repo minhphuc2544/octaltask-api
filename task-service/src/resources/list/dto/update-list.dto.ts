@@ -1,4 +1,4 @@
-import { IsOptional, IsString, IsBoolean } from 'class-validator';
+import { IsOptional, IsString } from 'class-validator';
 import { ListColor, ListType } from '../../../entities/list.entity';
 
 export class UpdateListDto {

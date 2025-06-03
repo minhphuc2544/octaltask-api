@@ -5,28 +5,8 @@ import { UpdateListDto } from './dto/update-list.dto';
 import { ShareListDto } from './dto/share-list.dto';
 import { UpdateSharedRoleDto } from './dto/update-shared-role.dto';
 import { JwtGuard } from '../../guards/jwt.guard';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiBearerAuth,
-  ApiBody,
-  ApiParam,
-  ApiQuery,
-  ApiBadRequestResponse,
-  ApiNotFoundResponse,
-  ApiForbiddenResponse,
-  ApiConflictResponse,
-  ApiCreatedResponse,
-  ApiOkResponse,
-} from '@nestjs/swagger';
-import {
-  ListResponseDto,
-  SharedListsResponseDto,
-  SharedUsersResponseDto,
-  ListMessageResponseDto,
-  UsersSearchResponseDto,
-  ListErrorResponseDto,
-} from './dto/response.dto';
+import { ApiTags, ApiOperation, ApiBearerAuth, ApiBody, ApiParam, ApiQuery, ApiBadRequestResponse, ApiNotFoundResponse, ApiForbiddenResponse, ApiConflictResponse, ApiCreatedResponse, ApiOkResponse } from '@nestjs/swagger';
+import { ListResponseDto, SharedListsResponseDto, SharedUsersResponseDto, ListMessageResponseDto, UsersSearchResponseDto, ListErrorResponseDto } from './dto/response.dto';
 
 @ApiTags('Lists')
 @ApiBearerAuth()

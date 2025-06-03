@@ -5,19 +5,7 @@ import { AdminGuard } from '../../guards/admin.guard';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { AdminUpdateUserDto } from './dto/admin-update-user.dto';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiBadRequestResponse,
-  ApiNotFoundResponse,
-  ApiForbiddenResponse,
-  ApiBearerAuth,
-  ApiUnauthorizedResponse,
-  ApiConflictResponse,
-  ApiParam,
-  ApiBody
-} from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBadRequestResponse, ApiNotFoundResponse, ApiForbiddenResponse, ApiBearerAuth, ApiUnauthorizedResponse, ApiConflictResponse, ApiParam, ApiBody } from '@nestjs/swagger';
 import { UserUserResponseDto, UsersListResponseDto, UserMessageResponseDto, UserErrorResponseDto } from './dto/response.dto';
 
 @ApiTags('Users')

@@ -2,32 +2,9 @@ import { Controller, Get, Patch, Put, Delete, Body, Param, Request, UseGuards, H
 import { UserService } from './user.service';
 import { JwtGuard } from '../../guards/jwt.guard';
 import { AdminGuard } from '../../guards/admin.guard';
-import { IsEmail, IsOptional, IsString, MinLength } from 'class-validator';
-
-class UpdateUserDto {
-  @IsOptional()
-  @IsEmail()
-  email?: string;
-
-  @IsOptional()
-  @IsString()
-  name?: string;
-}
-
-class ChangePasswordDto {
-  @IsString()
-  currentPassword: string;
-
-  @IsString()
-  @MinLength(8)
-  newPassword: string;
-}
-
-class AdminUpdateUserDto extends UpdateUserDto {
-  @IsOptional()
-  @IsString()
-  role?: string;
-}
+import { UpdateUserDto } from './dto/update-user.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
+import { AdminUpdateUserDto } from './dto/admin-update-user.dto';
 
 @Controller('users')
 export class UserController {

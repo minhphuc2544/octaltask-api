@@ -1,5 +1,7 @@
 import { IsOptional, IsString } from 'class-validator';
-import { ListColor, ListType } from '../../../entities/list.entity';
+
+type ListType = 'personal' | 'work' | 'home' | 'study' | 'default';
+type ListColor = 'blue' | 'green' | 'red' | 'purple' | 'amber';
 
 export class UpdateListDto {
     @IsString()

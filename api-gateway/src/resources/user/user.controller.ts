@@ -5,7 +5,6 @@ import { AdminGuard } from '../../guards/admin.guard';
 import { ApiTags, ApiOperation, ApiBody, ApiBearerAuth, ApiParam, ApiUnauthorizedResponse, ApiForbiddenResponse, ApiNotFoundResponse, ApiOkResponse, ApiConflictResponse } from '@nestjs/swagger';
 import { IsEmail, IsOptional, IsString, MinLength } from 'class-validator';
 
-// DTOs
 class UpdateUserDto {
   @IsOptional()
   @IsEmail()

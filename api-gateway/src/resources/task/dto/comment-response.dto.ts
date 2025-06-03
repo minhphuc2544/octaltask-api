@@ -1,4 +1,3 @@
-// src/task/dto/comment-response.dto.ts
 import { ApiProperty } from '@nestjs/swagger';
 
 export class UserInfoDto {

@@ -2,7 +2,6 @@ import { Controller } from '@nestjs/common';
 import { UserService } from './user.service';
 import { GrpcMethod, RpcException } from '@nestjs/microservices';
 
-// DTOs (inline)
 interface UpdateUserDto {
   email?: string;
   name?: string;

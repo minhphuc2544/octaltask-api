@@ -1,4 +1,3 @@
-// src/entities/list-shared.entity.ts
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 import { List } from './list.entity';
 import { User } from './user.entity';

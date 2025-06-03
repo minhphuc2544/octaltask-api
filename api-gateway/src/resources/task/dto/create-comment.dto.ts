@@ -1,4 +1,3 @@
-// src/task/dto/create-comment.dto.ts
 import { IsNotEmpty, IsString, MinLength } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 

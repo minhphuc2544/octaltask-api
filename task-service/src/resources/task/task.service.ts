@@ -1,4 +1,4 @@
-import { ForbiddenException, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Task } from '../../entities/task.entity';
@@ -9,8 +9,6 @@ import { List } from '../../entities/list.entity'; // Import List entity
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { TaskUser } from './task.controller';
-import { catchError, firstValueFrom, timeout } from 'rxjs';
-import { ClientGrpc } from '@nestjs/microservices';
 
 interface UserGrpcService {
   getUserByIdInfo(data: { id: number }): any;

@@ -1,4 +1,3 @@
-// src/task/dto/update-shared-role.dto.ts
 import { IsEnum, IsNotEmpty } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 

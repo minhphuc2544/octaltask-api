@@ -5,8 +5,6 @@ import { SignupDto } from './dto/signup.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtGuard } from 'src/guards/jwt.guard';
-// Import your existing JwtGuard
-// import { JwtGuard } from './guards/jwt.guard'; // Update path as needed
 
 @ApiTags('Authentication')
 @Controller('auth')

@@ -1,6 +1,4 @@
-// src/task/entities/task.entity.ts
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany } from 'typeorm';
-import { User } from './user.entity';
 import { Comment } from './comment.entity';
 import {Subtask} from './subtask.entity'
 import { List } from './list.entity';

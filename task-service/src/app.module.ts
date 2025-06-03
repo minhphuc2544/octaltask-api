@@ -13,7 +13,6 @@ import { CommentModule } from './resources/comment/comment.module';
 import { SubtaskModule } from './resources/subtask/subtask.module';
 import { List } from './entities/list.entity';
 import { ListModule } from './resources/list/list.module';
-import { ClientsModule, Transport } from '@nestjs/microservices';
 import { ListShared } from './entities/list-shared.entity';
 
 @Module({

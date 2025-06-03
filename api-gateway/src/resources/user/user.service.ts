@@ -2,7 +2,6 @@ import { Injectable, OnModuleInit, Inject, HttpException, HttpStatus } from '@ne
 import { ClientGrpc } from '@nestjs/microservices';
 import { catchError, firstValueFrom } from 'rxjs';
 
-// DTOs (inline)
 interface UpdateUserDto {
   email?: string;
   name?: string;

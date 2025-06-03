@@ -1,4 +1,3 @@
-// src/task/dto/create-Subtask.dto.ts
 import { IsBoolean, IsNotEmpty, IsString, MinLength } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 

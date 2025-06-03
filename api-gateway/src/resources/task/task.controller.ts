@@ -6,7 +6,25 @@ import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { CreateSubtaskDto } from './dto/create-subtask.dto';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiBearerAuth,
+  ApiBody,
+  ApiParam,
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiBadRequestResponse,
+  ApiUnauthorizedResponse,
+  ApiForbiddenResponse,
+  ApiNotFoundResponse,
+  ApiConflictResponse,
+  ApiInternalServerErrorResponse,
+} from '@nestjs/swagger';
+import { TaskResponseDto, CommentResponseDto, SubtaskResponseDto, ErrorResponseDto } from './dto/response.dto';
 
+@ApiTags('Tasks')
+@ApiBearerAuth()
 @Controller('tasks')
 export class TaskController {
   constructor(private readonly taskService: TaskService) { }
@@ -14,6 +32,13 @@ export class TaskController {
   @Post()
   @UseGuards(JwtGuard)
   @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Create a new task', description: 'Creates a new task for the authenticated user' })
+  @ApiBody({ type: CreateTaskDto })
+  @ApiCreatedResponse({ type: TaskResponseDto, description: 'Task created successfully' })
+  @ApiBadRequestResponse({ type: ErrorResponseDto, description: 'Invalid request data' })
+  @ApiUnauthorizedResponse({ type: ErrorResponseDto, description: 'Unauthorized' })
+  @ApiConflictResponse({ type: ErrorResponseDto, description: 'Task with this title already exists' })
+  @ApiInternalServerErrorResponse({ type: ErrorResponseDto, description: 'Internal server error' })
   async create(@Body(ValidationPipe) createTaskDto: CreateTaskDto, @Request() req) {
     return this.taskService.create(createTaskDto, req.user);
   }
@@ -21,6 +46,10 @@ export class TaskController {
   @Get()
   @UseGuards(JwtGuard)
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Get all tasks', description: 'Retrieves all tasks for the authenticated user' })
+  @ApiOkResponse({ type: [TaskResponseDto], description: 'Tasks retrieved successfully' })
+  @ApiUnauthorizedResponse({ type: ErrorResponseDto, description: 'Unauthorized' })
+  @ApiInternalServerErrorResponse({ type: ErrorResponseDto, description: 'Internal server error' })
   async findAll(@Request() req) {
     return this.taskService.findAll(req.user);
   }
@@ -28,6 +57,13 @@ export class TaskController {
   @Get(':id')
   @UseGuards(JwtGuard)
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Get a task by ID', description: 'Retrieves a specific task by its ID' })
+  @ApiParam({ name: 'id', type: Number, description: 'Task ID' })
+  @ApiOkResponse({ type: TaskResponseDto, description: 'Task retrieved successfully' })
+  @ApiNotFoundResponse({ type: ErrorResponseDto, description: 'Task not found' })
+  @ApiForbiddenResponse({ type: ErrorResponseDto, description: 'Permission denied' })
+  @ApiUnauthorizedResponse({ type: ErrorResponseDto, description: 'Unauthorized' })
+  @ApiInternalServerErrorResponse({ type: ErrorResponseDto, description: 'Internal server error' })
   async findOne(@Param('id') id: string, @Request() req) {
     return this.taskService.findOne(parseInt(id, 10), req.user);
   }
@@ -35,6 +71,15 @@ export class TaskController {
   @Patch(':id')
   @UseGuards(JwtGuard)
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Update a task', description: 'Updates an existing task' })
+  @ApiParam({ name: 'id', type: Number, description: 'Task ID' })
+  @ApiBody({ type: UpdateTaskDto })
+  @ApiOkResponse({ type: TaskResponseDto, description: 'Task updated successfully' })
+  @ApiNotFoundResponse({ type: ErrorResponseDto, description: 'Task not found' })
+  @ApiForbiddenResponse({ type: ErrorResponseDto, description: 'Permission denied' })
+  @ApiBadRequestResponse({ type: ErrorResponseDto, description: 'Invalid request data' })
+  @ApiUnauthorizedResponse({ type: ErrorResponseDto, description: 'Unauthorized' })
+  @ApiInternalServerErrorResponse({ type: ErrorResponseDto, description: 'Internal server error' })
   async update(
     @Param('id') id: string,
     @Body(ValidationPipe) updateTaskDto: UpdateTaskDto,
@@ -46,6 +91,13 @@ export class TaskController {
   @Delete(':id')
   @UseGuards(JwtGuard)
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Delete a task', description: 'Deletes an existing task' })
+  @ApiParam({ name: 'id', type: Number, description: 'Task ID' })
+  @ApiOkResponse({ description: 'Task deleted successfully' })
+  @ApiNotFoundResponse({ type: ErrorResponseDto, description: 'Task not found' })
+  @ApiForbiddenResponse({ type: ErrorResponseDto, description: 'Permission denied' })
+  @ApiUnauthorizedResponse({ type: ErrorResponseDto, description: 'Unauthorized' })
+  @ApiInternalServerErrorResponse({ type: ErrorResponseDto, description: 'Internal server error' })
   async remove(@Param('id') id: string, @Request() req) {
     return this.taskService.remove(parseInt(id, 10), req.user);
   }
@@ -54,6 +106,11 @@ export class TaskController {
   @Get('admin/all')
   @UseGuards(JwtGuard, AdminGuard)
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Get all tasks (Admin)', description: 'Retrieves all tasks in the system (Admin only)' })
+  @ApiOkResponse({ type: [TaskResponseDto], description: 'Tasks retrieved successfully' })
+  @ApiUnauthorizedResponse({ type: ErrorResponseDto, description: 'Unauthorized' })
+  @ApiForbiddenResponse({ type: ErrorResponseDto, description: 'Forbidden - Admin access required' })
+  @ApiInternalServerErrorResponse({ type: ErrorResponseDto, description: 'Internal server error' })
   async getAllTasksForAdmin() {
     return this.taskService.getAllTasksForAdmin();
   }
@@ -61,6 +118,13 @@ export class TaskController {
   @Get('admin/:id')
   @UseGuards(JwtGuard, AdminGuard)
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Get task by ID (Admin)', description: 'Retrieves a specific task by its ID (Admin only)' })
+  @ApiParam({ name: 'id', type: Number, description: 'Task ID' })
+  @ApiOkResponse({ type: TaskResponseDto, description: 'Task retrieved successfully' })
+  @ApiNotFoundResponse({ type: ErrorResponseDto, description: 'Task not found' })
+  @ApiUnauthorizedResponse({ type: ErrorResponseDto, description: 'Unauthorized' })
+  @ApiForbiddenResponse({ type: ErrorResponseDto, description: 'Forbidden - Admin access required' })
+  @ApiInternalServerErrorResponse({ type: ErrorResponseDto, description: 'Internal server error' })
   async getTaskByIdForAdmin(@Param('id') id: string) {
     return this.taskService.getTaskByIdForAdmin(parseInt(id, 10));
   }
@@ -68,6 +132,15 @@ export class TaskController {
   @Patch('admin/:id')
   @UseGuards(JwtGuard, AdminGuard)
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Update task (Admin)', description: 'Updates an existing task (Admin only)' })
+  @ApiParam({ name: 'id', type: Number, description: 'Task ID' })
+  @ApiBody({ type: UpdateTaskDto })
+  @ApiOkResponse({ type: TaskResponseDto, description: 'Task updated successfully' })
+  @ApiNotFoundResponse({ type: ErrorResponseDto, description: 'Task not found' })
+  @ApiBadRequestResponse({ type: ErrorResponseDto, description: 'Invalid request data' })
+  @ApiUnauthorizedResponse({ type: ErrorResponseDto, description: 'Unauthorized' })
+  @ApiForbiddenResponse({ type: ErrorResponseDto, description: 'Forbidden - Admin access required' })
+  @ApiInternalServerErrorResponse({ type: ErrorResponseDto, description: 'Internal server error' })
   async adminUpdateTask(
     @Param('id') id: string,
     @Body(ValidationPipe) updateTaskDto: UpdateTaskDto
@@ -78,6 +151,13 @@ export class TaskController {
   @Delete('admin/:id')
   @UseGuards(JwtGuard, AdminGuard)
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Delete task (Admin)', description: 'Deletes an existing task (Admin only)' })
+  @ApiParam({ name: 'id', type: Number, description: 'Task ID' })
+  @ApiOkResponse({ description: 'Task deleted successfully' })
+  @ApiNotFoundResponse({ type: ErrorResponseDto, description: 'Task not found' })
+  @ApiUnauthorizedResponse({ type: ErrorResponseDto, description: 'Unauthorized' })
+  @ApiForbiddenResponse({ type: ErrorResponseDto, description: 'Forbidden - Admin access required' })
+  @ApiInternalServerErrorResponse({ type: ErrorResponseDto, description: 'Internal server error' })
   async adminDeleteTask(@Param('id') id: string) {
     return this.taskService.adminDeleteTask(parseInt(id, 10));
   }
@@ -85,6 +165,13 @@ export class TaskController {
   @Get('admin/user/:userId')
   @UseGuards(JwtGuard, AdminGuard)
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Get tasks by user ID (Admin)', description: 'Retrieves all tasks for a specific user (Admin only)' })
+  @ApiParam({ name: 'userId', type: Number, description: 'User ID' })
+  @ApiOkResponse({ type: [TaskResponseDto], description: 'Tasks retrieved successfully' })
+  @ApiNotFoundResponse({ type: ErrorResponseDto, description: 'User not found' })
+  @ApiUnauthorizedResponse({ type: ErrorResponseDto, description: 'Unauthorized' })
+  @ApiForbiddenResponse({ type: ErrorResponseDto, description: 'Forbidden - Admin access required' })
+  @ApiInternalServerErrorResponse({ type: ErrorResponseDto, description: 'Internal server error' })
   async getAllTasksByUserId(@Param('userId') userId: string) {
     return this.taskService.getAllTasksByUserId(parseInt(userId, 10));
   }
@@ -92,6 +179,15 @@ export class TaskController {
   @Post(':id/comments')
   @UseGuards(JwtGuard)
   @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Add comment to task', description: 'Adds a comment to a specific task' })
+  @ApiParam({ name: 'id', type: Number, description: 'Task ID' })
+  @ApiBody({ type: CreateCommentDto })
+  @ApiCreatedResponse({ type: CommentResponseDto, description: 'Comment added successfully' })
+  @ApiNotFoundResponse({ type: ErrorResponseDto, description: 'Task not found' })
+  @ApiForbiddenResponse({ type: ErrorResponseDto, description: 'Permission denied' })
+  @ApiBadRequestResponse({ type: ErrorResponseDto, description: 'Invalid request data' })
+  @ApiUnauthorizedResponse({ type: ErrorResponseDto, description: 'Unauthorized' })
+  @ApiInternalServerErrorResponse({ type: ErrorResponseDto, description: 'Internal server error' })
   async addCommentToTask(
     @Param('id') id: string,
     @Body(ValidationPipe) createCommentDto: CreateCommentDto,
@@ -103,6 +199,13 @@ export class TaskController {
   @Get(':id/comments')
   @UseGuards(JwtGuard)
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Get task comments', description: 'Retrieves all comments for a specific task' })
+  @ApiParam({ name: 'id', type: Number, description: 'Task ID' })
+  @ApiOkResponse({ type: [CommentResponseDto], description: 'Comments retrieved successfully' })
+  @ApiNotFoundResponse({ type: ErrorResponseDto, description: 'Task not found' })
+  @ApiForbiddenResponse({ type: ErrorResponseDto, description: 'Permission denied' })
+  @ApiUnauthorizedResponse({ type: ErrorResponseDto, description: 'Unauthorized' })
+  @ApiInternalServerErrorResponse({ type: ErrorResponseDto, description: 'Internal server error' })
   async getCommentsForTask(@Param('id') id: string, @Request() req) {
     return this.taskService.getCommentsForTask(parseInt(id, 10), req.user);
   }
@@ -110,6 +213,15 @@ export class TaskController {
   @Post(':id/subtasks')
   @UseGuards(JwtGuard)
   @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Add subtask to task', description: 'Adds a subtask to a specific task' })
+  @ApiParam({ name: 'id', type: Number, description: 'Task ID' })
+  @ApiBody({ type: CreateSubtaskDto })
+  @ApiCreatedResponse({ type: SubtaskResponseDto, description: 'Subtask added successfully' })
+  @ApiNotFoundResponse({ type: ErrorResponseDto, description: 'Task not found' })
+  @ApiForbiddenResponse({ type: ErrorResponseDto, description: 'Permission denied' })
+  @ApiBadRequestResponse({ type: ErrorResponseDto, description: 'Invalid request data' })
+  @ApiUnauthorizedResponse({ type: ErrorResponseDto, description: 'Unauthorized' })
+  @ApiInternalServerErrorResponse({ type: ErrorResponseDto, description: 'Internal server error' })
   async addSubtaskToTask(
     @Param('id') id: string,
     @Body(ValidationPipe) createSubtaskDto: CreateSubtaskDto,
@@ -121,6 +233,13 @@ export class TaskController {
   @Get(':id/subtasks')
   @UseGuards(JwtGuard)
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Get task subtasks', description: 'Retrieves all subtasks for a specific task' })
+  @ApiParam({ name: 'id', type: Number, description: 'Task ID' })
+  @ApiOkResponse({ type: [SubtaskResponseDto], description: 'Subtasks retrieved successfully' })
+  @ApiNotFoundResponse({ type: ErrorResponseDto, description: 'Task not found' })
+  @ApiForbiddenResponse({ type: ErrorResponseDto, description: 'Permission denied' })
+  @ApiUnauthorizedResponse({ type: ErrorResponseDto, description: 'Unauthorized' })
+  @ApiInternalServerErrorResponse({ type: ErrorResponseDto, description: 'Internal server error' })
   async getSubtasksForTask(@Param('id') id: string, @Request() req) {
     return this.taskService.getSubtasksForTask(parseInt(id, 10), req.user);
   }

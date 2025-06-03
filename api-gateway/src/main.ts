@@ -27,7 +27,9 @@ async function bootstrap() {
       },
       'accessToken',
     )
+    .addTag('Authentication', 'Endpoints for user authentication and authorization')
     .build();
+    
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, documentFactory);
 

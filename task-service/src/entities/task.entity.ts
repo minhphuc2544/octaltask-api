@@ -22,11 +22,14 @@ export class Task {
   @Column({default:false})
   isImportant:boolean;
 
+  @Column({ default: false })
+  isStarted: boolean;
+
   @Column({ type: 'timestamp', nullable: true })
   dueDate?: Date;
 
-  @ManyToOne(() => User, (user) => user.tasks, { onDelete: 'CASCADE' })
-  user: User;
+  @Column()
+  userId: number;
   
   @OneToMany(() => Comment, (comment) => comment.task)
   comments: Comment[];

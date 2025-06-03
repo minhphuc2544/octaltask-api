@@ -11,7 +11,7 @@ import { List } from 'src/entities/list.entity';
 
 @Module({
   imports: [
-    ConfigModule, 
+    ConfigModule,
     TypeOrmModule.forFeature([Task]),
     TypeOrmModule.forFeature([User]),
     TypeOrmModule.forFeature([Comment]),

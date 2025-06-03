@@ -7,6 +7,7 @@ import { User } from 'src/entities/user.entity';
 import { Subtask } from 'src/entities/subtask.entity';
 import { ListController } from './list.controller';
 import { List } from 'src/entities/list.entity';
+import { ListShared } from 'src/entities/list-shared.entity';
 
 @Module({
    imports: [
@@ -14,7 +15,8 @@ import { List } from 'src/entities/list.entity';
       TypeOrmModule.forFeature([Task]),
       TypeOrmModule.forFeature([User]),
       TypeOrmModule.forFeature([Subtask]),
-      TypeOrmModule.forFeature([List])
+      TypeOrmModule.forFeature([List]),
+      TypeOrmModule.forFeature([ListShared])
     ],
     controllers: [ListController],
    

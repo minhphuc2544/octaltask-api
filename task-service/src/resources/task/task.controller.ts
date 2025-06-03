@@ -14,24 +14,58 @@ export interface TaskUser {
 export class TaskController {
   constructor(private readonly taskService: TaskService) { }
 
+  // NEW METHOD: Create default lists and tasks for new users
+  @GrpcMethod('TaskService', 'CreateDefaultUserSetup')
+  async createDefaultUserSetup(data: {
+    userId: number;
+    email: string;
+    name: string;
+    role?: string;
+  }) {
+    try {
+      if (!data.userId || !data.email) {
+        throw new RpcException('User ID and email are required');
+      }
+
+      const taskUser: TaskUser = {
+        userId: data.userId,
+        email: data.email,
+        role: data.role || 'user'
+      };
+
+      return await this.taskService.createDefaultUserSetup(taskUser, data.name);
+    } catch (error) {
+      throw new RpcException(error.message || 'Failed to create default user setup');
+    }
+  }
+
   @GrpcMethod('TaskService', 'CreateTask')
   async createTask(data: {
     title: string;
     description?: string;
     isCompleted?: boolean;
+    isStarted?: boolean;
     dueDate?: string;
+    listId: number; // Thêm listId bắt buộc cho create task
     user: TaskUser
   }) {
+    
     try {
       if (!data.title) {
         throw new RpcException('Title is required');
+      }
+
+      if (!data.listId) {
+        throw new RpcException('List ID is required');
       }
 
       const createTaskDto: CreateTaskDto = {
         title: data.title,
         description: data.description,
         isCompleted: data.isCompleted,
-        dueDate: data.dueDate
+        isStarted: data.isStarted,
+        dueDate: data.dueDate,
+        listId: data.listId // Thêm listId vào DTO
       };
 
       return await this.taskService.create(createTaskDto, data.user);
@@ -80,7 +114,9 @@ export class TaskController {
     title?: string;
     description?: string;
     isCompleted?: boolean;
+    isStarted?: boolean;
     dueDate?: string;
+    listId?: number; // listId là optional cho update
     user: TaskUser
   }) {
     try {
@@ -97,7 +133,9 @@ export class TaskController {
         title: updateData.title,
         description: updateData.description,
         isCompleted: updateData.isCompleted,
-        dueDate: updateData.dueDate
+        isStarted: updateData.isStarted,
+        dueDate: updateData.dueDate,
+        listId: updateData.listId // Thêm listId vào DTO
       };
 
       return await this.taskService.update(id, updateTaskDto, user);
@@ -156,7 +194,9 @@ export class TaskController {
     title?: string;
     description?: string;
     isCompleted?: boolean;
-    dueDate?: string
+    isStarted?: boolean;
+    dueDate?: string;
+    listId?: number; // Thêm listId cho admin update
   }) {
     try {
       if (!data || typeof data.id !== 'number') {
@@ -167,8 +207,9 @@ export class TaskController {
       const updateTaskDto: UpdateTaskDto = {
         title: updateData.title,
         description: updateData.description,
-        isCompleted: updateData.isCompleted,
-        dueDate: updateData.dueDate
+        isStarted: updateData.isStarted,
+        dueDate: updateData.dueDate,
+        listId: updateData.listId
       };
 
       return await this.taskService.adminUpdateTask(id, updateTaskDto);

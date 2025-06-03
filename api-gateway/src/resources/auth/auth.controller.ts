@@ -59,7 +59,6 @@ export class AuthController {
   @ApiResponse({ status: HttpStatus.SERVICE_UNAVAILABLE, description: 'Authentication service unavailable' })
   async signup(@Body(ValidationPipe) body: SignupDto) {
     const something = await this.authService.signup(body.email, body.password, body.name);
-   // console.log('User created:', something);
     return something;
   }
 

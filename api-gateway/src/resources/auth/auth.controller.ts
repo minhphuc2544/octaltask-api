@@ -5,7 +5,7 @@ import { SignupDto } from './dto/signup.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { JwtGuard } from 'src/guards/jwt.guard';
 import { ApiTags, ApiOperation, ApiBody, ApiBearerAuth, ApiBadRequestResponse, ApiUnauthorizedResponse, ApiNotFoundResponse, ApiConflictResponse, ApiCreatedResponse, ApiOkResponse } from '@nestjs/swagger';
-import { LoginResponseDto, SignupResponseDto, ResetPasswordResponseDto, ForgotPasswordResponseDto, UserResponseDto, ErrorResponseDto } from './dto/response.dto';
+import { LoginResponseDto, SignupResponseDto, ResetPasswordResponseDto, ForgotPasswordResponseDto, AuthUserResponseDto, AuthErrorResponseDto } from './dto/response.dto';
 
 @ApiTags('Authentication')
 @Controller('auth')
@@ -17,8 +17,8 @@ export class AuthController {
   @ApiOperation({ summary: 'User login', description: 'Authenticate user and return JWT token' })
   @ApiBody({ type: LoginDto })
   @ApiOkResponse({ type: LoginResponseDto, description: 'Successfully logged in' })
-  @ApiBadRequestResponse({ type: ErrorResponseDto, description: 'Validation error' })
-  @ApiUnauthorizedResponse({ type: ErrorResponseDto, description: 'Invalid credentials' })
+  @ApiBadRequestResponse({ type: AuthErrorResponseDto, description: 'Validation error' })
+  @ApiUnauthorizedResponse({ type: AuthErrorResponseDto, description: 'Invalid credentials' })
   async login(@Body(ValidationPipe) body: LoginDto) {
     return this.authService.login(body.email, body.password);
   }
@@ -28,8 +28,8 @@ export class AuthController {
   @ApiOperation({ summary: 'User registration', description: 'Create a new user account' })
   @ApiBody({ type: SignupDto })
   @ApiCreatedResponse({ type: SignupResponseDto, description: 'User created successfully' })
-  @ApiBadRequestResponse({ type: ErrorResponseDto, description: 'Validation error' })
-  @ApiConflictResponse({ type: ErrorResponseDto, description: 'Email already exists' })
+  @ApiBadRequestResponse({ type: AuthErrorResponseDto, description: 'Validation error' })
+  @ApiConflictResponse({ type: AuthErrorResponseDto, description: 'Email already exists' })
   async signup(@Body(ValidationPipe) body: SignupDto) {
     const something = await this.authService.signup(body.email, body.password, body.name);
     return something;
@@ -39,7 +39,7 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Request password reset', description: 'Send password reset email' })
   @ApiOkResponse({ type: ForgotPasswordResponseDto, description: 'Reset email sent if user exists' })
-  @ApiNotFoundResponse({ type: ErrorResponseDto, description: 'User not found' })
+  @ApiNotFoundResponse({ type: AuthErrorResponseDto, description: 'User not found' })
   async forgotPassword(@Body('email') email: string) {
     return this.authService.requestPasswordReset(email);
   }
@@ -49,7 +49,7 @@ export class AuthController {
   @ApiOperation({ summary: 'Reset password', description: 'Reset user password using valid token' })
   @ApiBody({ type: ResetPasswordDto })
   @ApiOkResponse({ type: ResetPasswordResponseDto, description: 'Password successfully reset' })
-  @ApiBadRequestResponse({ type: ErrorResponseDto, description: 'Invalid or expired token' })
+  @ApiBadRequestResponse({ type: AuthErrorResponseDto, description: 'Invalid or expired token' })
   async resetPassword(@Body(ValidationPipe) body: ResetPasswordDto) {
     return this.authService.resetPassword(body.token, body.newPassword);
   }
@@ -59,9 +59,9 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get current user info', description: 'Get authenticated user information' })
-  @ApiOkResponse({ type: UserResponseDto, description: 'Current user information' })
-  @ApiUnauthorizedResponse({ type: ErrorResponseDto, description: 'Unauthorized' })
-  @ApiNotFoundResponse({ type: ErrorResponseDto, description: 'User not found' })
+  @ApiOkResponse({ type: AuthUserResponseDto, description: 'Current user information' })
+  @ApiUnauthorizedResponse({ type: AuthErrorResponseDto, description: 'Unauthorized' })
+  @ApiNotFoundResponse({ type: AuthErrorResponseDto, description: 'User not found' })
   async getMe(@Request() req: any) {
     const userId = req.user.sub || req.user.id;
     return this.authService.getUserById(userId);

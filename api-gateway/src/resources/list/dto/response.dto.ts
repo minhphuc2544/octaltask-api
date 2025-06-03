@@ -50,7 +50,7 @@ export class SharedUsersResponseDto {
   sharedUsers: SharedUserDto[];
 }
 
-export class MessageResponseDto {
+export class ListMessageResponseDto {
   @ApiProperty({ example: 'Operation completed successfully' })
   message: string;
 }
@@ -71,7 +71,7 @@ export class UserDto {
   name?: string;
 }
 
-export class ErrorResponseDto {
+export class ListErrorResponseDto {
   @ApiProperty({ example: 400 })
   statusCode: number;
 

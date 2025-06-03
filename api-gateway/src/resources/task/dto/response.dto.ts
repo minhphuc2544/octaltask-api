@@ -26,7 +26,7 @@ export class TaskResponseDto {
   listId?: number;
 }
 
-export class CommentResponseDto {
+export class TaskCommentResponseDto {
   @ApiProperty({ example: 1, description: 'The ID of the comment' })
   id: number;
 
@@ -56,7 +56,7 @@ export class CommentResponseDto {
   };
 }
 
-export class SubtaskResponseDto {
+export class TaskSubtaskResponseDto {
   @ApiProperty({ example: 1, description: 'The ID of the subtask' })
   id: number;
 
@@ -89,7 +89,7 @@ export class SubtaskResponseDto {
   };
 }
 
-export class ErrorResponseDto {
+export class TaskErrorResponseDto {
   @ApiProperty({ example: 400, description: 'HTTP status code' })
   statusCode: number;
 

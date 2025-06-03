@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-export class UserResponseDto {
+export class UserUserResponseDto {
   @ApiProperty({ example: 1, description: 'User ID' })
   id: number;
 
@@ -21,16 +21,16 @@ export class UserResponseDto {
 }
 
 export class UsersListResponseDto {
-  @ApiProperty({ type: [UserResponseDto], description: 'List of users' })
-  users: UserResponseDto[];
+  @ApiProperty({ type: [UserUserResponseDto], description: 'List of users' })
+  users: UserUserResponseDto[];
 }
 
-export class MessageResponseDto {
+export class UserMessageResponseDto {
   @ApiProperty({ example: 'Password changed successfully', description: 'Operation result message' })
   message: string;
 }
 
-export class ErrorResponseDto {
+export class UserErrorResponseDto {
   @ApiProperty({ example: 400, description: 'HTTP status code' })
   statusCode: number;
 

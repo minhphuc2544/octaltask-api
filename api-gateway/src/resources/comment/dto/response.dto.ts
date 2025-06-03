@@ -14,7 +14,7 @@ export class CommentUserDto {
   role: string;
 }
 
-export class CommentResponseDto {
+export class CommentCommentResponseDto {
   @ApiProperty({ example: 1, description: 'Comment ID' })
   id: number;
 
@@ -39,7 +39,7 @@ export class DeleteCommentResponseDto {
   message: string;
 }
 
-export class ErrorResponseDto {
+export class CommentErrorResponseDto {
   @ApiProperty({ example: 404, description: 'HTTP status code' })
   statusCode: number;
 

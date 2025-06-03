@@ -18,7 +18,7 @@ import {
   ApiParam,
   ApiBody
 } from '@nestjs/swagger';
-import { UserResponseDto, UsersListResponseDto, MessageResponseDto, ErrorResponseDto } from './dto/response.dto';
+import { UserUserResponseDto, UsersListResponseDto, UserMessageResponseDto, UserErrorResponseDto } from './dto/response.dto';
 
 @ApiTags('Users')
 @ApiBearerAuth()
@@ -34,15 +34,15 @@ export class UserController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Current user profile retrieved successfully',
-    type: UserResponseDto
+    type: UserUserResponseDto
   })
   @ApiUnauthorizedResponse({
     description: 'Unauthorized',
-    type: ErrorResponseDto
+    type: UserErrorResponseDto
   })
   @ApiNotFoundResponse({
     description: 'User not found',
-    type: ErrorResponseDto
+    type: UserErrorResponseDto
   })
   async getCurrentUser(@Request() req) {
     return this.userService.getCurrentUser(req.user);
@@ -56,23 +56,23 @@ export class UserController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'User profile updated successfully',
-    type: UserResponseDto
+    type: UserUserResponseDto
   })
   @ApiBadRequestResponse({
     description: 'Invalid input data',
-    type: ErrorResponseDto
+    type: UserErrorResponseDto
   })
   @ApiUnauthorizedResponse({
     description: 'Unauthorized',
-    type: ErrorResponseDto
+    type: UserErrorResponseDto
   })
   @ApiNotFoundResponse({
     description: 'User not found',
-    type: ErrorResponseDto
+    type: UserErrorResponseDto
   })
   @ApiConflictResponse({
     description: 'Email already exists',
-    type: ErrorResponseDto
+    type: UserErrorResponseDto
   })
   async updateCurrentUser(
     @Body(ValidationPipe) updateUserDto: UpdateUserDto,
@@ -89,19 +89,19 @@ export class UserController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Password changed successfully',
-    type: MessageResponseDto
+    type: UserMessageResponseDto
   })
   @ApiBadRequestResponse({
     description: 'Invalid input data',
-    type: ErrorResponseDto
+    type: UserErrorResponseDto
   })
   @ApiUnauthorizedResponse({
     description: 'Invalid current password',
-    type: ErrorResponseDto
+    type: UserErrorResponseDto
   })
   @ApiNotFoundResponse({
     description: 'User not found',
-    type: ErrorResponseDto
+    type: UserErrorResponseDto
   })
   async changePassword(
     @Body(ValidationPipe) changePasswordDto: ChangePasswordDto,
@@ -117,15 +117,15 @@ export class UserController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'User account deleted successfully',
-    type: MessageResponseDto
+    type: UserMessageResponseDto
   })
   @ApiUnauthorizedResponse({
     description: 'Unauthorized',
-    type: ErrorResponseDto
+    type: UserErrorResponseDto
   })
   @ApiNotFoundResponse({
     description: 'User not found',
-    type: ErrorResponseDto
+    type: UserErrorResponseDto
   })
   async deleteCurrentUser(@Request() req) {
     return this.userService.deleteCurrentUser(req.user);
@@ -143,11 +143,11 @@ export class UserController {
   })
   @ApiUnauthorizedResponse({
     description: 'Unauthorized',
-    type: ErrorResponseDto
+    type: UserErrorResponseDto
   })
   @ApiForbiddenResponse({
     description: 'Forbidden (Admin access required)',
-    type: ErrorResponseDto
+    type: UserErrorResponseDto
   })
   async getAllUsers() {
     return this.userService.getAllUsers();
@@ -161,19 +161,19 @@ export class UserController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'User retrieved successfully',
-    type: UserResponseDto
+    type: UserUserResponseDto
   })
   @ApiUnauthorizedResponse({
     description: 'Unauthorized',
-    type: ErrorResponseDto
+    type: UserErrorResponseDto
   })
   @ApiForbiddenResponse({
     description: 'Forbidden (Admin access required)',
-    type: ErrorResponseDto
+    type: UserErrorResponseDto
   })
   @ApiNotFoundResponse({
     description: 'User not found',
-    type: ErrorResponseDto
+    type: UserErrorResponseDto
   })
   async getUserById(@Param('id') id: string) {
     return this.userService.getUserById(parseInt(id, 10));
@@ -188,27 +188,27 @@ export class UserController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'User updated successfully',
-    type: UserResponseDto
+    type: UserUserResponseDto
   })
   @ApiBadRequestResponse({
     description: 'Invalid input data',
-    type: ErrorResponseDto
+    type: UserErrorResponseDto
   })
   @ApiUnauthorizedResponse({
     description: 'Unauthorized',
-    type: ErrorResponseDto
+    type: UserErrorResponseDto
   })
   @ApiForbiddenResponse({
     description: 'Forbidden (Admin access required)',
-    type: ErrorResponseDto
+    type: UserErrorResponseDto
   })
   @ApiNotFoundResponse({
     description: 'User not found',
-    type: ErrorResponseDto
+    type: UserErrorResponseDto
   })
   @ApiConflictResponse({
     description: 'Email already exists',
-    type: ErrorResponseDto
+    type: UserErrorResponseDto
   })
   async updateUserById(
     @Param('id') id: string,
@@ -225,19 +225,19 @@ export class UserController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'User deleted successfully',
-    type: MessageResponseDto
+    type: UserMessageResponseDto
   })
   @ApiUnauthorizedResponse({
     description: 'Unauthorized',
-    type: ErrorResponseDto
+    type: UserErrorResponseDto
   })
   @ApiForbiddenResponse({
     description: 'Forbidden (Admin access required)',
-    type: ErrorResponseDto
+    type: UserErrorResponseDto
   })
   @ApiNotFoundResponse({
     description: 'User not found',
-    type: ErrorResponseDto
+    type: UserErrorResponseDto
   })
   async deleteUserById(@Param('id') id: string) {
     return this.userService.deleteUserById(parseInt(id, 10));

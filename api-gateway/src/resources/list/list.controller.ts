@@ -23,9 +23,9 @@ import {
   ListResponseDto,
   SharedListsResponseDto,
   SharedUsersResponseDto,
-  MessageResponseDto,
+  ListMessageResponseDto,
   UsersSearchResponseDto,
-  ErrorResponseDto,
+  ListErrorResponseDto,
 } from './dto/response.dto';
 
 @ApiTags('Lists')
@@ -40,8 +40,8 @@ export class ListController {
   @ApiOperation({ summary: 'Create a new list' })
   @ApiBody({ type: CreateListDto })
   @ApiCreatedResponse({ type: ListResponseDto, description: 'List created successfully' })
-  @ApiBadRequestResponse({ type: ErrorResponseDto, description: 'Invalid input data' })
-  @ApiConflictResponse({ type: ErrorResponseDto, description: 'List with this name already exists' })
+  @ApiBadRequestResponse({ type: ListErrorResponseDto, description: 'Invalid input data' })
+  @ApiConflictResponse({ type: ListErrorResponseDto, description: 'List with this name already exists' })
   async create(@Body(ValidationPipe) createListDto: CreateListDto, @Request() req) {
     const something = await this.listService.create(createListDto, req.user);
     return something;
@@ -71,7 +71,7 @@ export class ListController {
   @ApiOperation({ summary: 'Search users by email' })
   @ApiQuery({ name: 'email', required: true, description: 'Email to search for' })
   @ApiOkResponse({ type: UsersSearchResponseDto, description: 'Users found' })
-  @ApiBadRequestResponse({ type: ErrorResponseDto, description: 'Email is required' })
+  @ApiBadRequestResponse({ type: ListErrorResponseDto, description: 'Email is required' })
   async searchUsers(@Query('email') email: string) {
     return this.listService.getUsersByEmail(email);
   }
@@ -82,8 +82,8 @@ export class ListController {
   @ApiOperation({ summary: 'Get a specific list by ID' })
   @ApiParam({ name: 'id', description: 'List ID' })
   @ApiOkResponse({ type: ListResponseDto, description: 'List retrieved successfully' })
-  @ApiNotFoundResponse({ type: ErrorResponseDto, description: 'List not found' })
-  @ApiForbiddenResponse({ type: ErrorResponseDto, description: 'No permission to access this list' })
+  @ApiNotFoundResponse({ type: ListErrorResponseDto, description: 'List not found' })
+  @ApiForbiddenResponse({ type: ListErrorResponseDto, description: 'No permission to access this list' })
   async findOne(@Param('id') id: string, @Request() req) {
     return this.listService.findOne(parseInt(id, 10), req.user);
   }
@@ -94,8 +94,8 @@ export class ListController {
   @ApiOperation({ summary: 'Get all users a list is shared with' })
   @ApiParam({ name: 'id', description: 'List ID' })
   @ApiOkResponse({ type: SharedUsersResponseDto, description: 'Shared users retrieved successfully' })
-  @ApiNotFoundResponse({ type: ErrorResponseDto, description: 'List not found' })
-  @ApiForbiddenResponse({ type: ErrorResponseDto, description: 'No permission to access this list' })
+  @ApiNotFoundResponse({ type: ListErrorResponseDto, description: 'List not found' })
+  @ApiForbiddenResponse({ type: ListErrorResponseDto, description: 'No permission to access this list' })
   async getListSharedUsers(@Param('id') id: string, @Request() req) {
     return this.listService.getListSharedUsers(parseInt(id, 10), req.user);
   }
@@ -106,10 +106,10 @@ export class ListController {
   @ApiOperation({ summary: 'Share a list with another user' })
   @ApiParam({ name: 'id', description: 'List ID' })
   @ApiBody({ type: ShareListDto })
-  @ApiCreatedResponse({ type: MessageResponseDto, description: 'List shared successfully' })
-  @ApiNotFoundResponse({ type: ErrorResponseDto, description: 'List or user not found' })
-  @ApiForbiddenResponse({ type: ErrorResponseDto, description: 'No permission to share this list' })
-  @ApiConflictResponse({ type: ErrorResponseDto, description: 'List already shared with this user or cannot share with owner' })
+  @ApiCreatedResponse({ type: ListMessageResponseDto, description: 'List shared successfully' })
+  @ApiNotFoundResponse({ type: ListErrorResponseDto, description: 'List or user not found' })
+  @ApiForbiddenResponse({ type: ListErrorResponseDto, description: 'No permission to share this list' })
+  @ApiConflictResponse({ type: ListErrorResponseDto, description: 'List already shared with this user or cannot share with owner' })
   async shareList(
     @Param('id') id: string,
     @Body(ValidationPipe) shareListDto: ShareListDto,
@@ -125,9 +125,9 @@ export class ListController {
   @ApiParam({ name: 'id', description: 'List ID' })
   @ApiParam({ name: 'userId', description: 'User ID to update role for' })
   @ApiBody({ type: UpdateSharedRoleDto })
-  @ApiOkResponse({ type: MessageResponseDto, description: 'Role updated successfully' })
-  @ApiNotFoundResponse({ type: ErrorResponseDto, description: 'List or shared user not found' })
-  @ApiForbiddenResponse({ type: ErrorResponseDto, description: 'No permission to update roles' })
+  @ApiOkResponse({ type: ListMessageResponseDto, description: 'Role updated successfully' })
+  @ApiNotFoundResponse({ type: ListErrorResponseDto, description: 'List or shared user not found' })
+  @ApiForbiddenResponse({ type: ListErrorResponseDto, description: 'No permission to update roles' })
   async updateSharedRole(
     @Param('id') id: string,
     @Param('userId') userId: string,
@@ -148,9 +148,9 @@ export class ListController {
   @ApiOperation({ summary: 'Remove a user from shared list' })
   @ApiParam({ name: 'id', description: 'List ID' })
   @ApiParam({ name: 'userId', description: 'User ID to remove' })
-  @ApiOkResponse({ type: MessageResponseDto, description: 'User removed successfully' })
-  @ApiNotFoundResponse({ type: ErrorResponseDto, description: 'List or shared user not found' })
-  @ApiForbiddenResponse({ type: ErrorResponseDto, description: 'No permission to remove this user' })
+  @ApiOkResponse({ type: ListMessageResponseDto, description: 'User removed successfully' })
+  @ApiNotFoundResponse({ type: ListErrorResponseDto, description: 'List or shared user not found' })
+  @ApiForbiddenResponse({ type: ListErrorResponseDto, description: 'No permission to remove this user' })
   async removeSharedUser(
     @Param('id') id: string,
     @Param('userId') userId: string,
@@ -166,9 +166,9 @@ export class ListController {
   @ApiParam({ name: 'id', description: 'List ID' })
   @ApiBody({ type: UpdateListDto })
   @ApiOkResponse({ type: ListResponseDto, description: 'List updated successfully' })
-  @ApiNotFoundResponse({ type: ErrorResponseDto, description: 'List not found' })
-  @ApiForbiddenResponse({ type: ErrorResponseDto, description: 'No permission to update this list' })
-  @ApiConflictResponse({ type: ErrorResponseDto, description: 'List with this name already exists' })
+  @ApiNotFoundResponse({ type: ListErrorResponseDto, description: 'List not found' })
+  @ApiForbiddenResponse({ type: ListErrorResponseDto, description: 'No permission to update this list' })
+  @ApiConflictResponse({ type: ListErrorResponseDto, description: 'List with this name already exists' })
   async update(
     @Param('id') id: string,
     @Body(ValidationPipe) updateListDto: UpdateListDto,
@@ -182,10 +182,10 @@ export class ListController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Delete a list' })
   @ApiParam({ name: 'id', description: 'List ID' })
-  @ApiOkResponse({ type: MessageResponseDto, description: 'List deleted successfully' })
-  @ApiNotFoundResponse({ type: ErrorResponseDto, description: 'List not found' })
-  @ApiForbiddenResponse({ type: ErrorResponseDto, description: 'No permission to delete this list' })
-  @ApiConflictResponse({ type: ErrorResponseDto, description: 'Cannot delete list with tasks' })
+  @ApiOkResponse({ type: ListMessageResponseDto, description: 'List deleted successfully' })
+  @ApiNotFoundResponse({ type: ListErrorResponseDto, description: 'List not found' })
+  @ApiForbiddenResponse({ type: ListErrorResponseDto, description: 'No permission to delete this list' })
+  @ApiConflictResponse({ type: ListErrorResponseDto, description: 'Cannot delete list with tasks' })
   async remove(@Param('id') id: string, @Request() req) {
     return this.listService.remove(parseInt(id, 10), req.user);
   }

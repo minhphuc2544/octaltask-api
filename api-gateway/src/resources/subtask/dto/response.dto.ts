@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-export class SubtaskResponseDto {
+export class SubtaskSubtaskResponseDto {
   @ApiProperty({ example: 1, description: 'The ID of the subtask' })
   id: number;
 
@@ -34,7 +34,7 @@ export class SubtaskResponseDto {
   };
 }
 
-export class ErrorResponseDto {
+export class SubtaskErrorResponseDto {
   @ApiProperty({ example: 400, description: 'HTTP status code' })
   statusCode: number;
 

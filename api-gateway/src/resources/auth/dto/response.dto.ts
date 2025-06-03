@@ -29,7 +29,7 @@ export class ForgotPasswordResponseDto {
   message: string;
 }
 
-export class UserResponseDto {
+export class AuthUserResponseDto {
   @ApiProperty({ example: 1, description: 'User ID' })
   id: number;
 
@@ -43,7 +43,7 @@ export class UserResponseDto {
   role?: string;
 }
 
-export class ErrorResponseDto {
+export class AuthErrorResponseDto {
   @ApiProperty({ example: 400, description: 'HTTP status code' })
   statusCode: number;
 

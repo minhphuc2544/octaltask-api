@@ -12,7 +12,7 @@ import {
   ApiBearerAuth,
   ApiParam
 } from '@nestjs/swagger';
-import { SubtaskResponseDto, ErrorResponseDto, DeleteResponseDto } from './dto/response.dto';
+import { SubtaskSubtaskResponseDto, SubtaskErrorResponseDto, DeleteResponseDto } from './dto/response.dto';
 
 @ApiTags('Subtasks')
 @ApiBearerAuth()
@@ -27,19 +27,19 @@ export class SubtaskController {
   @ApiResponse({
     status: 200,
     description: 'Subtask retrieved successfully',
-    type: SubtaskResponseDto
+    type: SubtaskSubtaskResponseDto
   })
   @ApiBadRequestResponse({
     description: 'Invalid subtask ID format',
-    type: ErrorResponseDto
+    type: SubtaskErrorResponseDto
   })
   @ApiNotFoundResponse({
     description: 'Subtask not found',
-    type: ErrorResponseDto
+    type: SubtaskErrorResponseDto
   })
   @ApiForbiddenResponse({
     description: 'Permission denied to view this subtask',
-    type: ErrorResponseDto
+    type: SubtaskErrorResponseDto
   })
   async getSubtask(@Param('id') id: string, @Request() req) {
     return this.subtaskService.getSubtask(parseInt(id, 10), req.user);
@@ -52,19 +52,19 @@ export class SubtaskController {
   @ApiResponse({
     status: 200,
     description: 'Subtask updated successfully',
-    type: SubtaskResponseDto
+    type: SubtaskSubtaskResponseDto
   })
   @ApiBadRequestResponse({
     description: 'Invalid input data',
-    type: ErrorResponseDto
+    type: SubtaskErrorResponseDto
   })
   @ApiNotFoundResponse({
     description: 'Subtask not found',
-    type: ErrorResponseDto
+    type: SubtaskErrorResponseDto
   })
   @ApiForbiddenResponse({
     description: 'Permission denied to update this subtask',
-    type: ErrorResponseDto
+    type: SubtaskErrorResponseDto
   })
   async updateSubtask(
     @Param('id') id: string,
@@ -89,15 +89,15 @@ export class SubtaskController {
   })
   @ApiBadRequestResponse({
     description: 'Invalid subtask ID format',
-    type: ErrorResponseDto
+    type: SubtaskErrorResponseDto
   })
   @ApiNotFoundResponse({
     description: 'Subtask not found',
-    type: ErrorResponseDto
+    type: SubtaskErrorResponseDto
   })
   @ApiForbiddenResponse({
     description: 'Permission denied to delete this subtask',
-    type: ErrorResponseDto
+    type: SubtaskErrorResponseDto
   })
   async deleteSubtask(@Param('id') id: string, @Request() req) {
     return this.subtaskService.deleteSubtask(parseInt(id, 10), req.user);

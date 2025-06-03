@@ -11,7 +11,7 @@ export class SubtaskService {
     private subtaskRepo: Repository<Subtask>,
     @InjectRepository(User)
     private userRepo: Repository<User>
-  ) {}
+  ) { }
 
   async getSubtask(id: number, userInfo: { userId: number; role?: string }) {
     const subtask = await this.subtaskRepo.findOne({

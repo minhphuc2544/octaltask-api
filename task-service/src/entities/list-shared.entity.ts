@@ -4,7 +4,7 @@ import { User } from './user.entity';
 
 export enum SharedRole {
   VIEWER = 'viewer',
-  EDITOR = 'editor', 
+  EDITOR = 'editor',
   ADMIN = 'admin',
 }
 

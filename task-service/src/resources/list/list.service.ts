@@ -22,7 +22,7 @@ export class ListService {
     private listSharedRepository: Repository<ListShared>,
     @InjectRepository(User)
     private userRepository: Repository<User>,
-  ) {}
+  ) { }
 
   // Helper method để check quyền truy cập
   private async checkListAccess(listId: number, userId: number): Promise<{ list: List; userRole: string }> {
@@ -72,7 +72,7 @@ export class ListService {
     });
 
     const savedList = await this.listRepository.save(list);
-    
+
     return await this.listRepository.findOne({
       where: { id: savedList.id },
       relations: ['user', 'sharedUsers', 'sharedUsers.user'],

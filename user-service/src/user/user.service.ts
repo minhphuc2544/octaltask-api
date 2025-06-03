@@ -23,11 +23,11 @@ export class UserService {
   constructor(
     @InjectRepository(User)
     private readonly userRepo: Repository<User>,
-  ) {}
+  ) { }
 
   async getCurrentUser(userId: number) {
     const user = await this.userRepo.findOne({ where: { id: userId } });
-    
+
     if (!user) {
       throw new NotFoundException('User not found');
     }
@@ -38,7 +38,7 @@ export class UserService {
 
   async updateCurrentUser(userId: number, updateData: UpdateUserDto) {
     const user = await this.userRepo.findOne({ where: { id: userId } });
-    
+
     if (!user) {
       throw new NotFoundException('User not found');
     }
@@ -62,7 +62,7 @@ export class UserService {
 
   async changePassword(userId: number, changePasswordData: ChangePasswordDto) {
     const user = await this.userRepo.findOne({ where: { id: userId } });
-    
+
     if (!user) {
       throw new NotFoundException('User not found');
     }
@@ -82,7 +82,7 @@ export class UserService {
 
   async deleteCurrentUser(userId: number) {
     const user = await this.userRepo.findOne({ where: { id: userId } });
-    
+
     if (!user) {
       throw new NotFoundException('User not found');
     }
@@ -93,7 +93,7 @@ export class UserService {
 
   async getAllUsers() {
     const users = await this.userRepo.find();
-    
+
     // Remove sensitive information from all users
     const safeUsers = users.map(user => {
       const { password, resetToken, resetTokenExpires, ...safeUser } = user;
@@ -105,7 +105,7 @@ export class UserService {
 
   async getUserById(id: number) {
     const user = await this.userRepo.findOne({ where: { id } });
-    
+
     if (!user) {
       throw new NotFoundException('User not found');
     }
@@ -116,7 +116,7 @@ export class UserService {
 
   async updateUserById(id: number, updateData: AdminUpdateUserDto) {
     const user = await this.userRepo.findOne({ where: { id } });
-    
+
     if (!user) {
       throw new NotFoundException('User not found');
     }
@@ -141,7 +141,7 @@ export class UserService {
 
   async deleteUserById(id: number) {
     const user = await this.userRepo.findOne({ where: { id } });
-    
+
     if (!user) {
       throw new NotFoundException('User not found');
     }

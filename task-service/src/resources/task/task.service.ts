@@ -39,7 +39,7 @@ export class TaskService {
     private subtaskRepo: Repository<Subtask>,
     @InjectRepository(List)
     private listRepo: Repository<List>, // Inject List repository
-    
+
   ) { }
 
   private async createDefaultList(user: TaskUser, name: string, icon: string, color: string) {

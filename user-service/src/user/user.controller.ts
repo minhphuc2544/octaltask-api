@@ -18,7 +18,7 @@ interface AdminUpdateUserDto extends UpdateUserDto {
 
 @Controller('user')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(private readonly userService: UserService) { }
 
   @GrpcMethod('UserService', 'GetCurrentUser')
   async getCurrentUser(data: { user: any }) {

@@ -8,7 +8,7 @@ export class CommentService {
   constructor(
     @InjectRepository(Comment)
     private commentRepo: Repository<Comment>
-  ) {}
+  ) { }
 
   async getComment(id: number, userInfo: { userId: number; role?: string }) {
     const comment = await this.commentRepo.findOne({

@@ -29,13 +29,13 @@ import { ListShared } from './entities/list-shared.entity';
         username: config.get<string>('DB_USERNAME'),
         password: config.get<string>('DB_PASSWORD'),
         database: config.get<string>('DB_DATABASE'),
-        entities: [Task, User,Comment,Subtask,List,ListShared],
+        entities: [Task, User, Comment, Subtask, List, ListShared],
         synchronize: true,
         logging: true,
       }),
       inject: [ConfigService],
     }),
-    
+
     TaskModule,
     CommentModule,
     SubtaskModule,

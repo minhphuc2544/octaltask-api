@@ -5,19 +5,19 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
-import { MailerModule } from '../mailer/mailer.module'; 
+import { MailerModule } from '../mailer/mailer.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { ClientsModule, Transport } from '@nestjs/microservices';
-import { getTaskGrpcClientOptions} from '../client-options/task.grpc-client';
+import { ClientsModule } from '@nestjs/microservices';
+import { getTaskGrpcClientOptions } from '../client-options/task.grpc-client';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
-          isGlobal: true, 
-        }),
+      isGlobal: true,
+    }),
     PassportModule,
     MailerModule,
-    
+
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -36,10 +36,10 @@ import { getTaskGrpcClientOptions} from '../client-options/task.grpc-client';
       },
     ]),
 
-    TypeOrmModule.forFeature([User]), 
+    TypeOrmModule.forFeature([User]),
   ],
   controllers: [AuthController],
   providers: [AuthService],
   exports: [AuthService],
 })
-export class AuthModule {}
+export class AuthModule { }

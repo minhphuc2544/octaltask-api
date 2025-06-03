@@ -1,6 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany } from 'typeorm';
 import { Comment } from './comment.entity';
-import {Subtask} from './subtask.entity'
+import { Subtask } from './subtask.entity'
 import { List } from './list.entity';
 
 @Entity('tasks')
@@ -17,8 +17,8 @@ export class Task {
   @Column({ default: false })
   isCompleted: boolean;
 
-  @Column({default:false})
-  isImportant:boolean;
+  @Column({ default: false })
+  isImportant: boolean;
 
   @Column({ default: false })
   isStarted: boolean;
@@ -28,7 +28,7 @@ export class Task {
 
   @Column()
   userId: number;
-  
+
   @OneToMany(() => Comment, (comment) => comment.task)
   comments: Comment[];
 
@@ -37,6 +37,6 @@ export class Task {
 
   @ManyToOne(() => List, (list) => list.tasks, { onDelete: 'SET NULL', nullable: true })
   list: List;
-  
+
   createdBy: any;
 }

@@ -8,7 +8,7 @@ export class UpdateListDto {
 
     @IsString()
     @IsOptional()
-    icon?:ListType;
+    icon?: ListType;
 
     @IsString()
     @IsOptional()

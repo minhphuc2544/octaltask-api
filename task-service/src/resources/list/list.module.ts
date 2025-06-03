@@ -10,16 +10,16 @@ import { List } from 'src/entities/list.entity';
 import { ListShared } from 'src/entities/list-shared.entity';
 
 @Module({
-   imports: [
-      ConfigModule, 
-      TypeOrmModule.forFeature([Task]),
-      TypeOrmModule.forFeature([User]),
-      TypeOrmModule.forFeature([Subtask]),
-      TypeOrmModule.forFeature([List]),
-      TypeOrmModule.forFeature([ListShared])
-    ],
-    controllers: [ListController],
-   
+  imports: [
+    ConfigModule,
+    TypeOrmModule.forFeature([Task]),
+    TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([Subtask]),
+    TypeOrmModule.forFeature([List]),
+    TypeOrmModule.forFeature([ListShared])
+  ],
+  controllers: [ListController],
+
   providers: [ListService]
 })
-export class ListModule {}
+export class ListModule { }

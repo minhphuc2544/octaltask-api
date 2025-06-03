@@ -246,7 +246,7 @@ export class TaskController {
     }
   }
 
-  @GrpcMethod('TaskService', 'AddCommentToTask') // OKAY
+  @GrpcMethod('TaskService', 'AddCommentToTask')
   async addCommentToTask(data: {
     taskId: number;
     content: string;
@@ -271,7 +271,7 @@ export class TaskController {
     }
   }
 
-  @GrpcMethod('TaskService', 'GetCommentsForTask') // OKAY
+  @GrpcMethod('TaskService', 'GetCommentsForTask')
   async getCommentsForTask(data: {
     taskId: number;
     user: { userId: number; email: string; role: string }
@@ -292,7 +292,7 @@ export class TaskController {
     }
   }
 
-  @GrpcMethod('TaskService', 'AddSubtaskToTask') // OKAY
+  @GrpcMethod('TaskService', 'AddSubtaskToTask')
   async addSubtaskToTask(data: {
     taskId: number;
     content: string;
@@ -318,7 +318,7 @@ export class TaskController {
     }
   }
 
-  @GrpcMethod('TaskService', 'GetSubtasksForTask') // OKAY
+  @GrpcMethod('TaskService', 'GetSubtasksForTask')
   async getSubtasksForTask(data: {
     taskId: number;
     user: { userId: number; email: string; role: string }

@@ -2,16 +2,13 @@ import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/commo
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Subtask } from '../../entities/subtask.entity';
-import { User } from '../../entities/user.entity';
 
 @Injectable()
 export class SubtaskService {
   constructor(
     @InjectRepository(Subtask)
-    private subtaskRepo: Repository<Subtask>,
-    @InjectRepository(User)
-    private userRepo: Repository<User>
-  ) {}
+    private subtaskRepo: Repository<Subtask>
+  ) { }
 
   async getSubtask(id: number, userInfo: { userId: number; role?: string }) {
     const subtask = await this.subtaskRepo.findOne({

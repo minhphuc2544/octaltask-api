@@ -1,10 +1,11 @@
-// src/task/list.service.ts - Updated with sharing features
 import { Injectable, Inject, NotFoundException, ForbiddenException, ConflictException } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { CreateListDto } from './dto/create-list.dto';
 import { UpdateListDto } from './dto/update-list.dto';
-import { ListType, ListColor } from '../../entities/list.entity';
+
+type ListType = 'personal' | 'work' | 'home' | 'study' | 'default';
+type ListColor = 'blue' | 'green' | 'red' | 'purple' | 'amber';
 
 interface TaskUser {
   userId: number;

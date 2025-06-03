@@ -1,4 +1,3 @@
-// src/task/entities/list.entity.ts
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany, CreateDateColumn, ManyToOne } from 'typeorm';
 import { Task } from './task.entity';
 import { User } from './user.entity';

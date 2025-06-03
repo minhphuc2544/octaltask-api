@@ -1,4 +1,4 @@
-import { ForbiddenException, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Task } from '../../entities/task.entity';
@@ -9,22 +9,6 @@ import { List } from '../../entities/list.entity'; // Import List entity
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { TaskUser } from './task.controller';
-import { catchError, firstValueFrom, timeout } from 'rxjs';
-import { ClientGrpc } from '@nestjs/microservices';
-
-interface UserGrpcService {
-  getUserByIdInfo(data: { id: number }): any;
-  getUsersByIds(data: { ids: number[] }): any;
-  validateUser(data: { userId: number; email?: string }): any;
-  checkUserExists(data: { userId: number }): any;
-}
-
-interface UserInfo {
-  id: number;
-  email: string;
-  name: string;
-  role: string;
-}
 
 @Injectable()
 export class TaskService {
@@ -41,7 +25,7 @@ export class TaskService {
     private subtaskRepo: Repository<Subtask>,
     @InjectRepository(List)
     private listRepo: Repository<List>, // Inject List repository
-    
+
   ) { }
 
   private async createDefaultList(user: TaskUser, name: string, icon: string, color: string) {

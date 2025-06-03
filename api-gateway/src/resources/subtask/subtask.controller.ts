@@ -5,7 +5,7 @@ import { UpdateSubtaskDto } from './dto/update-subtask.dto';
 
 @Controller('subtasks')
 export class SubtaskController {
-  constructor(private readonly subtaskService: SubtaskService) {}
+  constructor(private readonly subtaskService: SubtaskService) { }
 
   @Get(':id')
   @UseGuards(JwtGuard)

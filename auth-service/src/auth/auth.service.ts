@@ -8,7 +8,6 @@ import * as bcrypt from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid';
 import { addMinutes } from 'date-fns';
 import { MailerService } from 'src/mailer/mailer.service';
-import { LoginDto } from './dto/login.dto';
 import { SignupDto } from './dto/signup.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { ClientGrpc } from '@nestjs/microservices';
@@ -61,7 +60,7 @@ export class AuthService {
     const { password: _, ...userWithoutPassword } = user;
     return userWithoutPassword;
   }
-  
+
   async login(user: any) {
     const payload = { email: user.email, sub: user.id, name: user.name, role: user.role };
     return {
@@ -148,7 +147,7 @@ export class AuthService {
     try {
       // Find the user in the database by ID
       const user = await this.userRepo.findOne({ where: { id: userId } });
-      
+
       if (!user) {
         throw new NotFoundException('User not found');
       }
@@ -156,7 +155,7 @@ export class AuthService {
       // Return user without sensitive information
       const { password, resetToken, resetTokenExpires, ...safeUser } = user;
       return safeUser;
-      
+
     } catch (error) {
       // Rethrow the error (like NotFoundException)
       throw error;

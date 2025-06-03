@@ -1,21 +1,9 @@
 import { Injectable, OnModuleInit, Inject, HttpException, HttpStatus } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
 import { catchError, firstValueFrom } from 'rxjs';
-
-// DTOs (inline)
-interface UpdateUserDto {
-  email?: string;
-  name?: string;
-}
-
-interface ChangePasswordDto {
-  currentPassword: string;
-  newPassword: string;
-}
-
-interface AdminUpdateUserDto extends UpdateUserDto {
-  role?: string;
-}
+import { UpdateUserDto } from './dto/update-user.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
+import { AdminUpdateUserDto } from './dto/admin-update-user.dto';
 
 interface UserGrpcService {
   getCurrentUser(data: any): any;
@@ -32,7 +20,7 @@ interface UserGrpcService {
 export class UserService implements OnModuleInit {
   private userGrpcService: UserGrpcService;
 
-  constructor(@Inject('USER_PACKAGE') private readonly client: ClientGrpc) {}
+  constructor(@Inject('USER_PACKAGE') private readonly client: ClientGrpc) { }
 
   onModuleInit() {
     this.userGrpcService = this.client.getService<UserGrpcService>('UserService');
@@ -105,10 +93,10 @@ export class UserService implements OnModuleInit {
       };
 
       const response = await firstValueFrom(
-        this.userGrpcService.changePassword({ 
+        this.userGrpcService.changePassword({
           currentPassword: dto.currentPassword,
           newPassword: dto.newPassword,
-          user: userData 
+          user: userData
         }).pipe(
           catchError(error => {
             if (error.details === 'User not found') {

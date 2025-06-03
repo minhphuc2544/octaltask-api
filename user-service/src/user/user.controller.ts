@@ -1,25 +1,13 @@
 import { Controller } from '@nestjs/common';
 import { UserService } from './user.service';
 import { GrpcMethod, RpcException } from '@nestjs/microservices';
-
-// DTOs (inline)
-interface UpdateUserDto {
-  email?: string;
-  name?: string;
-}
-
-interface ChangePasswordDto {
-  currentPassword: string;
-  newPassword: string;
-}
-
-interface AdminUpdateUserDto extends UpdateUserDto {
-  role?: string;
-}
+import { UpdateUserDto } from './dto/update-user.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
+import { AdminUpdateUserDto } from './dto/admin-update-user.dto';
 
 @Controller('user')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(private readonly userService: UserService) { }
 
   @GrpcMethod('UserService', 'GetCurrentUser')
   async getCurrentUser(data: { user: any }) {

@@ -13,7 +13,6 @@ import { CommentModule } from './resources/comment/comment.module';
 import { SubtaskModule } from './resources/subtask/subtask.module';
 import { List } from './entities/list.entity';
 import { ListModule } from './resources/list/list.module';
-import { ClientsModule, Transport } from '@nestjs/microservices';
 import { ListShared } from './entities/list-shared.entity';
 
 @Module({
@@ -30,13 +29,13 @@ import { ListShared } from './entities/list-shared.entity';
         username: config.get<string>('DB_USERNAME'),
         password: config.get<string>('DB_PASSWORD'),
         database: config.get<string>('DB_DATABASE'),
-        entities: [Task, User,Comment,Subtask,List,ListShared],
+        entities: [Task, User, Comment, Subtask, List, ListShared],
         synchronize: true,
         logging: true,
       }),
       inject: [ConfigService],
     }),
-    
+
     TaskModule,
     CommentModule,
     SubtaskModule,

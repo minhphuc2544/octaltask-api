@@ -5,7 +5,7 @@ import { UpdateCommentDto } from './dto/update-comment.dto';
 
 @Controller('comments')
 export class CommentController {
-  constructor(private readonly commentService: CommentService) {}
+  constructor(private readonly commentService: CommentService) { }
 
   @Get(':id')
   @UseGuards(JwtGuard)

@@ -49,7 +49,7 @@ export class TaskController {
     listId: number; // Thêm listId bắt buộc cho create task
     user: TaskUser
   }) {
-    
+
     try {
       if (!data.title) {
         throw new RpcException('Title is required');
@@ -246,7 +246,7 @@ export class TaskController {
     }
   }
 
-  @GrpcMethod('TaskService', 'AddCommentToTask') // OKAY
+  @GrpcMethod('TaskService', 'AddCommentToTask')
   async addCommentToTask(data: {
     taskId: number;
     content: string;
@@ -271,7 +271,7 @@ export class TaskController {
     }
   }
 
-  @GrpcMethod('TaskService', 'GetCommentsForTask') // OKAY
+  @GrpcMethod('TaskService', 'GetCommentsForTask')
   async getCommentsForTask(data: {
     taskId: number;
     user: { userId: number; email: string; role: string }
@@ -291,8 +291,8 @@ export class TaskController {
       throw new RpcException(error.message || 'Failed to retrieve comments');
     }
   }
-  
-  @GrpcMethod('TaskService', 'AddSubtaskToTask') // OKAY
+
+  @GrpcMethod('TaskService', 'AddSubtaskToTask')
   async addSubtaskToTask(data: {
     taskId: number;
     content: string;
@@ -312,13 +312,13 @@ export class TaskController {
         throw new RpcException('User information missing from request');
       }
 
-      return await this.taskService.addSubtaskToTask(data.taskId, data.content,data.isCompleted, data.user);
+      return await this.taskService.addSubtaskToTask(data.taskId, data.content, data.isCompleted, data.user);
     } catch (error) {
       throw new RpcException(error.message || 'Failed to add Subtask');
     }
   }
 
-  @GrpcMethod('TaskService', 'GetSubtasksForTask') // OKAY
+  @GrpcMethod('TaskService', 'GetSubtasksForTask')
   async getSubtasksForTask(data: {
     taskId: number;
     user: { userId: number; email: string; role: string }

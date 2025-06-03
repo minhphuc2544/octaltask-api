@@ -13,7 +13,7 @@ export class ListController {
 
     @GrpcMethod('TaskService', 'CreateList')
     async createList(data: { name: string; icon: ListType; color: ListColor; dueDate?: string; user: TaskUser; }) {
-       
+
         try {
             if (!data.name) {
                 throw new RpcException('Name is required');
@@ -118,7 +118,7 @@ export class ListController {
         role: string;
         user: TaskUser;
     }) {
-        
+
         try {
             if (!data || typeof data.listId !== 'number') {
                 throw new RpcException('Invalid list ID format');

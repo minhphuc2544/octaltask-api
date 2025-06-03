@@ -10,20 +10,6 @@ import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { TaskUser } from './task.controller';
 
-interface UserGrpcService {
-  getUserByIdInfo(data: { id: number }): any;
-  getUsersByIds(data: { ids: number[] }): any;
-  validateUser(data: { userId: number; email?: string }): any;
-  checkUserExists(data: { userId: number }): any;
-}
-
-interface UserInfo {
-  id: number;
-  email: string;
-  name: string;
-  role: string;
-}
-
 @Injectable()
 export class TaskService {
   private readonly logger = new Logger(TaskService.name);

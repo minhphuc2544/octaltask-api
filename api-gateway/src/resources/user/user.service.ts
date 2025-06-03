@@ -31,7 +31,7 @@ interface UserGrpcService {
 export class UserService implements OnModuleInit {
   private userGrpcService: UserGrpcService;
 
-  constructor(@Inject('USER_PACKAGE') private readonly client: ClientGrpc) {}
+  constructor(@Inject('USER_PACKAGE') private readonly client: ClientGrpc) { }
 
   onModuleInit() {
     this.userGrpcService = this.client.getService<UserGrpcService>('UserService');
@@ -104,10 +104,10 @@ export class UserService implements OnModuleInit {
       };
 
       const response = await firstValueFrom(
-        this.userGrpcService.changePassword({ 
+        this.userGrpcService.changePassword({
           currentPassword: dto.currentPassword,
           newPassword: dto.newPassword,
-          user: userData 
+          user: userData
         }).pipe(
           catchError(error => {
             if (error.details === 'User not found') {

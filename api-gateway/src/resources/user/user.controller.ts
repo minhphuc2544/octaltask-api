@@ -34,7 +34,7 @@ class AdminUpdateUserDto extends UpdateUserDto {
 @ApiBearerAuth('accessToken')
 @Controller('users')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(private readonly userService: UserService) { }
 
   // User endpoints (authenticated users)
   @Get('me')

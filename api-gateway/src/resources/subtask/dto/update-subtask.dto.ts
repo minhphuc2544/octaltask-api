@@ -13,6 +13,6 @@ export class UpdateSubtaskDto {
 
   @IsBoolean()
   @IsNotEmpty()
-  isCompleted?:boolean;
+  isCompleted?: boolean;
 
 }

@@ -19,7 +19,7 @@ export class UpdateListDto {
     })
     @IsString()
     @IsOptional()
-    icon:ListType;
+    icon: ListType;
 
     @ApiProperty({
         description: 'List color:',

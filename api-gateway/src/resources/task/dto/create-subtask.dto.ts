@@ -7,7 +7,7 @@ export class CreateSubtaskDto {
     example: 'This task is progressing well!',
     required: true
   })
-  
+
   @IsNotEmpty()
   @IsString()
   @MinLength(1)

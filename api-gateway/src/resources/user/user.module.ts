@@ -20,4 +20,4 @@ import { getUserGrpcClientOptions } from 'src/client-options/user.grpc-client';
   providers: [UserService],
   exports: [UserService]
 })
-export class UserModule {}
+export class UserModule { }

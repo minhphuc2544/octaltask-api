@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, IsOptional} from 'class-validator';
+import { IsNotEmpty, IsString, IsOptional } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { ListColor, ListType } from '../../../entities/list.entity';
 

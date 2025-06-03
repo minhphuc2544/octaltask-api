@@ -1,7 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany } from 'typeorm';
 import { User } from './user.entity';
 import { Comment } from './comment.entity';
-import {Subtask} from './subtask.entity'
+import { Subtask } from './subtask.entity'
 import { List } from './list.entity';
 
 @Entity('tasks')
@@ -21,15 +21,15 @@ export class Task {
   @Column({ default: false })
   isStarted: boolean;
 
-  @Column({default:false})
-  isImportant:boolean;
+  @Column({ default: false })
+  isImportant: boolean;
 
   @Column({ type: 'timestamp', nullable: true })
   dueDate?: Date;
 
   @ManyToOne(() => User, (user) => user.tasks, { onDelete: 'CASCADE' })
   user: User;
-  
+
   @OneToMany(() => Comment, (comment) => comment.task)
   comments: Comment[];
 
@@ -38,6 +38,6 @@ export class Task {
 
   @ManyToOne(() => List, (list) => list.tasks, { onDelete: 'SET NULL', nullable: true })
   list: List;
-  
+
   createdBy: any;
 }

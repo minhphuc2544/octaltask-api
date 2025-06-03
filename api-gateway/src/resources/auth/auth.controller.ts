@@ -9,14 +9,14 @@ import { JwtGuard } from 'src/guards/jwt.guard';
 @ApiTags('Authentication')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) { }
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'User login', description: 'Authenticate a user with email and password' })
   @ApiBody({ type: LoginDto })
-  @ApiResponse({ 
-    status: HttpStatus.OK, 
+  @ApiResponse({
+    status: HttpStatus.OK,
     description: 'Returns JWT access token on successful login',
     schema: {
       properties: {
@@ -34,13 +34,13 @@ export class AuthController {
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'User registration', description: 'Register a new user with email, password and name' })
   @ApiBody({ type: SignupDto })
-  @ApiResponse({ 
-    status: HttpStatus.CREATED, 
+  @ApiResponse({
+    status: HttpStatus.CREATED,
     description: 'User successfully created',
     schema: {
       properties: {
         message: { type: 'string', example: 'User created successfully' },
-        user: { 
+        user: {
           type: 'object',
           properties: {
             id: { type: 'number', example: 1 },
@@ -63,7 +63,7 @@ export class AuthController {
   @Post('forgot-password')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Request password reset', description: 'Request a password reset link via email' })
-  @ApiBody({ 
+  @ApiBody({
     schema: {
       properties: {
         email: { type: 'string', format: 'email', example: 'user@example.com' }
@@ -71,8 +71,8 @@ export class AuthController {
       required: ['email']
     }
   })
-  @ApiResponse({ 
-    status: HttpStatus.OK, 
+  @ApiResponse({
+    status: HttpStatus.OK,
     description: 'Reset email sent',
     schema: {
       properties: {
@@ -90,8 +90,8 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Reset password', description: 'Reset password using the token received via email' })
   @ApiBody({ type: ResetPasswordDto })
-  @ApiResponse({ 
-    status: HttpStatus.OK, 
+  @ApiResponse({
+    status: HttpStatus.OK,
     description: 'Password successfully reset',
     schema: {
       properties: {
@@ -110,12 +110,12 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get current user', description: 'Get current authenticated user information' })
-  @ApiResponse({ 
-    status: HttpStatus.OK, 
+  @ApiResponse({
+    status: HttpStatus.OK,
     description: 'Returns current user information',
     schema: {
       properties: {
-        user: { 
+        user: {
           type: 'object',
           properties: {
             id: { type: 'number', example: 1 },

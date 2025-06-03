@@ -1,20 +1,9 @@
 import { Injectable, OnModuleInit, Inject, HttpException, HttpStatus } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
 import { catchError, firstValueFrom } from 'rxjs';
-
-interface UpdateUserDto {
-  email?: string;
-  name?: string;
-}
-
-interface ChangePasswordDto {
-  currentPassword: string;
-  newPassword: string;
-}
-
-interface AdminUpdateUserDto extends UpdateUserDto {
-  role?: string;
-}
+import { UpdateUserDto } from './dto/update-user.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
+import { AdminUpdateUserDto } from './dto/admin-update-user.dto';
 
 interface UserGrpcService {
   getCurrentUser(data: any): any;

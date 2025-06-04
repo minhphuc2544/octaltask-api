@@ -226,7 +226,7 @@ export class TaskService {
       description: createTaskDto.description,
       isCompleted: createTaskDto.isCompleted || false,
       isStarted: createTaskDto.isStarted || false,
-      dueDate: createTaskDto.dueDate,
+      dueDate: createTaskDto.dueDate ? new Date(createTaskDto.dueDate) : undefined,
       userId: user.userId,
       list: list // Assign list to task
     });
@@ -326,7 +326,9 @@ export class TaskService {
     if (updateTaskDto.isStarted !== undefined) {
       task.isStarted = updateTaskDto.isStarted;
     }
-    task.dueDate = new Date();
+    if (updateTaskDto.dueDate !== undefined) {
+      task.dueDate = updateTaskDto.dueDate ? new Date(updateTaskDto.dueDate) : undefined;
+    }
 
     return await this.taskRepo.save(task);
   }
@@ -437,7 +439,7 @@ export class TaskService {
       task.isStarted = updateTaskDto.isStarted;
     }
     if (updateTaskDto.dueDate !== undefined) {
-      task.dueDate = new Date(updateTaskDto.dueDate);
+      task.dueDate = updateTaskDto.dueDate ? new Date(updateTaskDto.dueDate) : undefined;
     }
     return await this.taskRepo.save(task);
   }

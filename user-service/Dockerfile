@@ -4,7 +4,7 @@ WORKDIR /app
 
 # Copies package.json and package-lock.json files
 COPY user-service-package.json ./package.json
-COPY user-service-package.json ./package-lock.json
+COPY user-service-package-lock.json ./package-lock.json
 # Installs based on root files
 RUN npm install -g @nestjs/cli && npm install
 # Copy all the project to the working directory

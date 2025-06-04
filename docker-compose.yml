@@ -32,14 +32,14 @@ services:
     depends_on:
       - mysql_db
 
-  file_service:
-    build:
-      context: ./file-service
-    container_name: file_service
-    networks:
-      - octaltask_network
-    depends_on:
-      - mysql_db
+  # file_service:
+  #   build:
+  #     context: ./file-service
+  #   container_name: file_service
+  #   networks:
+  #     - octaltask_network
+  #   depends_on:
+  #     - mysql_db
 
   task_service:
     build:
@@ -58,6 +58,7 @@ services:
       - octaltask_network
     depends_on:
       - mysql_db
+
 
 
 volumes:

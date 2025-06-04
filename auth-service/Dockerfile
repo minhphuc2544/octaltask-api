@@ -1,13 +1,12 @@
 FROM node:20
 
-WORKDIR /octaltask-api/auth-service
+WORKDIR /app
 
-# Copies root files
-COPY ../package*.json ./
+# Copies package.json and package-lock.json files
+COPY auth-service-package.json ./package.json
+COPY auth-service-package-lock.json ./package-lock.json
 # Installs based on root files
-RUN npm install
-# Overwrites with microservice files to get the scripts for building and starting
-COPY package*.json ./
+RUN npm install -g @nestjs/cli && npm install
 # Copy all the project to the working directory
 COPY . .
 

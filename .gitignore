@@ -54,3 +54,11 @@ pids
 
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+
+# Ignore *-package.json and *-package-lock.json in subfolders only
+*/*-package.json
+*/*-package-lock.json
+
+# Nginx SSL certificates
+fullchain.pem
+privkey.pem

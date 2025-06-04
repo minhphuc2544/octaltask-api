@@ -64,6 +64,7 @@ services:
       - JWT_SECRET=${JWT_SECRET}
       - TOKEN_EXPIRE_TIME=${TOKEN_EXPIRE_TIME}
       - FRONTEND_BASE_URL=${FRONTEND_BASE_URL}
+      - GRPC_SERVER_TASK_URL=${GRPC_SERVER_TASK_URL}
       - GRPC_LISTEN_AUTH_URL=${GRPC_LISTEN_AUTH_URL}
     container_name: auth_service
     networks:

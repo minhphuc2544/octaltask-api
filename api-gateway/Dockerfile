@@ -10,8 +10,6 @@ RUN npm install
 COPY package*.json ./
 # Copy all the project to the working directory
 COPY . .
-# Copy the root .env file to the root folder (this isn't recommended)
-COPY ../.env ..
 
 RUN npm run build
 

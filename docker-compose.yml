@@ -14,51 +14,46 @@ services:
     volumes:
       - mysql-data:/var/lib/mysql
 
-  api-gateway:
+  api_gateway:
     build:
       context: ./api-gateway
-    environment:
-      - MYSQL_DATABASE=${DB_DATABASE}
-      - MYSQL_PASSWORD=${DB_PASSWORD}
-      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
-      - MYSQL_USER=${DB_USERNAME}
-    container_name: api-gateway
+    container_name: api_gateway
     networks:
       - octaltask_network
     ports:
       - "80:3000"
 
-  auth-service:
+  auth_service:
     build:
       context: ./auth-service
-    container_name: auth-service
+    container_name: auth_service
     networks:
       - octaltask_network
     depends_on:
       - mysql_db
 
-  file-service:
+  file_service:
     build:
       context: ./file-service
-    container_name: file-service
+    container_name: file_service
     networks:
       - octaltask_network
     depends_on:
       - mysql_db
 
-  task-service:
+  task_service:
     build:
       context: ./task-service
-    container_name: task-service
+    container_name: task_service
     networks:
       - octaltask_network
     depends_on:
       - mysql_db
 
-  user-service:
+  user_service:
     build:
       context: ./user-service
-    container_name: user-service
+    container_name: user_service
     networks:
       - octaltask_network
     depends_on:

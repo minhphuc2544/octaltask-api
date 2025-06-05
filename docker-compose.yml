@@ -1,0 +1,138 @@
+services:
+  nginx:
+    image: nginx:latest
+    container_name: proxy_server
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/certs:/etc/ssl/certs
+    depends_on:
+      - api_gateway
+    networks:
+      - octaltask_network
+
+  mysql_db:
+    image: mysql:latest
+    environment:
+      - MYSQL_DATABASE=${DB_DATABASE}
+      - MYSQL_PASSWORD=${DB_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
+      - MYSQL_USER=${DB_USERNAME}
+    container_name: mysql_db
+    networks:
+      - octaltask_network
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+  api_gateway:
+    build:
+      context: ./api-gateway
+    environment:
+      - JWT_SECRET=${JWT_SECRET}
+      - TOKEN_EXPIRE_TIME=${TOKEN_EXPIRE_TIME}
+      - SERVER_PORT=${SERVER_PORT}
+      - GRPC_SERVER_AUTH_URL=${GRPC_SERVER_AUTH_URL}
+      - GRPC_SERVER_USER_URL=${GRPC_SERVER_USER_URL}
+      - GRPC_SERVER_TASK_URL=${GRPC_SERVER_TASK_URL}
+    container_name: api_gateway
+    networks:
+      - octaltask_network
+    depends_on:
+      - auth_service
+      # - file_service
+      - task_service
+      - user_service
+
+  auth_service:
+    build:
+      context: ./auth-service
+    environment:
+      - MAIL_HOST=${MAIL_HOST}
+      - MAIL_PORT=${MAIL_PORT}
+      - MAIL_USER=${MAIL_USER}
+      - MAIL_PASSWORD=${MAIL_PASSWORD}
+      - MAIL_FROM=${MAIL_FROM}
+      - DB_TYPE=${DB_TYPE}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
+      - DB_DATABASE=${DB_DATABASE}
+      - JWT_SECRET=${JWT_SECRET}
+      - TOKEN_EXPIRE_TIME=${TOKEN_EXPIRE_TIME}
+      - FRONTEND_BASE_URL=${FRONTEND_BASE_URL}
+      - GRPC_SERVER_TASK_URL=${GRPC_SERVER_TASK_URL}
+      - GRPC_LISTEN_AUTH_URL=${GRPC_LISTEN_AUTH_URL}
+    container_name: auth_service
+    networks:
+      - octaltask_network
+    depends_on:
+      - mysql_db
+      - task_service
+
+  # file_service:
+  #   build:
+  #     context: ./file-service
+  #   environment:
+  #     - DB_TYPE=${DB_TYPE}
+  #     - DB_HOST=${DB_HOST}
+  #     - DB_PORT=${DB_PORT}
+  #     - DB_USERNAME=${DB_USERNAME}
+  #     - DB_PASSWORD=${DB_PASSWORD}
+  #     - DB_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
+  #     - DB_DATABASE=${DB_DATABASE}
+  #   container_name: file_service
+  #   networks:
+  #     - octaltask_network
+  #   depends_on:
+  #     - mysql_db
+
+  task_service:
+    build:
+      context: ./task-service
+    environment:
+      - DB_TYPE=${DB_TYPE}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
+      - DB_DATABASE=${DB_DATABASE}
+      - GRPC_LISTEN_TASK_URL=${GRPC_LISTEN_TASK_URL}
+    container_name: task_service
+    networks:
+      - octaltask_network
+    depends_on:
+      - mysql_db
+
+  user_service:
+    build:
+      context: ./user-service
+    environment:
+      - DB_TYPE=${DB_TYPE}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
+      - DB_DATABASE=${DB_DATABASE}
+      - GRPC_LISTEN_USER_URL=${GRPC_LISTEN_USER_URL}
+    container_name: user_service
+    networks:
+      - octaltask_network
+    depends_on:
+      - mysql_db
+
+
+
+volumes:
+  mysql-data:
+
+
+
+networks:
+  octaltask_network:
+    driver: bridge

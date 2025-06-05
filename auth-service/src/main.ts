@@ -1,16 +1,24 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
+import { MicroserviceOptions, Transport } from '@nestjs/microservices';
+import { join } from 'path';
+import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const appContext = await NestFactory.createApplicationContext(AppModule);
+  const configService = appContext.get(ConfigService);
 
-  app.enableCors({
-    origin: 'http://localhost:5173',
-    credentials: true, // nếu bạn dùng cookie/token thì nên bật
+  const grpcUrl = configService.get<string>('GRPC_LISTEN_AUTH_URL');
+
+  const app = await NestFactory.createMicroservice<MicroserviceOptions>(AppModule, {
+    transport: Transport.GRPC,
+    options: {
+      package: 'auth',
+      protoPath: join(__dirname, './proto/auth.proto'),
+      url: grpcUrl,
+    },
   });
-  
-  app.useGlobalPipes(new ValidationPipe());
-  await app.listen(process.env.PORT ?? 3000);
+
+  await app.listen();
 }
 bootstrap();

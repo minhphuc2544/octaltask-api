@@ -1,28 +1,35 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { UserModule } from './user/user.module';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { join } from 'path';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from './users/entities/user.entity';
-import { UsersModule } from './users/users.module';
+import { User } from './user/entities/user.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-    type: 'mysql',
-    host: 'localhost',
-    port: 3306,
-    username: 'root',
-    password: 'YuilRin*123',
-    database: 'octaltask',
-    entities: [User],
-    synchronize: true, // true khi dev
-  }),
-  TypeOrmModule.forFeature([User]),
-  UsersModule,
-],
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: join(__dirname, '..', '..', '.env'),
+    }),
+    TypeOrmModule.forRootAsync({
+      useFactory: async (config: ConfigService) => ({
+        type: config.get<'mysql' | 'postgres' | 'sqlite'>('DB_TYPE') as any,
+        host: config.get<string>('DB_HOST'),
+        port: config.get<number>('DB_PORT'),
+        username: config.get<string>('DB_USERNAME'),
+        password: config.get<string>('DB_PASSWORD'),
+        database: config.get<string>('DB_DATABASE'),
+        entities: [User],
+        synchronize: true,
+        logging: false,
+      }),
+      inject: [ConfigService],
+    }),
+    UserModule
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
-
-
+export class AppModule { }

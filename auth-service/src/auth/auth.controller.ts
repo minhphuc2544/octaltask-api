@@ -1,49 +1,69 @@
-import { Body,Controller, Post, Request, UseGuards, Get } from '@nestjs/common';
+import { Controller } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { LocalGuard } from './guards/local.guard';
-import { JwtGuard } from './guards/jwt.guard';
+import { GrpcMethod, RpcException } from '@nestjs/microservices';
+import { LoginDto } from './dto/login.dto';
+import { SignupDto } from './dto/signup.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) { }
 
-  @UseGuards(JwtGuard)
-  @Get('profile')
-  getProfile(@Request() req) {
-    return req.user; 
+  @GrpcMethod('AuthService', 'Login')
+  async login(loginDto: LoginDto) {
+    try {
+      const user = await this.authService.validateUser(loginDto.email, loginDto.password);
+      return await this.authService.login(user);
+    } catch (error) {
+      throw new RpcException(error.message || 'Login failed');
+    }
   }
 
-  @Post('login')
-  @UseGuards(LocalGuard)
-  async login(@Request() req) {
-    return this.authService.login(req.user); 
-  }
-  
-  @Post('signup')
-  async signup(
-    @Body() body: { email: string; password: string; name: string }
-  ) {
-    return this.authService.signup(body.email, body.password, body.name);
+  @GrpcMethod('AuthService', 'Signup')
+  async signup(signupDto: SignupDto) {
+    try {
+      // Password validation
+      if (signupDto.password.length < 8) {
+        throw new RpcException('Password must be at least 8 characters long');
+      }
+
+      const result = await this.authService.signup(signupDto);
+      return { message: 'User created successfully', user: result };
+    } catch (error) {
+      throw new RpcException(error.message || 'Signup failed');
+    }
   }
 
-  @Post('forgot-password')
-  async forgot(@Body('email') email: string) {
-    return this.authService.requestPasswordReset(email);
+  @GrpcMethod('AuthService', 'RequestPasswordReset')
+  async requestPasswordReset(data: { email: string }) {
+    try {
+      return await this.authService.requestPasswordReset(data.email);
+    } catch (error) {
+      throw new RpcException(error.message || 'Password reset request failed');
+    }
   }
 
-  @Post('reset-password')
-  async reset(@Body() body: { token: string; password: string }) {
-    return this.authService.resetPassword(body.token, body.password);
-  }
-  @Post('reset-password')
-  async resetPassword(  @Body() resetPasswordDto: ResetPasswordDto,
-  ) {
-    return this.authService.resetPassword(
-      resetPasswordDto.token,
-      resetPasswordDto.newPassword,
-    );
+  @GrpcMethod('AuthService', 'ResetPassword')
+  async resetPassword(resetPasswordDto: ResetPasswordDto) {
+    try {
+      // Password validation
+      if (resetPasswordDto.newPassword.length < 8) {
+        throw new RpcException('Password must be at least 8 characters long');
+      }
+
+      return await this.authService.resetPassword(resetPasswordDto);
+    } catch (error) {
+      throw new RpcException(error.message || 'Password reset failed');
+    }
   }
 
-
+  @GrpcMethod('AuthService', 'GetUserById')
+  async getUserById(data: { userId: number }) {
+    try {
+      const user = await this.authService.getUserById(data.userId);
+      return { user };
+    } catch (error) {
+      throw new RpcException(error.message || 'Failed to get user information');
+    }
+  }
 }

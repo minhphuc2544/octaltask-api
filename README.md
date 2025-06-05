@@ -130,6 +130,7 @@ npm run start
 
 - Node.js (v18+ recommended)
 - npm or yarn
+- Docker
 
 ### Preparation
 

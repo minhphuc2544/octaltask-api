@@ -30,27 +30,40 @@ octaltask-api
 
 Prepare a `.env` file looks like this and place it in the root folder (`octaltask-api`):
 ```env
-# Mail Configuration
-MAIL_HOST=smtp.gmail.com
-MAIL_PORT=587
-MAIL_USER=<mail-address>
-MAIL_PASSWORD=<mail-app-password>
+MAIL_HOST=<mail-host>
+MAIL_PORT=<mail-port>
+MAIL_USER=<mail-user>
+MAIL_PASSWORD=<mail-password>
 MAIL_FROM=<mail-from>
 
 # Database Configuration
-DB_TYPE=<database-type>
-DB_HOST=<database-host>
-DB_PORT=<database-port>
-DB_USERNAME=<database-username>
-DB_PASSWORD=<database-password>
-DB_DATABASE=<database-name>
+DB_TYPE=<db-type>
+DB_HOST=<db-host>
+DB_PORT=<db-port>
+DB_USERNAME=<db-username>
+DB_PASSWORD=<db-password>
+DB_ROOT_PASSWORD=<db-root-password>
+DB_DATABASE=<db-database>
 
 # JWT Token Configuration
 JWT_SECRET=<jwt-secret>
 TOKEN_EXPIRE_TIME=<token-expire-time>
 
 # Config the server's port
-SERVER_PORT=3000
+SERVER_PORT=<server-port>
+
+# Frontend base url for redirecting
+FRONTEND_BASE_URL=<frontend-base-url>
+
+# Url for connection to microservices (use in api-gateway)
+GRPC_SERVER_AUTH_URL=<grpc-server-auth-url>
+GRPC_SERVER_TASK_URL=<grpc-server-task-url>
+GRPC_SERVER_USER_URL=<grpc-server-user-url>
+
+# Url for listening on (use in microservices)
+GRPC_LISTEN_AUTH_URL=<grpc-listen-auth-url>
+GRPC_LISTEN_TASK_URL=<grpc-listen-task-url>
+GRPC_LISTEN_USER_URL=<grpc-listen-user-url>
 ```
 
 ### Installation

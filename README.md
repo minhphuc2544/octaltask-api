@@ -9,22 +9,24 @@ octaltask-api
 ├── api-gateway         # Entry point for external requests (acts as gRPC client)
 ├── auth-service        # Handles authentication and JWT token management
 ├── file-service        # Manages file uploads/downloads
+├── nginx               # Stores nginx related configuration for Docker deployment
 ├── task-service        # Handles task creation and management
-├── team-service        # Manages teams and team-related operations
 ├── user-service        # Manages user profiles and data
-└── README.md
+├── z-scripts           # Stores scripts for Development/Production preparation
+├── docker-compose.yml  # Stores configuration for project containerization
+├── package.json        # Main package.json used in all microservice projects
+└── package-lock.json   # Main package-lock.json used in all microservice projects
 ```
 
 ## 🏨 Microservice Architecture
 <image src="./microservice_architecture.svg"></image>
 
-## 🚀 Getting Started
+## 🚀 Getting Started (for development)
 
 ### Prerequisites
 
 - Node.js (v18+ recommended)
 - npm or yarn
-- Docker (optional, for running services in containers)
 
 ### Preparation
 
@@ -75,6 +77,14 @@ cd octaltask-api
 npm install
 ```
 
+### Development environmental preparation
+
+Install dependencies for the project:
+
+```bash
+.\z-scripts\setup-development.bat
+```
+
 ### Running Services
 
 Run each service separately in ***its own terminal window***:
@@ -96,12 +106,6 @@ Run each service separately in ***its own terminal window***:
     npm run build
     npm run start
     ```
-4. `team-service`
-    ```bash
-    cd team-service
-    npm run build
-    npm run start
-    ```
 5. `file-service`
     ```bash
     cd file-service
@@ -119,6 +123,40 @@ npm run start
 - The API will be available at http://localhost:3000
 - The API Documentation will be available at http://localhost:3000/api
 - The API Gateway will expose HTTP endpoints and forward them to microservices via gRPC.
+
+## 🚀 Getting Started (for production)
+
+### Prerequisites
+
+- Node.js (v18+ recommended)
+- npm or yarn
+
+### Preparation
+
+Prepare a `.env` like the one in the last [Preparation](#preparation) section:
+
+### Development environmental preparation
+
+Install dependencies for the project:
+
+```bash
+./z-scripts/setup-production.sh
+```
+
+### Running container
+```bash
+docker compose up
+```
+
+- The API will be available at http://<your-ip-address>:3000
+- The API Documentation will be available at http://<your-ip-address>:3000/api
+- The API Gateway will expose HTTP endpoints and forward them to microservices via gRPC.
+
+### Other commands
+```bash
+docker compose build --no-cache # in case you wanna build the containers again
+docker compose up -d # then run the containers again
+```
 
 ## 📦 Proto Files
 

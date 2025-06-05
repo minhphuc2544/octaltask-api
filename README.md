@@ -19,7 +19,7 @@ octaltask-api
 ```
 
 ## 🏨 Microservice Architecture
-<image src="./microservice_architecture.svg"></image>
+<image src="./microservice_architecture.png"></image>
 
 ## 🚀 Getting Started (for development)
 
@@ -79,7 +79,7 @@ npm install
 
 ### Development environmental preparation
 
-Install dependencies for the project:
+Copy `package.json` and `package-lock.json` to microservice folders:
 
 ```bash
 .\z-scripts\setup-development.bat
@@ -138,7 +138,7 @@ Prepare a `.env` like the one in the last [Preparation](#preparation) section:
 
 ### Development environmental preparation
 
-Install dependencies for the project:
+Copy `package.json` and `package-lock.json` to microservice folders:
 
 ```bash
 chmod +x z-scripts/setup-production.sh
@@ -150,8 +150,8 @@ chmod +x z-scripts/setup-production.sh
 docker compose up
 ```
 
-- The API will be available at http://<your-ip-address>:3000
-- The API Documentation will be available at http://<your-ip-address>:3000/api
+- The API will be available at https://your-ip-address
+- The API Documentation will be available at https://your-ip-address/api
 - The API Gateway will expose HTTP endpoints and forward them to microservices via gRPC.
 
 ### Other commands

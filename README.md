@@ -141,6 +141,7 @@ Prepare a `.env` like the one in the last [Preparation](#preparation) section:
 Install dependencies for the project:
 
 ```bash
+chmod +x z-scripts/setup-production.sh
 ./z-scripts/setup-production.sh
 ```
 

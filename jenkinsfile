@@ -1,0 +1,65 @@
+pipeline {
+    agent any
+
+    environment {
+        SNYK_TOKEN_CREDENTIAL = credentials('SNYK_TOKEN')
+        SONAR_TOKEN_CREDENTIAL = credentials('SONAR_TOKEN')
+        SONAR_HOST_URL = 'http://sonarqube:9000' // SonarQube container internal URL
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git url: 'https://github.com/your/repo.git', branch: 'main'
+            }
+        }
+
+        stage('Code Analysis') {
+            parallel {
+                stage('SonarQube Scan') {
+                    steps {
+                        withEnv(["SONAR_TOKEN=${SONAR_TOKEN_CREDENTIAL}"]) {
+                            sh '''
+                            docker run --rm \
+                              --network jenkins-net \
+                              -v $PWD:/usr/src \
+                              sonarsource/sonar-scanner-cli \
+                              -Dsonar.projectKey=octaltask \
+                              -Dsonar.sources=. \
+                              -Dsonar.host.url=$SONAR_HOST_URL \
+                              -Dsonar.login=$SONAR_TOKEN
+                            '''
+                        }
+                    }
+                }
+
+                stage('Snyk Scan') {
+                    steps {
+                        withEnv(["SNYK_TOKEN=${SNYK_TOKEN_CREDENTIAL}"]) {
+                            sh '''
+                            docker run --rm \
+                              --network jenkins-net \
+                              -v $PWD:/project \
+                              -w /project \
+                              -e SNYK_TOKEN=$SNYK_TOKEN \
+                              snyk/snyk-cli:docker snyk test --all-projects
+                            '''
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Build Docker Images') {
+            steps {
+                sh 'docker-compose build'
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                sh 'docker-compose up -d'
+            }
+        }
+    }
+}
